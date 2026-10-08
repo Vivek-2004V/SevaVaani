@@ -417,7 +417,9 @@ export default function App() {
         {sessionState.status === 'welcome' && (
           <Welcome
             language={lang}
+            onSelectLanguage={handleLanguageChange}
             onStartSession={handleStartSession}
+            onOpenJudge={openJudge}
           />
         )}
 
