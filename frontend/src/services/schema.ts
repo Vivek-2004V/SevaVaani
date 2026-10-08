@@ -10,36 +10,15 @@ export const SCHOLARSHIP_FIELDS: FormField[] = [
     },
     prompt: {
       en: 'Please tell me your full name as per your Aadhaar card.',
-      hi: 'नमस्ते! छात्रवृत्ति आवेदन के लिए कृपया अपना पूरा नाम बताएं।',
-      mr: 'नमस्कार! शिष्यवृत्ती अर्जासाठी कृपया आपले पूर्ण नाव सांगा.'
+      hi: 'नमस्ते! छात्रवृत्ति आवेदन के लिए कृपया अपना पूरा नाम बताएं जैसा आधार कार्ड में है।',
+      mr: 'नमस्कार! शिष्यवृत्ती अर्जासाठी कृपया आपले संपूर्ण नाव सांगा जसे आधार कार्डवर आहे.'
     },
     confirmPrompt: {
       en: 'Your name is {val}. Is this correct?',
-      hi: 'आपका नाम {val} है, क्या यह सही है?',
-      mr: 'आपले नाव {val} आहे, हे बरोबर आहे का?'
+      hi: 'मैंने समझा कि आपका नाम {val} है। क्या यह सही है?',
+      mr: 'मी समजलो की आपले नाव {val} आहे. हे बरोबर आहे का?'
     },
     type: 'text',
-    required: true,
-    confirmed: false
-  },
-  {
-    id: 'mobile',
-    label: {
-      en: 'Mobile Number',
-      hi: 'मोबाइल नंबर (10 अंक)',
-      mr: 'मोबाईल क्रमांक (10 अंक)'
-    },
-    prompt: {
-      en: 'Please tell your 10-digit mobile number.',
-      hi: 'कृपया अपना 10 अंकों का मोबाइल नंबर बोलें।',
-      mr: 'कृपया आपला 10 अंकी मोबाईल क्रमांक सांगा.'
-    },
-    confirmPrompt: {
-      en: 'Your mobile number is {val}. Is this correct?',
-      hi: 'आपका मोबाइल नंबर {val} है, क्या यह सही है?',
-      mr: 'आपला मोबाईल क्रमांक {val} आहे, हे योग्य आहे का?'
-    },
-    type: 'tel',
     required: true,
     confirmed: false
   },
@@ -65,6 +44,27 @@ export const SCHOLARSHIP_FIELDS: FormField[] = [
     confirmed: false
   },
   {
+    id: 'mobile',
+    label: {
+      en: 'Mobile Number',
+      hi: 'मोबाइल नंबर (10 अंक)',
+      mr: 'मोबाईल क्रमांक (10 अंक)'
+    },
+    prompt: {
+      en: 'Please tell your 10-digit mobile number.',
+      hi: 'कृपया अपना 10 अंकों का मोबाइल नंबर बोलें।',
+      mr: 'कृपया आपला 10 अंकी मोबाईल क्रमांक सांगा.'
+    },
+    confirmPrompt: {
+      en: 'Your mobile number is {val}. Is this correct?',
+      hi: 'आपका मोबाइल नंबर {val} है, क्या यह सही है?',
+      mr: 'आपला मोबाईल क्रमांक {val} आहे, हे योग्य आहे का?'
+    },
+    type: 'tel',
+    required: true,
+    confirmed: false
+  },
+  {
     id: 'college',
     label: {
       en: 'College / Institute',
@@ -86,23 +86,44 @@ export const SCHOLARSHIP_FIELDS: FormField[] = [
     confirmed: false
   },
   {
-    id: 'course_year',
+    id: 'course',
     label: {
-      en: 'Course & Year',
-      hi: 'कोर्स और शैक्षणिक वर्ष',
-      mr: 'अभ्यासक्रम आणि वर्ष'
+      en: 'Course / Degree',
+      hi: 'कोर्स या डिग्री (जैसे B.Tech, B.Sc)',
+      mr: 'अभ्यासक्रम / पदवी'
     },
     prompt: {
-      en: 'What course and academic year are you currently in?',
-      hi: 'आप कौन सा कोर्स और किस वर्ष में पढ़ रहे हैं? जैसे बी.टेक द्वितीय वर्ष।',
-      mr: 'तुम्ही कोणता अभ्यासक्रम आणि कोणत्या वर्षात आहात? उदा. बी.एस्सी प्रथम वर्ष.'
+      en: 'What course or degree are you pursuing?',
+      hi: 'आप कौन सा कोर्स कर रहे हैं? जैसे बी.टेक, बी.एससी या पॉलिटेक्निक।',
+      mr: 'तुम्ही कोणता अभ्यासक्रम करत आहात? उदा. बी.टेक किंवा बी.एस्सी.'
     },
     confirmPrompt: {
       en: 'Your course is {val}. Is this correct?',
-      hi: 'आपका कोर्स और वर्ष {val} है, क्या यह सही है?',
+      hi: 'आपका कोर्स {val} है, क्या यह सही है?',
       mr: 'आपला अभ्यासक्रम {val} आहे, हे बरोबर आहे का?'
     },
     type: 'text',
+    required: true,
+    confirmed: false
+  },
+  {
+    id: 'academic_year',
+    label: {
+      en: 'Academic Year',
+      hi: 'अध्ययन वर्ष (First, Second, Third Year)',
+      mr: 'शैक्षणिक वर्ष (प्रथम, द्वितीय, तृतीय वर्ष)'
+    },
+    prompt: {
+      en: 'Which academic year are you currently studying in?',
+      hi: 'आप किस वर्ष में पढ़ रहे हैं? जैसे प्रथम वर्ष, द्वितीय वर्ष या तृतीय वर्ष।',
+      mr: 'तुम्ही कोणत्या वर्षात शिकत आहात? उदा. प्रथम वर्ष किंवा द्वितीय वर्ष.'
+    },
+    confirmPrompt: {
+      en: 'Your academic year is {val}. Is this correct?',
+      hi: 'आपका वर्ष {val} है, क्या यह सही है?',
+      mr: 'आपले वर्ष {val} आहे, हे योग्य आहे का?'
+    },
+    type: 'select',
     required: true,
     confirmed: false
   },
@@ -131,7 +152,7 @@ export const SCHOLARSHIP_FIELDS: FormField[] = [
     id: 'category',
     label: {
       en: 'Category / Caste',
-      hi: 'वर्ग / श्रेणी (General/OBC/SC/ST/EWS)',
+      hi: 'जाति वर्ग / श्रेणी (General/OBC/SC/ST/EWS)',
       mr: 'प्रवर्ग (General/OBC/SC/ST/EWS)'
     },
     prompt: {
@@ -152,13 +173,13 @@ export const SCHOLARSHIP_FIELDS: FormField[] = [
     id: 'district',
     label: {
       en: 'Home District',
-      hi: 'गृह जिला (District)',
-      mr: 'गृह जिल्हा (District)'
+      hi: 'गृह जिला (Home District)',
+      mr: 'गृह जिल्हा (Home District)'
     },
     prompt: {
       en: 'Which district in the state do you belong to?',
-      hi: 'आपका गृह जिला कौन सा है?',
-      mr: 'आपला गृह जिल्हा कोणता आहे?'
+      hi: 'आपका गृह जिला कौन सा है? जैसे पुणे, नागपुर, लखनऊ।',
+      mr: 'आपला गृह जिल्हा कोणता आहे? उदा. पुणे, नागपूर, सातारा.'
     },
     confirmPrompt: {
       en: 'Your district is {val}. Is this correct?',
@@ -170,42 +191,21 @@ export const SCHOLARSHIP_FIELDS: FormField[] = [
     confirmed: false
   },
   {
-    id: 'aadhaar_last4',
+    id: 'document_status',
     label: {
-      en: 'Aadhaar (Last 4 Digits)',
-      hi: 'आधार कार्ड के अंतिम 4 अंक',
-      mr: 'आधार कार्डाचे शेवटचे 4 अंक'
+      en: 'Document Status / Declaration',
+      hi: 'दस्तावेज एवं स्व-घोषणा (Documents Acknowledgment)',
+      mr: 'कागदपत्रे आणि हमीपत्र (Documents Acknowledgment)'
     },
     prompt: {
-      en: 'Please state the last 4 digits of your Aadhaar card.',
-      hi: 'सत्यापन के लिए कृपया अपने आधार कार्ड के अंतिम 4 अंक बोलें।',
-      mr: 'पडताळणीसाठी कृपया आपल्या आधार कार्डाचे शेवटचे 4 अंक सांगा.'
+      en: 'Do you confirm having your Aadhaar card and income certificate ready?',
+      hi: 'क्या आपके पास आधार कार्ड और आय प्रमाण पत्र उपलब्ध है? बोलें "हाँ, उपलब्ध हैं"।',
+      mr: 'आपल्याकडे आधार कार्ड आणि उत्पन्नाचा दाखला उपलब्ध आहे का? बोला "होय, उपलब्ध आहेत".'
     },
     confirmPrompt: {
-      en: 'The last 4 digits are {val}. Is this correct?',
-      hi: 'आधार के अंतिम 4 अंक {val} हैं, क्या यह सही है?',
-      mr: 'आधारचे शेवटचे 4 अंक {val} आहेत, हे बरोबर आहे का?'
-    },
-    type: 'number',
-    required: true,
-    confirmed: false
-  },
-  {
-    id: 'declaration_ack',
-    label: {
-      en: 'Self Declaration',
-      hi: 'स्व-घोषणा स्वीकृति (Declaration)',
-      mr: 'स्वयंघोषणा मंजुरी (Declaration)'
-    },
-    prompt: {
-      en: 'Do you confirm that all details given are true and accurate to your knowledge?',
-      hi: 'क्या आप पुष्टि करते हैं कि आपके द्वारा दी गई सभी जानकारी पूर्णतया सत्य है? कहें "हाँ, मैं सहमत हूँ"।',
-      mr: 'आपण खात्री देता का की दिलेली सर्व माहिती सत्य आहे? बोला "होय, मी सहमत आहे".'
-    },
-    confirmPrompt: {
-      en: 'Declaration acknowledged: {val}. Is this correct?',
-      hi: 'घोषणा: {val}, क्या आप अंतिम रूप से सहमत हैं?',
-      mr: 'घोषणा: {val}, आपली अंतिम सहमती आहे का?'
+      en: 'Documents acknowledged: {val}. Is this correct?',
+      hi: 'दस्तावेज स्थिति: {val}, क्या यह सही है?',
+      mr: 'कागदपत्रे: {val}, हे बरोबर आहे का?'
     },
     type: 'text',
     required: true,

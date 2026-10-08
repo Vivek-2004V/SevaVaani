@@ -71,14 +71,19 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
       mr: ['शासकीय अभियांत्रिकी महाविद्यालय', 'आयआयटी मुंबई', 'डीवाय पाटील कॉलेज'],
       en: ['Government Engineering College', 'IIT Bombay', 'DY Patil College']
     },
-    course_year: {
-      hi: ['बी.टेक तृतीय वर्ष', 'बी.एससी द्वितीय वर्ष', 'एम.सी.ए प्रथम वर्ष'],
-      mr: ['बी.टेक तृतीय वर्ष', 'बी.एस्सी द्वितीय वर्ष', 'एम.सी.ए प्रथम वर्ष'],
-      en: ['B.Tech Third Year', 'B.Sc Second Year', 'MCA First Year']
+    course: {
+      hi: ['बी.टेक (B.Tech)', 'बी.एससी (B.Sc)', 'डिप्लोमा'],
+      mr: ['बी.टेक (B.Tech)', 'बी.एस्सी (B.Sc)', 'डिप्लोमा'],
+      en: ['B.Tech', 'B.Sc', 'Diploma']
+    },
+    academic_year: {
+      hi: ['द्वितीय वर्ष (Second Year)', 'तृतीय वर्ष', 'प्रथम वर्ष'],
+      mr: ['द्वितीय वर्ष (Second Year)', 'तृतीय वर्ष', 'प्रथम वर्ष'],
+      en: ['Second Year', 'Third Year', 'First Year']
     },
     annual_income: {
-      hi: ['डेढ़ लाख रुपये', 'एक लाख बीस हजार', '85000'],
-      mr: ['दीड लाख रुपये', 'एक लाख वीस हजार', '85000'],
+      hi: ['डेढ़ लाख रुपये (150000)', 'एक लाख बीस हजार', '85000'],
+      mr: ['दीड लाख रुपये (150000)', 'एक लाख वीस हजार', '85000'],
       en: ['150000 rupees', '120000', '85000']
     },
     category: {
@@ -91,15 +96,10 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
       mr: ['पुणे', 'नागपूर', 'सातारा'],
       en: ['Pune', 'Nagpur', 'Lucknow']
     },
-    aadhaar_last4: {
-      hi: ['1234', '5678', '9012'],
-      mr: ['1234', '5678', '9012'],
-      en: ['1234', '5678', '9012']
-    },
-    declaration_ack: {
-      hi: ['हाँ, मैं सहमत हूँ', 'हाँ, सब सही है'],
-      mr: ['होय, मी सहमत आहे', 'सर्व माहिती सत्य आहे'],
-      en: ['Yes, I agree', 'All information is true']
+    document_status: {
+      hi: ['हाँ, सभी दस्तावेज उपलब्ध हैं', 'हाँ, तैयार हैं'],
+      mr: ['होय, सर्व कागदपत्रे उपलब्ध आहेत', 'होय, तयार आहेत'],
+      en: ['Yes, documents ready', 'Yes, all available']
     }
   };
 
