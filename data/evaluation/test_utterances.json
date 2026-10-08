@@ -1,0 +1,54 @@
+{
+  "description": "Benchmark evaluation dataset for Hindi and Marathi speech utterances in SEVA VAANI",
+  "test_cases": [
+    {
+      "id": "TC01",
+      "language": "hi",
+      "field": "full_name",
+      "utterance": "Mera naam Ramesh Kumar hai",
+      "expected_value": "Ramesh Kumar"
+    },
+    {
+      "id": "TC02",
+      "language": "mr",
+      "field": "full_name",
+      "utterance": "माझं नाव राहुल देशमुख आहे",
+      "expected_value": "राहुल देशमुख"
+    },
+    {
+      "id": "TC04",
+      "language": "hi",
+      "field": "mobile",
+      "utterance": "987654321",
+      "expected_status": "invalid"
+    },
+    {
+      "id": "TC05",
+      "language": "hi",
+      "field": "mobile",
+      "utterance": "9876543210",
+      "expected_value": "9876543210"
+    },
+    {
+      "id": "TC06",
+      "language": "hi",
+      "field": "annual_income",
+      "utterance": "Mere ghar ki saal ki income lagbhag ek lakh assi hazaar hai",
+      "expected_value": 180000
+    },
+    {
+      "id": "TC07",
+      "language": "hi",
+      "field": "full_name",
+      "utterance": "[unclear]",
+      "expected_status": "retry"
+    },
+    {
+      "id": "TC15",
+      "language": "hi",
+      "field": "category",
+      "utterance": "VIP Category",
+      "expected_status": "invalid"
+    }
+  ]
+}

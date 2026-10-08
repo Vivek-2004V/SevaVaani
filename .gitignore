@@ -1,0 +1,19 @@
+# Virtual environment
+backend/venv/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Databases
+*.db
+*.sqlite3
+
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/
