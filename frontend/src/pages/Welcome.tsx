@@ -144,7 +144,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
           onClick={() => setActiveTab('home')}
           className="cursor-pointer select-none"
         >
-          <SevaVaaniLogo size={64} showWordmark={true} />
+          <SevaVaaniLogo size={58} />
         </div>
 
         {/* Navigation Tabs (Different Pages) */}
