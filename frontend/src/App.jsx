@@ -189,6 +189,23 @@ export default function App() {
     }
   };
 
+  const handleEditField = (fieldName) => {
+    // Find field definition from schema or current active list
+    const fieldDef = sessionState.activeFieldDefinition?.name === fieldName 
+      ? sessionState.activeFieldDefinition 
+      : { name: fieldName, label_hi: fieldName, label_mr: fieldName };
+
+    setSessionState((prev) => ({
+      ...prev,
+      currentField: fieldName,
+      status: 'collecting',
+      pendingCandidate: null,
+      currentPrompt: prev.language === 'hi' 
+        ? `कृपया ${fieldName} का नया मान बताएं:` 
+        : `कृपया ${fieldName} चे नवीन मूल्य सांगा:`
+    }));
+  };
+
   const handleReset = () => {
     setSessionState(initialSessionState);
   };
@@ -423,7 +440,7 @@ export default function App() {
           <Review
             sessionState={sessionState}
             onSubmitFinal={handleSubmitFinal}
-            onEditField={(f) => console.log("Edit field", f)}
+            onEditField={handleEditField}
           />
         )}
 

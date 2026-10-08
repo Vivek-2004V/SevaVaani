@@ -30,3 +30,11 @@ def switch_language(payload: SessionLanguageRequest):
         return engine.switch_language(payload.session_id, payload.language)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/{session_id}/language")
+def switch_language_path(session_id: str, payload: dict):
+    try:
+        language = payload.get("language", "hi")
+        return engine.switch_language(session_id, language)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

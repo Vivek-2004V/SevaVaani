@@ -50,7 +50,8 @@ export default function Review({
             <tr>
               <th className="py-2.5 px-4 text-left">फ़ील्ड</th>
               <th className="py-2.5 px-4 text-left">दर्ज मान</th>
-              <th className="py-2.5 px-4 text-right">सत्यापन</th>
+              <th className="py-2.5 px-4 text-center">सत्यापन</th>
+              <th className="py-2.5 px-4 text-right">कार्य</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -62,10 +63,19 @@ export default function Review({
                 <td className="py-2.5 px-4 font-bold text-navy-900">
                   {String(v)}
                 </td>
-                <td className="py-2.5 px-4 text-right">
+                <td className="py-2.5 px-4 text-center">
                   <span className="inline-flex items-center gap-1 text-emerald-600 font-bold text-xs">
                     ✓ Verified
                   </span>
+                </td>
+                <td className="py-2.5 px-4 text-right">
+                  <button
+                    type="button"
+                    onClick={() => onEditField(k)}
+                    className="text-sky-600 hover:text-sky-800 font-bold text-xs bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded transition"
+                  >
+                    ✏️ {isHi ? 'बदलें' : 'संपादित करा'}
+                  </button>
                 </td>
               </tr>
             ))}
