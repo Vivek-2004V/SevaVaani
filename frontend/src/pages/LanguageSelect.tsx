@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SupportedLanguage } from '../types';
 import { LanguageSelector } from '../components/LanguageSelector';
+import { SevaVaaniLogo } from '../components/SevaVaaniLogo';
 
 export interface LanguageSelectProps {
   currentLanguage: SupportedLanguage;
@@ -25,9 +26,12 @@ export const LanguageSelect: React.FC<LanguageSelectProps> = ({
         >
           ← वापस (Back)
         </button>
-        <span className="text-xs font-bold text-blue-700 bg-blue-100/80 px-3 py-1 rounded-full">
-          Step 1 of 4: भाषा चयन (Select Language)
-        </span>
+        <div className="flex items-center gap-2">
+          <SevaVaaniLogo size={28} showWordmark={false} />
+          <span className="text-xs font-bold text-blue-700 bg-blue-100/80 px-3 py-1 rounded-full">
+            Step 1 of 4: भाषा चयन (Select Language)
+          </span>
+        </div>
       </header>
 
       <main className="max-w-xl mx-auto w-full text-center my-auto py-8">

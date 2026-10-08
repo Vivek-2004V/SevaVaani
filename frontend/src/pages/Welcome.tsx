@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SylvaLivingWorldScene } from '../effects/sylva-living-world/SylvaLivingWorldScene';
+import { SevaVaaniLogo } from '../components/SevaVaaniLogo';
 
 export interface WelcomeProps {
   onStartVoice: () => void;
@@ -138,22 +139,12 @@ export const Welcome: React.FC<WelcomeProps> = ({
 
       {/* Header Bar with Multi-Page Navigation */}
       <header className="relative z-20 w-full max-w-7xl mx-auto px-4 md:px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-3">
-        {/* Logo */}
+        {/* Attractive Leaf + Voice Logo */}
         <div
           onClick={() => setActiveTab('home')}
-          className="flex items-center gap-3 cursor-pointer select-none"
+          className="cursor-pointer select-none"
         >
-          <div className="w-10 h-10 rounded-2xl bg-white/95 backdrop-blur-md shadow-md flex items-center justify-center text-blue-600 font-extrabold text-xl">
-            स
-          </div>
-          <div>
-            <h1 className="text-xl md:text-2xl font-black tracking-tight text-white drop-shadow-md">
-              SEVA VAANI <span className="text-xs font-normal text-emerald-300 ml-1">सेवा वाणी</span>
-            </h1>
-            <p className="text-[10px] md:text-[11px] text-slate-200 font-medium tracking-wide">
-              नागरिकों की अपनी भाषा में डिजिटल सरकारी सेवा
-            </p>
-          </div>
+          <SevaVaaniLogo size={46} showWordmark={true} />
         </div>
 
         {/* Navigation Tabs (Different Pages) */}

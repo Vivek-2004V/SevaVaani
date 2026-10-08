@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FormField, SupportedLanguage } from '../types';
 import { FieldSummary } from '../components/FieldSummary';
 import { submitFinalApplication } from '../services/api';
+import { SevaVaaniLogo } from '../components/SevaVaaniLogo';
 
 export interface ReviewProps {
   sessionId: string;
@@ -96,9 +97,12 @@ export const Review: React.FC<ReviewProps> = ({
         >
           ← वापस (Back)
         </button>
-        <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">
-          Step 3 of 4: समीक्षा एवं सहमति (Review & Consent)
-        </span>
+        <div className="flex items-center gap-2">
+          <SevaVaaniLogo size={28} showWordmark={false} />
+          <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">
+            Step 3 of 4: समीक्षा एवं सहमति (Review & Consent)
+          </span>
+        </div>
       </header>
 
       <main className="max-w-2xl mx-auto w-full py-6 my-auto">

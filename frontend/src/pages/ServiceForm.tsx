@@ -7,6 +7,7 @@ import { ConfirmationCard } from '../components/ConfirmationCard';
 import { FallbackPanel } from '../components/FallbackPanel';
 import { processVoiceTurn, confirmField, submitFallbackText, requestHumanHelp } from '../services/api';
 import { INDIAN_LANGUAGES } from '../components/LanguageSelector';
+import { SevaVaaniLogo } from '../components/SevaVaaniLogo';
 
 export interface ServiceFormProps {
   sessionId: string;
@@ -366,13 +367,19 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     <div className="min-h-screen w-full bg-gradient-to-b from-slate-50 via-blue-50/30 to-slate-100 flex flex-col justify-between p-4 md:p-6 text-slate-800">
       {/* Top Header with Multilingual Quick Switcher */}
       <header className="max-w-2xl mx-auto w-full flex items-center justify-between">
-        <button
-          type="button"
-          onClick={onBack}
-          className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/90 border border-slate-200 shadow-sm"
-        >
-          ← बाहर निकलें (Exit)
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={onBack}
+            className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/90 border border-slate-200 shadow-sm"
+          >
+            ← बाहर निकलें (Exit)
+          </button>
+          <div className="hidden sm:flex items-center gap-2 pl-1">
+            <SevaVaaniLogo size={30} showWordmark={false} />
+            <span className="text-xs font-black text-slate-800 tracking-tight">SEVA VAANI</span>
+          </div>
+        </div>
 
         {/* Language switch & Low Internet indicator */}
         <div className="flex items-center gap-2">

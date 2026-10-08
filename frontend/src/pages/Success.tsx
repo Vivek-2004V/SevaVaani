@@ -1,5 +1,6 @@
 import React from 'react';
 import { SupportedLanguage } from '../types';
+import { SevaVaaniLogo } from '../components/SevaVaaniLogo';
 
 export interface SuccessProps {
   applicationId: string;
@@ -50,7 +51,10 @@ export const Success: React.FC<SuccessProps> = ({
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-emerald-50/40 to-slate-100 flex flex-col justify-between p-6 text-slate-800">
-      <header className="max-w-xl mx-auto w-full flex items-center justify-end">
+      <header className="max-w-xl mx-auto w-full flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <SevaVaaniLogo size={32} showWordmark={true} />
+        </div>
         <button
           type="button"
           onClick={onOpenJudgeMode}
