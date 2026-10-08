@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SylvaLivingWorldScene } from '../effects/sylva-living-world/SylvaLivingWorldScene';
 import { SevaVaaniLogo } from '../components/SevaVaaniLogo';
+import logoImg from '../assets/seva-vaani-logo.png';
 
 export interface WelcomeProps {
   onStartVoice: () => void;
@@ -137,44 +138,82 @@ export const Welcome: React.FC<WelcomeProps> = ({
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/35 to-slate-950/80 pointer-events-none" />
       </div>
 
-      {/* Header Bar with Multi-Page Navigation */}
-      <header className="relative z-20 w-full max-w-7xl mx-auto px-4 md:px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-3">
-        {/* Attractive Leaf + Voice Logo */}
-        <div
-          onClick={() => setActiveTab('home')}
-          className="cursor-pointer select-none"
+      {/* Floating Island Navbar (Adopted from Image 1 Visual Style + Image 2 Content) */}
+      <header className="relative z-30 w-full pt-4 md:pt-6 px-3 flex justify-center">
+        <nav
+          className="flex items-center justify-between gap-2.5 md:gap-5 p-1.5 md:p-2 rounded-full bg-black/85 backdrop-blur-2xl border border-white/15 shadow-[0_16px_50px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.15)] max-w-full overflow-x-auto no-scrollbar select-none"
+          role="navigation"
+          aria-label="Main Navigation"
         >
-          <SevaVaaniLogo size={58} />
-        </div>
+          {/* 1. Left: Brand Icon + Logo Name (Image 1 Style) */}
+          <div
+            onClick={() => setActiveTab('home')}
+            className="flex items-center gap-2 pl-1.5 pr-2 py-0.5 cursor-pointer group flex-shrink-0"
+          >
+            <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-[0_0_12px_rgba(34,197,94,0.5)]">
+              <img
+                src={logoImg}
+                alt="SEVA VAANI"
+                className="w-full h-full object-contain filter drop-shadow"
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs md:text-sm font-black tracking-tight text-white whitespace-nowrap group-hover:text-emerald-300 transition-colors font-sans leading-none">
+                SEVA VAANI
+              </span>
+              <span className="text-[9px] font-semibold text-emerald-400/90 tracking-wider">
+                सेवा वाणी
+              </span>
+            </div>
+          </div>
 
-        {/* Navigation Tabs (Different Pages) */}
-        <nav className="flex items-center flex-wrap justify-center gap-1.5 p-1 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
-          {navTabs.map((tab) => (
+          {/* Subtle vertical divider */}
+          <div className="h-4 w-px bg-white/15 flex-shrink-0 hidden md:block" />
+
+          {/* 2. Middle: Navigation Tabs (Exact Image 2 Content & Active Pill Styling) */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {navTabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-3 md:px-3.5 py-1 md:py-1.5 rounded-full text-xs transition-all duration-200 flex flex-col items-center leading-tight whitespace-nowrap flex-shrink-0 ${
+                    isActive
+                      ? 'bg-white text-slate-950 font-bold shadow-md scale-102'
+                      : 'text-slate-300 hover:text-white hover:bg-white/10 font-medium'
+                  }`}
+                >
+                  <span className="text-[11px] md:text-xs font-semibold">{tab.labelHi}</span>
+                  <span
+                    className={`text-[9px] md:text-[10px] leading-none ${
+                      isActive ? 'text-slate-600 font-medium' : 'text-slate-400 font-normal'
+                    }`}
+                  >
+                    {tab.labelEn}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Subtle vertical divider */}
+          <div className="h-4 w-px bg-white/15 flex-shrink-0 hidden md:block" />
+
+          {/* 3. Right: CTA Button (Exact Image 1 High-Contrast Pill Button) */}
+          <div className="flex-shrink-0 pr-1">
             <button
-              key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex flex-col items-center leading-tight ${
-                activeTab === tab.id
-                  ? 'bg-white text-slate-900 shadow-md scale-102 font-bold'
-                  : 'text-white/80 hover:text-white hover:bg-white/10'
-              }`}
+              onClick={onOpenJudgeMode}
+              className="flex items-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-white hover:bg-slate-100 text-slate-950 font-bold text-xs shadow-md transition-all active:scale-95 whitespace-nowrap"
             >
-              <span>{tab.labelHi}</span>
-              <span className="text-[9px] opacity-75 font-normal">{tab.labelEn}</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>तकनीकी मैट्रिक्स</span>
+              <span className="text-[10px] text-slate-500 font-medium hidden lg:inline">(Metrics)</span>
             </button>
-          ))}
+          </div>
         </nav>
-
-        {/* Action Button: Judge Metrics */}
-        <button
-          type="button"
-          onClick={onOpenJudgeMode}
-          className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 backdrop-blur-md border border-emerald-400/30 transition-colors flex items-center gap-1.5 shadow"
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>तकनीकी मैट्रिक्स (Judge Metrics)</span>
-        </button>
       </header>
 
       {/* Dynamic Content based on Active Tab */}
