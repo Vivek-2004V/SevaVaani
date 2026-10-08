@@ -70,7 +70,7 @@ export const App: React.FC = () => {
     setFields(SCHOLARSHIP_FIELDS.map(f => ({ ...f, value: undefined, confirmed: false })));
   };
 
-  const handleLaunchDemoFlow = async (demoLang: 'hi' | 'mr') => {
+  const handleLaunchDemoFlow = async (demoLang: SupportedLanguage) => {
     await startNewSession(demoLang);
   };
 

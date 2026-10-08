@@ -1,9 +1,9 @@
 import React from 'react';
-import { FormField } from '../types';
+import { FormField, SupportedLanguage } from '../types';
 
 export interface FieldSummaryProps {
   fields: FormField[];
-  language: 'hi' | 'mr' | 'en';
+  language: SupportedLanguage;
   onEditField?: (index: number) => void;
 }
 
@@ -12,6 +12,40 @@ export const FieldSummary: React.FC<FieldSummaryProps> = ({
   language,
   onEditField
 }) => {
+  const getEditLabel = () => {
+    const msgs: Record<SupportedLanguage, string> = {
+      hi: 'बदलें (Edit)',
+      mr: 'बदला (Edit)',
+      bn: 'সম্পাদনা (Edit)',
+      te: 'మార్చండి (Edit)',
+      ta: 'திருத்து (Edit)',
+      gu: 'બદલો (Edit)',
+      kn: 'ಬದಲಾಯಿಸಿ (Edit)',
+      ml: 'മാറ്റുക (Edit)',
+      pa: 'ਬਦਲੋ (Edit)',
+      or: 'ସଂଶୋଧନ (Edit)',
+      en: 'Edit'
+    };
+    return msgs[language] || msgs.en;
+  };
+
+  const getConfirmedLabel = () => {
+    const msgs: Record<SupportedLanguage, string> = {
+      hi: 'पुष्टि (Confirmed)',
+      mr: 'पुष्टी (Confirmed)',
+      bn: 'নিশ্চিত (Confirmed)',
+      te: 'నిర్ధారించబడింది',
+      ta: 'உறுதிப்படுத்தப்பட்டது',
+      gu: 'પુષ્ટિ (Confirmed)',
+      kn: 'ದೃಢಪಡಿಸಲಾಗಿದೆ',
+      ml: 'സ്ഥിരീകരിച്ചു',
+      pa: 'ਪੁਸ਼ਟੀ ਹੋਈ',
+      or: 'ନିଶ୍ଚିତ (Confirmed)',
+      en: 'Confirmed'
+    };
+    return msgs[language] || msgs.en;
+  };
+
   return (
     <div className="w-full bg-white/95 rounded-3xl border border-slate-200/90 shadow-lg divide-y divide-slate-100 overflow-hidden">
       {fields.map((f, idx) => (
@@ -31,7 +65,7 @@ export const FieldSummary: React.FC<FieldSummaryProps> = ({
           <div className="flex items-center gap-2">
             {f.confirmed && (
               <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
-                <span>✓</span> पुष्टि
+                <span>✓</span> {getConfirmedLabel()}
               </span>
             )}
             {onEditField && (
@@ -40,7 +74,7 @@ export const FieldSummary: React.FC<FieldSummaryProps> = ({
                 onClick={() => onEditField(idx)}
                 className="px-2.5 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors border border-blue-200"
               >
-                बदलें (Edit)
+                {getEditLabel()}
               </button>
             )}
           </div>

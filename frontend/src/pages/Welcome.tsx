@@ -12,12 +12,12 @@ export const Welcome: React.FC<WelcomeProps> = ({
 }) => {
   const trustCards = [
     {
-      title: 'हिन्दी + मराठी',
-      desc: 'मातृभाषा में स्पष्ट संवाद (Native Multilingual Support)',
-      icon: '🗣️'
+      title: '11 भारतीय भाषाएं',
+      desc: 'हिन्दी, मराठी, বাংলা, தமிழ், తెలుగు, ಕನ್ನಡ, ગુજરાતી, മലയാളം, ਪੰਜਾਬੀ, ଓଡ଼ିଆ',
+      icon: '🇮🇳'
     },
     {
-      title: 'Step-by-step',
+      title: 'Step-by-step Voice',
       desc: 'एक समय में केवल एक प्रश्न (Zero Cognitive Load)',
       icon: '📋'
     },
@@ -57,7 +57,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
               SEVA VAANI <span className="text-xs font-normal text-emerald-300 ml-1">सेवा वाणी</span>
             </h1>
             <p className="text-[11px] text-slate-200 font-medium tracking-wide">
-              Voice-First Digital Citizen Assistance
+              Pan-India Multilingual Voice Digital Citizen Assistance
             </p>
           </div>
         </div>
@@ -75,7 +75,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
       {/* Center Hero Card */}
       <main className="relative z-10 max-w-4xl mx-auto px-6 py-8 text-center my-auto">
         <div className="inline-block px-4 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-semibold mb-4 shadow">
-          सरकारी सेवाओं के लिए बोलकर फॉर्म भरें • Digital Seva Counter
+          11 भारतीय भाषाओं में बोलकर फॉर्म भरें • Digital Seva Counter
         </div>
 
         <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight drop-shadow-lg mb-4">
@@ -86,7 +86,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
         </h2>
 
         <p className="text-base md:text-xl text-slate-100 max-w-2xl mx-auto font-light leading-relaxed drop-shadow mb-8">
-          कठिन फॉर्म और जटिल नियमों की चिंता छोड़ें। अपनी मातृभाषा (हिन्दी या मराठी) में बोलें, और छात्रवृत्ति का आवेदन मिनटों में पूरा करें।
+          कठिन फॉर्म और भाषा की दीवार छोड़ें। अपनी मातृभाषा (हिन्दी, मराठी, বাংলা, தமிழ், తెలుగు, ಕನ್ನಡ, ગુજરાતી, आदि) में बोलें और छात्रवृत्ति का आवेदन मिनटों में पूरा करें।
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">

@@ -25,19 +25,37 @@ export const Review: React.FC<ReviewProps> = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const getReviewHeading = () => {
-    if (language === 'hi') return 'आवेदन समीक्षा (Final Review)';
-    if (language === 'mr') return 'अर्जाचे पुनरावलोकन (Final Review)';
-    return 'Final Application Review';
+    const headings: Record<SupportedLanguage, string> = {
+      hi: 'आवेदन समीक्षा (Final Review)',
+      mr: 'अर्जाचे पुनरावलोकन (Final Review)',
+      bn: 'আবেদন পর্যালোচনা (Final Review)',
+      te: 'దరఖాస్తు సమీక్ష (Final Review)',
+      ta: 'விண்ணப்ப மறுஆய்வு (Final Review)',
+      gu: 'અરજી સમીક્ષા (Final Review)',
+      kn: 'ಅರ್ಜಿ ಪರಿಶೀಲನೆ (Final Review)',
+      ml: 'അപേക്ഷാ അവലോകനം (Final Review)',
+      pa: 'ਅਰਜ਼ੀ ਦੀ ਸਮੀਖਿਆ (Final Review)',
+      or: 'ଆବେଦନ ସମୀକ୍ଷା (Final Review)',
+      en: 'Final Application Review'
+    };
+    return headings[language] || headings.en;
   };
 
   const getConsentText = () => {
-    if (language === 'hi') {
-      return 'मैं प्रमाणित करता/करती हूँ कि मेरे द्वारा दी गई सभी जानकारियाँ सत्य एवं सही हैं। मैं छात्रवृत्ति पोर्टल पर इसे जमा करने की स्पष्ट सहमति देता/देती हूँ।';
-    }
-    if (language === 'mr') {
-      return 'मी प्रमाणित करतो/करते की मी दिलेली सर्व माहिती खरी आणि योग्य आहे. मी शिष्यवृत्ती पोर्टलवर हा अर्ज सादर करण्यास स्पष्ट संमती देतो/देते.';
-    }
-    return 'I certify that all details provided are true and accurate to the best of my knowledge. I give explicit consent to submit this application to the Scholarship portal.';
+    const consents: Record<SupportedLanguage, string> = {
+      hi: 'मैं प्रमाणित करता/करती हूँ कि मेरे द्वारा दी गई सभी जानकारियाँ सत्य एवं सही हैं। मैं छात्रवृत्ति पोर्टल पर इसे जमा करने की स्पष्ट सहमति देता/देती हूँ।',
+      mr: 'मी प्रमाणित करतो/करते की मी दिलेली सर्व माहिती खरी आणि योग्य आहे. मी शिष्यवृत्ती पोर्टलवर हा अर्ज सादर करण्यास स्पष्ट संमती देतो/देते.',
+      bn: 'আমি নিশ্চিত করছি যে আমার প্রদত্ত সমস্ত তথ্য সঠিক ও সত্য। আমি স্কলারশিপ পোর্টালে এই আবেদনটি জমা দেওয়ার সম্মতি দিচ্ছি।',
+      te: 'నేను అందించిన మొత్తం సమాచారం నిజమైనదని మరియు సరైనదని నేను ధృవీకరిస్తున్నాను. స్కాలర్‌షిప్ పోర్టల్‌లో దీనిని సమర్పించడానికి నేను సమ్మతిస్తున్నాను.',
+      ta: 'நான் அளித்த தகவல்கள் அனைத்தும் உண்மை என உறுதியளிக்கிறேன். கல்வி உதவித்தொகை தளத்தில் சமர்ப்பிக்க முழு சம்மதம் தெரிவிக்கிறேன்.',
+      gu: 'હું પ્રમાણિત કરું છું કે મેં આપેલી તમામ માહિતી સાચી છે. હું શિષ્યવૃત્તિ પોર્ટલ પર આ અરજી જમા કરાવવાની સંમતિ આપું છું.',
+      kn: 'ನಾನು ನೀಡಿದ ಎಲ್ಲಾ ಮಾಹಿತಿಯು ಸತ್ಯವಾಗಿದೆ ಎಂದು ಪ್ರಮಾಣೀಕರಿಸುತ್ತೇನೆ. ವಿದ್ಯಾರ್ಥಿವೇತನ ಪೋರ್ಟಲ್‌ನಲ್ಲಿ ಸಲ್ಲಿಸಲು ಒಪ್ಪಿಗೆ ನೀಡುತ್ತೇನೆ.',
+      ml: 'ഞാൻ നൽകിയ വിവരങ്ങൾ സത്യമാണെന്ന് സാക്ഷ്യപ്പെടുത്തുന്നു. സ്കോളർഷിപ്പ് പോർട്ടലിൽ ഇത് സമർപ്പിക്കാൻ ഞാൻ സമ്മതിക്കുന്നു.',
+      pa: 'ਮੈਂ ਤਸਦੀਕ ਕਰਦਾ ਹਾਂ ਕਿ ਮੇਰੇ ਵੱਲੋਂ ਦਿੱਤੀ ਗਈ ਸਾਰੀ ਜਾਣਕਾਰੀ ਸੱਚੀ ਹੈ। ਮੈਂ ਵਜ਼ੀਫ਼ਾ ਪੋਰਟਲ ਤੇ ਇਸਨੂੰ ਜਮ੍ਹਾਂ ਕਰਨ ਦੀ ਸਹਿਮਤੀ ਦਿੰਦਾ ਹਾਂ।',
+      or: 'ମୁଁ ପ୍ରମାଣିତ କରୁଛି ଯେ ମୋ ଦ୍ୱାରା ଦିଆଯାଇଥିବା ସମସ୍ତ ତଥ୍ୟ ସତ୍ୟ। ବୃତ୍ତି ପୋର୍ଟାଲରେ ଏହା ଦାଖଲ କରିବାକୁ ସମ୍ମତି ଦେଉଛି।',
+      en: 'I certify that all details provided are true and accurate to the best of my knowledge. I give explicit consent to submit this application to the Scholarship portal.'
+    };
+    return consents[language] || consents.en;
   };
 
   const handleSubmit = async () => {
@@ -89,7 +107,7 @@ export const Review: React.FC<ReviewProps> = ({
             {getReviewHeading()}
           </h2>
           <p className="text-xs md:text-sm text-slate-500 mt-1">
-            कृपया अपने सभी 10 उत्तरों की जांच करें। आवश्यकतानुसार 'बदलें' बटन दबाकर सुधार कर सकते हैं।
+            कृपया अपने सभी उत्तरों की जांच करें। आवश्यकतानुसार 'बदलें' बटन दबाकर सुधार कर सकते हैं।
           </p>
         </div>
 

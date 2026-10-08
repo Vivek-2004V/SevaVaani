@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { MetricsSummary } from '../types';
+import { MetricsSummary, SupportedLanguage } from '../types';
 import { fetchJudgeMetrics } from '../services/api';
 
 export interface JudgeModeProps {
   onClose: () => void;
-  onLaunchDemoFlow: (language: 'hi' | 'mr') => void;
+  onLaunchDemoFlow: (language: SupportedLanguage) => void;
 }
 
 export const JudgeMode: React.FC<JudgeModeProps> = ({
@@ -143,16 +143,16 @@ export const JudgeMode: React.FC<JudgeModeProps> = ({
 
         {/* Action Controls */}
         <div className="mt-6 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => {
                 onClose();
                 onLaunchDemoFlow('hi');
               }}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold"
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold"
             >
-              Launch Hindi Demo
+              हिन्दी (Hindi)
             </button>
             <button
               type="button"
@@ -160,9 +160,49 @@ export const JudgeMode: React.FC<JudgeModeProps> = ({
                 onClose();
                 onLaunchDemoFlow('mr');
               }}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold"
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold"
             >
-              Launch Marathi Demo
+              मराठी (Marathi)
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onLaunchDemoFlow('bn');
+              }}
+              className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold"
+            >
+              বাংলা (Bengali)
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onLaunchDemoFlow('te');
+              }}
+              className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold"
+            >
+              తెలుగు (Telugu)
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onLaunchDemoFlow('ta');
+              }}
+              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold"
+            >
+              தமிழ் (Tamil)
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onLaunchDemoFlow('gu');
+              }}
+              className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold"
+            >
+              ગુજરાતી (Gujarati)
             </button>
           </div>
 

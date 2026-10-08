@@ -1,11 +1,12 @@
 import React from 'react';
+import { SupportedLanguage } from '../types';
 
 export interface ConfirmationCardProps {
   fieldName: string;
   fieldLabel: string;
   candidateValue: string;
   confirmMessage?: string;
-  language: 'hi' | 'mr' | 'en';
+  language: SupportedLanguage;
   onConfirm: () => void;
   onChange: () => void;
   onRetry: () => void;
@@ -23,31 +24,71 @@ export const ConfirmationCard: React.FC<ConfirmationCardProps> = ({
 }) => {
   const getDefaultMessage = () => {
     if (confirmMessage) return confirmMessage;
-    if (language === 'hi') {
-      return `क्या ${fieldLabel}: "${candidateValue}" सही है?`;
-    }
-    if (language === 'mr') {
-      return `काय ${fieldLabel}: "${candidateValue}" बरोबर आहे का?`;
-    }
-    return `Is ${fieldLabel}: "${candidateValue}" correct?`;
+    const msgs: Record<SupportedLanguage, string> = {
+      hi: `क्या ${fieldLabel}: "${candidateValue}" सही है?`,
+      mr: `काय ${fieldLabel}: "${candidateValue}" बरोबर आहे का?`,
+      bn: `${fieldLabel}: "${candidateValue}", এটি কি সঠিক?`,
+      te: `${fieldLabel}: "${candidateValue}", ఇది సరైనదేనా?`,
+      ta: `${fieldLabel}: "${candidateValue}", இது சரியானதா?`,
+      gu: `શું ${fieldLabel}: "${candidateValue}" સાચું છે?`,
+      kn: `${fieldLabel}: "${candidateValue}", ಇದು ಸರಿಯೇ?`,
+      ml: `${fieldLabel}: "${candidateValue}", ഇത് ശരിയാണോ?`,
+      pa: `ਕੀ ${fieldLabel}: "${candidateValue}" ਸਹੀ ਹੈ?`,
+      or: `କଣ ${fieldLabel}: "${candidateValue}" ସଠିକ କି?`,
+      en: `Is ${fieldLabel}: "${candidateValue}" correct?`
+    };
+    return msgs[language] || msgs.en;
   };
 
   const getYesLabel = () => {
-    if (language === 'hi') return 'हाँ, सही है (Yes, correct)';
-    if (language === 'mr') return 'होय, बरोबर आहे (Yes)';
-    return 'Yes, Correct';
+    const msgs: Record<SupportedLanguage, string> = {
+      hi: 'हाँ, सही है (Yes)',
+      mr: 'होय, बरोबर (Yes)',
+      bn: 'হ্যাঁ, ঠিক আছে (Yes)',
+      te: 'అవును, సరైనది (Yes)',
+      ta: 'ஆம், சரி (Yes)',
+      gu: 'હા, સાચું છે (Yes)',
+      kn: 'ಹೌದು, ಸರಿ (Yes)',
+      ml: 'അതെ, ശരിയാണ് (Yes)',
+      pa: 'ਹਾਂ, ਸਹੀ ਹੈ (Yes)',
+      or: 'ହଁ, ସଠିକ (Yes)',
+      en: 'Yes, Correct'
+    };
+    return msgs[language] || msgs.en;
   };
 
   const getChangeLabel = () => {
-    if (language === 'hi') return 'नहीं, बदलें (Change)';
-    if (language === 'mr') return 'नाही, बदला (Change)';
-    return 'No, Change';
+    const msgs: Record<SupportedLanguage, string> = {
+      hi: 'नहीं, बदलें (Change)',
+      mr: 'नाही, बदला (Change)',
+      bn: 'না, পরিবর্তন করুন (Change)',
+      te: 'కాదు, మార్చండి (Change)',
+      ta: 'இல்லை, மாற்றவும் (Change)',
+      gu: 'ના, બદલો (Change)',
+      kn: 'ಇಲ್ಲ, ಬದಲಾಯಿಸಿ (Change)',
+      ml: 'അല്ല, മാറ്റുക (Change)',
+      pa: 'ਨਹੀਂ, ਬਦਲੋ (Change)',
+      or: 'ନାହିଁ, ବଦଳାନ୍ତୁ (Change)',
+      en: 'No, Change'
+    };
+    return msgs[language] || msgs.en;
   };
 
   const getRetryLabel = () => {
-    if (language === 'hi') return 'दोबारा बोलें (Speak Again)';
-    if (language === 'mr') return 'पुन्हा बोला (Speak Again)';
-    return 'Speak Again';
+    const msgs: Record<SupportedLanguage, string> = {
+      hi: 'दोबारा बोलें (Speak Again)',
+      mr: 'पुन्हा बोला (Speak Again)',
+      bn: 'আবার বলুন (Speak Again)',
+      te: 'మళ్లీ చెప్పండి (Speak Again)',
+      ta: 'மீண்டும் பேசவும் (Speak Again)',
+      gu: 'ફરી બોલો (Speak Again)',
+      kn: 'ಮತ್ತೆ ಹೇಳಿ (Speak Again)',
+      ml: 'വീണ്ടും പറയുക (Speak Again)',
+      pa: 'ਦੁਬਾਰਾ ਬੋਲੋ (Speak Again)',
+      or: 'ପୁଣି କୁହନ୍ତୁ (Speak Again)',
+      en: 'Speak Again'
+    };
+    return msgs[language] || msgs.en;
   };
 
   return (

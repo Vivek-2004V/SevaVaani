@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { SupportedLanguage } from '../types';
 
 export interface FallbackPanelProps {
   fieldName: string;
   fieldLabel: string;
-  language: 'hi' | 'mr' | 'en';
+  language: SupportedLanguage;
   onRetryVoice: () => void;
   onSubmitText: (text: string) => void;
   onRequestHelp: () => void;
@@ -23,15 +24,37 @@ export const FallbackPanel: React.FC<FallbackPanelProps> = ({
   const [showTypeInput, setShowTypeInput] = useState(false);
 
   const getHeading = () => {
-    if (language === 'hi') return 'आवाज़ समझने में थोड़ी कठिनाई हुई';
-    if (language === 'mr') return 'आवाज समजण्यात अडचण आली';
-    return 'Voice was unclear or low confidence';
+    const msgs: Record<SupportedLanguage, string> = {
+      hi: 'आवाज़ समझने में थोड़ी कठिनाई हुई',
+      mr: 'आवाज समजण्यात अडचण आली',
+      bn: 'কথা বুঝতে কিছুটা সমস্যা হয়েছে',
+      te: 'వాయిస్ అర్థం చేసుకోవడంలో ఇబ్బంది వచ్చింది',
+      ta: 'குரலை புரிந்துகொள்வதில் சற்று சிரமம் ஏற்பட்டது',
+      gu: 'અવાજ સમજવામાં થોડી મુશ્કેલી થઈ',
+      kn: 'ಧ್ವನಿ ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಸ್ವಲ್ಪ ತೊಂದರೆಯಾಯಿತು',
+      ml: 'ശബ്ദം മനസ്സിലാക്കാൻ ബുദ്ധിമുട്ടായി',
+      pa: 'ਆਵਾਜ਼ ਸਮਝਣ ਵਿੱਚ ਕੁਝ ਔਖਿਆਈ ਆਈ',
+      or: 'ସ୍ୱର ବୁଝିବାରେ କିଛି ଅସୁବିଧା ହେଲା',
+      en: 'Voice was unclear or low confidence'
+    };
+    return msgs[language] || msgs.en;
   };
 
   const getSubtext = () => {
-    if (language === 'hi') return 'चिंता न करें, आपकी दर्ज जानकारी सुरक्षित है। कृपया इनमें से एक चुनें:';
-    if (language === 'mr') return 'काळजी करू नका, भरलेली माहिती सुरक्षित आहे. खालील पर्याय निवडा:';
-    return 'Do not worry, your saved fields are preserved. Please choose an option:';
+    const msgs: Record<SupportedLanguage, string> = {
+      hi: 'चिंता न करें, आपकी दर्ज जानकारी सुरक्षित है। कृपया इनमें से एक चुनें:',
+      mr: 'काळजी करू नका, भरलेली माहिती सुरक्षित आहे. खालील पर्याय निवडा:',
+      bn: 'চিন্তা করবেন না, আপনার তথ্য সংরক্ষিত আছে। একটি বিকল্প বেছে নিন:',
+      te: 'చింతించకండి, మీ సమాచారం సురక్షితంగా ఉంది. ఒక ఎంపికను ఎంచుకోండి:',
+      ta: 'கவலைப்பட வேண்டாம், உங்கள் தகவல் பாதுகாப்பாக உள்ளது:',
+      gu: 'ચિંતા કરશો નહીં, તમારી માહિતી સુરક્ષિત છે:',
+      kn: 'ಚಿಂತಿಸಬೇಡಿ, ನಿಮ್ಮ ಮಾಹಿತಿ ಸುರಕ್ಷಿತವಾಗಿದೆ:',
+      ml: 'വിഷമിക്കേണ്ട, നിങ്ങളുടെ വിവരങ്ങൾ സുരക്ഷിതമാണ്:',
+      pa: 'ਚਿੰਤਾ ਨਾ ਕਰੋ, ਤੁਹਾਡੀ ਜਾਣਕਾਰੀ ਸੁਰੱਖਿਅਤ ਹੈ:',
+      or: 'ଚିନ୍ତା କରନ୍ତୁ ନାହିଁ, ଆପଣଙ୍କ ତଥ୍ୟ ସୁରକ୍ଷିତ ଅଛି:',
+      en: 'Do not worry, your saved fields are preserved. Please choose an option:'
+    };
+    return msgs[language] || msgs.en;
   };
 
   const handleTextSubmit = (e: React.FormEvent) => {

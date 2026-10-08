@@ -10,9 +10,9 @@ def health_check():
         "status": "healthy",
         "service": "SEVA VAANI",
         "version": "1.0.0",
-        "supported_languages": ["hi", "mr"],
+        "supported_languages": ["hi", "mr", "bn", "te", "ta", "gu", "kn", "ml", "pa", "or", "en"],
         "active_service": "scholarship_app",
-        "architecture": "Voice Interface + Deterministic State Machine (SV-TRD-001)"
+        "architecture": "Pan-India Voice Interface + Deterministic State Machine (SV-TRD-001)"
     }
 
 @router.get("/api/metrics")

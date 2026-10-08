@@ -1,10 +1,11 @@
 import React from 'react';
+import { SupportedLanguage } from '../types';
 
 export interface TranscriptCardProps {
   transcript: string;
   isLive?: boolean;
   confidence?: number;
-  language: 'hi' | 'mr' | 'en';
+  language: SupportedLanguage;
 }
 
 export const TranscriptCard: React.FC<TranscriptCardProps> = ({
@@ -16,9 +17,20 @@ export const TranscriptCard: React.FC<TranscriptCardProps> = ({
   if (!transcript) return null;
 
   const getHeading = () => {
-    if (language === 'hi') return 'आपने कहा (You said):';
-    if (language === 'mr') return 'तुम्ही म्हणालात (You said):';
-    return 'Recognized Transcript:';
+    const msgs: Record<SupportedLanguage, string> = {
+      hi: 'आपने कहा (You said):',
+      mr: 'तुम्ही म्हणालात (You said):',
+      bn: 'আপনি বললেন (You said):',
+      te: 'మీరు చెప్పారు (You said):',
+      ta: 'நீங்கள் கூறியது (You said):',
+      gu: 'તમે કહ્યું (You said):',
+      kn: 'ನೀವು ಹೇಳಿದ್ದು (You said):',
+      ml: 'നിങ്ങൾ പറഞ്ഞത് (You said):',
+      pa: 'ਤੁਸੀਂ ਕਿਹਾ (You said):',
+      or: 'ଆପଣ କହିଲେ (You said):',
+      en: 'Recognized Transcript:'
+    };
+    return msgs[language] || msgs.en;
   };
 
   return (

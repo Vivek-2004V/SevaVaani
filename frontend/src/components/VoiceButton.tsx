@@ -1,4 +1,5 @@
 import React from 'react';
+import { SupportedLanguage } from '../types';
 
 export interface VoiceButtonProps {
   isListening: boolean;
@@ -6,7 +7,7 @@ export interface VoiceButtonProps {
   error?: string | null;
   onStartListening: () => void;
   onStopListening: () => void;
-  language: 'hi' | 'mr' | 'en';
+  language: SupportedLanguage;
 }
 
 export const VoiceButton: React.FC<VoiceButtonProps> = ({
@@ -19,18 +20,52 @@ export const VoiceButton: React.FC<VoiceButtonProps> = ({
 }) => {
   const getButtonText = () => {
     if (isProcessing) {
-      if (language === 'hi') return 'आवाज़ समझ रहे हैं... (Processing)';
-      if (language === 'mr') return 'आवाज प्रक्रिया सुरू आहे...';
-      return 'Processing Speech...';
+      const msgs: Record<SupportedLanguage, string> = {
+        hi: 'आवाज़ समझ रहे हैं... (Processing)',
+        mr: 'आवाज प्रक्रिया सुरू आहे... (Processing)',
+        bn: 'কথা বিশ্লেষণ করা হচ্ছে... (Processing)',
+        te: 'మాటను ప్రాసెస్ చేస్తున్నాము... (Processing)',
+        ta: 'குரல் செயலாக்கப்படுகிறது... (Processing)',
+        gu: 'અવાજ સમજી રહ્યા છીએ... (Processing)',
+        kn: 'ಧ್ವನಿ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲಾಗುತ್ತಿದೆ... (Processing)',
+        ml: 'ശബ്ദം പ്രോസസ്സ് ചെയ്യുന്നു... (Processing)',
+        pa: 'ਆਵਾਜ਼ ਸਮਝ ਰਹੇ ਹਾਂ... (Processing)',
+        or: 'ସ୍ୱର ବିଶ୍ଳେଷଣ ଚାଲିଛି... (Processing)',
+        en: 'Processing speech...'
+      };
+      return msgs[language] || msgs.en;
     }
     if (isListening) {
-      if (language === 'hi') return 'बोलिए, हम सुन रहे हैं (Listening...)';
-      if (language === 'mr') return 'बोला, आम्ही ऐकत आहोत...';
-      return 'Listening... Speak now';
+      const msgs: Record<SupportedLanguage, string> = {
+        hi: 'बोलिए, हम सुन रहे हैं (Listening...)',
+        mr: 'बोला, आम्ही ऐकत आहोत... (Listening)',
+        bn: 'বলুন, আমরা শুনছি... (Listening)',
+        te: 'మాట్లాడండి, వింటున్నాము... (Listening)',
+        ta: 'பேசுங்கள், கேட்கிறோம்... (Listening)',
+        gu: 'બોલો, અમે સાંભળી રહ્યા છીએ... (Listening)',
+        kn: 'ಮಾತನಾಡಿ, ನಾವು ಕೇಳುತ್ತಿದ್ದೇವೆ... (Listening)',
+        ml: 'സംസാരിക്കൂ, ഞങ്ങൾ കേൾക്കുന്നു... (Listening)',
+        pa: 'ਬੋਲੋ, ਅਸੀਂ ਸੁਣ ਰਹੇ ਹਾਂ... (Listening)',
+        or: 'କୁହନ୍ତୁ, ଆମେ ଶୁଣୁଛୁ... (Listening)',
+        en: 'Listening... Speak now'
+      };
+      return msgs[language] || msgs.en;
     }
-    if (language === 'hi') return 'बोलने के लिए माइक दबाएं (Tap to Speak)';
-    if (language === 'mr') return 'बोलण्यासाठी माइक दाबा (Tap to Speak)';
-    return 'Tap to Speak';
+
+    const msgs: Record<SupportedLanguage, string> = {
+      hi: 'बोलने के लिए माइक दबाएं (Tap to Speak)',
+      mr: 'बोलण्यासाठी माइक दाबा (Tap to Speak)',
+      bn: 'কথা বলতে মাইকে চাপ দিন (Tap to Speak)',
+      te: 'మాట్లాడటానికి మైక్ నొక్కండి (Tap to Speak)',
+      ta: 'பேச மைக்கை அழுத்தவும் (Tap to Speak)',
+      gu: 'બોલવા માટે માઇક દબાવો (Tap to Speak)',
+      kn: 'ಮಾತನಾಡಲು ಮೈಕ್ ಒತ್ತಿ (Tap to Speak)',
+      ml: 'സംസാരിക്കാൻ മൈക്ക് അമർത്തുക (Tap to Speak)',
+      pa: 'ਬੋਲਣ ਲਈ ਮਾਈਕ ਦਬਾਓ (Tap to Speak)',
+      or: 'କହିବା ପାଇଁ ମାଇକ୍ ଦବାନ୍ତୁ (Tap to Speak)',
+      en: 'Tap to Speak'
+    };
+    return msgs[language] || msgs.en;
   };
 
   const handleClick = () => {

@@ -1,22 +1,21 @@
-export type SupportedLanguage = 'hi' | 'mr' | 'en';
+export type SupportedLanguage =
+  | 'hi'  // Hindi
+  | 'mr'  // Marathi
+  | 'en'  // English
+  | 'bn'  // Bengali
+  | 'te'  // Telugu
+  | 'ta'  // Tamil
+  | 'gu'  // Gujarati
+  | 'kn'  // Kannada
+  | 'ml'  // Malayalam
+  | 'or'  // Odia
+  | 'pa'; // Punjabi
 
 export interface FormField {
   id: string;
-  label: {
-    en: string;
-    hi: string;
-    mr: string;
-  };
-  prompt: {
-    en: string;
-    hi: string;
-    mr: string;
-  };
-  confirmPrompt: {
-    en: string;
-    hi: string;
-    mr: string;
-  };
+  label: Record<string, string>;
+  prompt: Record<string, string>;
+  confirmPrompt: Record<string, string>;
   type: 'text' | 'tel' | 'date' | 'number' | 'select';
   required: boolean;
   value?: string;
