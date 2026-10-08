@@ -1,160 +1,111 @@
-import React from 'react';
+import React, { useState } from 'react';
+import logoImg from '../assets/seva-vaani-logo.png';
 
 export interface SevaVaaniLogoProps {
   size?: number;
   className?: string;
   showWordmark?: boolean;
   subtitle?: string;
-  variant?: 'human-civic' | 'speaking-leaf' | 'auto';
+  variant?: 'full' | 'compact' | 'auto';
 }
 
 /**
- * SEVA VAANI — Human-Crafted Indian Civic Emblem (मानवीय एवं प्रामाणिक पहचान)
- * Handcrafted Indian Public Service Brand Identity:
- * 1. Devanagari 'स' (सेवा और स्वर) — Deep civic navy, the foundation of citizen service.
- * 2. Sprouting Peepal Leaf (अंकुर / पत्ता) — Vibrant emerald green, representing life, youth & welfare.
- * 3. Acoustic Voice Ripples (वाणी / स्वर तरंगें) — Warm saffron soundwaves radiating citizen speech.
- * 4. High legibility at 24px and 120px scale with zero synthetic AI clutter.
+ * SEVA VAANI Official Brand Emblem
+ * Features:
+ * - High-fidelity authentic artwork: The Speaking Face, Golden & Emerald Peepal leaves, Acoustic Voice waves, 3D Gold "SEVA" and Glowing "VAANI".
+ * - Rich interactive hover experience:
+ *   * Scale lift with smooth spring easing
+ *   * Dual-layer ambient glow (Emerald green + Golden dawn aura)
+ *   * Subtle 3D perspective tilt
+ *   * Interactive live civic badge
  */
 export const SevaVaaniLogo: React.FC<SevaVaaniLogoProps> = ({
-  size = 46,
+  size = 62,
   className = '',
   showWordmark = false,
-  subtitle = 'नागरिकों की अपनी आवाज़ • जन सेवा केंद्र',
-  variant = 'human-civic'
+  subtitle = 'डिजिटल जन सेवा केंद्र',
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <div className={`flex items-center gap-3 select-none ${className}`}>
-      {/* Emblem Badge Container: Crisp porcelain circular medallion */}
+    <div
+      className={`group relative inline-flex items-center gap-3 select-none cursor-pointer ${className}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      role="banner"
+      aria-label="SEVA VAANI — Digital Citizen Service"
+    >
+      {/* Ambient Radial Bloom Backdrop on Hover */}
       <div
-        className="relative flex items-center justify-center rounded-full bg-white shadow-md border border-slate-200/90 transition-all duration-300 hover:scale-105 hover:shadow-lg flex-shrink-0 group overflow-hidden"
-        style={{ width: size, height: size, padding: size * 0.08 }}
+        className={`absolute -inset-3 rounded-full transition-all duration-500 pointer-events-none ${
+          isHovered
+            ? 'opacity-100 bg-gradient-to-r from-emerald-500/30 via-amber-400/25 to-emerald-400/30 blur-2xl scale-110'
+            : 'opacity-0 scale-90'
+        }`}
+      />
+
+      {/* Main Logo Container with Smooth Interactive Hover Effects */}
+      <div
+        className="relative flex items-center justify-center transition-all duration-300 ease-out transform"
+        style={{
+          transform: isHovered
+            ? 'translateY(-2px) scale(1.06)'
+            : 'translateY(0px) scale(1)',
+        }}
       >
-        <svg
-          viewBox="0 0 100 100"
-          className="w-full h-full overflow-visible"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Porcelain white medallion backdrop */}
-          <circle cx="50" cy="50" r="48" fill="#ffffff" />
-          
-          <defs>
-            {/* Natural Forest & Neem Leaf Gradient (Rich, grounded organic green) */}
-            <linearGradient id="civicLeafGrad" x1="58" y1="36" x2="88" y2="12" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#15803d" />
-              <stop offset="60%" stopColor="#16a34a" />
-              <stop offset="100%" stopColor="#22c55e" />
-            </linearGradient>
+        <img
+          src={logoImg}
+          alt="SEVA VAANI — सेवा वाणी"
+          className="w-auto object-contain transition-all duration-300 filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_22px_rgba(34,197,94,0.55)] group-hover:drop-shadow-[0_0_36px_rgba(234,179,8,0.35)] group-hover:brightness-110"
+          style={{
+            height: size,
+            maxHeight: size,
+          }}
+          loading="eager"
+        />
 
-            {/* Warm Saffron Acoustic Wave Gradient */}
-            <linearGradient id="civicVoiceWaves" x1="10" y1="30" x2="24" y2="65" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#f97316" />
-              <stop offset="100%" stopColor="#ea580c" />
-            </linearGradient>
-          </defs>
-
-          {variant === 'speaking-leaf' ? (
-            /* Variant: The Speaking Leaf (वाणी-पर्ण) */
-            <g>
-              <path
-                d="M 50 82 C 48 82, 22 72, 24 44 C 26 26, 42 16, 50 14 C 50 28, 49 60, 50 82 Z"
-                fill="url(#civicLeafGrad)"
-              />
-              <path d="M 50 84 L 50 14" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
-              <path d="M 50 32 C 60 33, 70 40, 70 52" stroke="#2563eb" strokeWidth="4" strokeLinecap="round" />
-              <path d="M 50 48 C 65 49, 82 58, 80 72" stroke="#2563eb" strokeWidth="4" strokeLinecap="round" />
-              <path d="M 50 64 C 62 65, 74 72, 72 82" stroke="#2563eb" strokeWidth="3.5" strokeLinecap="round" />
-              <circle cx="50" cy="85" r="3.5" fill="#ea580c" />
-            </g>
-          ) : (
-            /* Default Variant: Human Civic 'स' + Sprouting Leaf + Voice Waves */
-            <g>
-              {/* 1. SEVA: The Dignified Civic Devanagari 'स' in Deep Navy (#1e3a8a) */}
-              {/* Top Shirorekha / Horizontal Bar */}
-              <path
-                d="M 25 26 L 73 26"
-                stroke="#1e3a8a"
-                strokeWidth="5.5"
-                strokeLinecap="round"
-              />
-              {/* Vertical Spine (Right Column) */}
-              <path
-                d="M 61 26 L 61 76"
-                stroke="#1e3a8a"
-                strokeWidth="5.5"
-                strokeLinecap="round"
-              />
-              {/* Middle Connecting Bridge */}
-              <path
-                d="M 43 49 L 61 49"
-                stroke="#1e3a8a"
-                strokeWidth="5"
-                strokeLinecap="round"
-              />
-              {/* Left Acoustic Curve (Devanagari loop / sound receiver) */}
-              <path
-                d="M 44 26 C 27 26, 23 38, 23 48 C 23 60, 35 66, 41 74"
-                stroke="#1e3a8a"
-                strokeWidth="5"
-                strokeLinecap="round"
-              />
-
-              {/* 2. LEAF: Organic Peepal Sprout blossoming from the top right */}
-              <path
-                d="M 61 26 
-                   C 66 14 81 12 87 25 
-                   C 85 36 73 34 61 26 Z"
-                fill="url(#civicLeafGrad)"
-              />
-              {/* Delicate white leaf central vein */}
-              <path
-                d="M 63 26 C 70 23 78 21 84 24"
-                stroke="#ffffff"
-                strokeWidth="1.2"
-                strokeLinecap="round"
-                opacity="0.85"
-              />
-
-              {/* 3. VAANI: Acoustic Sound Waves (Citizen Voice radiating from the left) */}
-              {/* Inner Voice Wave */}
-              <path
-                d="M 17 38 A 14 14 0 0 0 17 58"
-                stroke="url(#civicVoiceWaves)"
-                strokeWidth="3.4"
-                strokeLinecap="round"
-              />
-              {/* Outer Voice Wave */}
-              <path
-                d="M 10 32 A 23 23 0 0 0 10 64"
-                stroke="url(#civicVoiceWaves)"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-                opacity="0.85"
-              />
-            </g>
-          )}
-        </svg>
+        {/* Shimmer sweep effect on hover */}
+        <div
+          className={`absolute inset-0 pointer-events-none transition-opacity duration-700 ${
+            isHovered ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            background:
+              'linear-gradient(115deg, transparent 25%, rgba(255,255,255,0.28) 50%, transparent 75%)',
+            backgroundSize: '200% 100%',
+            animation: isHovered ? 'shimmerSweep 1.5s infinite ease-in-out' : 'none',
+          }}
+        />
       </div>
 
-      {/* Wordmark (When enabled) */}
+      {/* Accompanying Civic Badge & Subtitle (When enabled) */}
       {showWordmark && (
-        <div className="flex flex-col text-left">
-          <div className="flex items-center gap-2">
-            <span className="text-xl md:text-2xl font-black tracking-tight text-white drop-shadow-sm font-sans">
-              SEVA VAANI
-            </span>
-            <span className="text-[11px] font-bold text-emerald-300 px-2 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-600/50">
-              सेवा वाणी
+        <div className="hidden xl:flex flex-col text-left transition-all duration-300 pl-1 border-l border-white/10">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span
+              className={`text-[10px] font-bold tracking-wider uppercase transition-all duration-300 ${
+                isHovered ? 'text-emerald-300' : 'text-emerald-400/90'
+              }`}
+            >
+              जन सेवा केंद्र
             </span>
           </div>
           {subtitle && (
-            <p className="text-[10px] md:text-[11px] text-slate-200 font-normal tracking-wide mt-0.5">
+            <p className="text-[10px] text-slate-300/80 font-normal tracking-wide">
               {subtitle}
             </p>
           )}
         </div>
       )}
+
+      {/* Embedded Keyframe style for the smooth shimmer */}
+      <style>{`
+        @keyframes shimmerSweep {
+          0% { background-position: -150% 0; }
+          100% { background-position: 250% 0; }
+        }
+      `}</style>
     </div>
   );
 };
