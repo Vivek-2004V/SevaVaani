@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - DATABASE_URL=sqlite:///./seva_vaani.db
+    volumes:
+      - seva_vaani_data:/app/data
+
+volumes:
+  seva_vaani_data:
