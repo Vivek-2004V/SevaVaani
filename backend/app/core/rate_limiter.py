@@ -4,7 +4,6 @@ Provides thread-safe IP-based rate limiting for sensitive mutation & auth endpoi
 Supports safe proxy header handling (X-Forwarded-For) and custom window/rate thresholds.
 """
 
-from __future__ import annotations
 import os
 import time
 import threading
@@ -22,7 +21,7 @@ class SlidingWindowRateLimiter:
         self.times = times
         self.seconds = seconds
         self.scope = scope
-        self._records: Dict[str, List[float]] = {}
+        self._records = {}  # type: Dict[str, List[float]]
         self._lock = threading.Lock()
 
     def _get_client_ip(self, request: Request) -> str:
@@ -88,3 +87,8 @@ class SlidingWindowRateLimiter:
 
 # Pre-configured rate limiters for authentication
 auth_limiter = SlidingWindowRateLimiter(times=5, seconds=60, scope="auth")
+
+
+def check_auth_rate_limit(request: Request) -> None:
+    """FastAPI dependency for authenticating rate limit on endpoints."""
+    auth_limiter.check(request)
