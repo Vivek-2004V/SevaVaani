@@ -3,6 +3,8 @@ import { FormField, SupportedLanguage } from '../types';
 import { FieldSummary } from '../components/FieldSummary';
 import { submitFinalApplication } from '../services/api';
 import { SevaVaaniLogo } from '../components/SevaVaaniLogo';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { ConnectionBanner } from '../components/ConnectionBanner';
 
 export interface ReviewProps {
   sessionId: string;
@@ -24,6 +26,7 @@ export const Review: React.FC<ReviewProps> = ({
   const [consentGiven, setConsentGiven] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const networkStatus = useNetworkStatus();
 
   const getReviewHeading = () => {
     const headings: Record<SupportedLanguage, string> = {
@@ -65,7 +68,18 @@ export const Review: React.FC<ReviewProps> = ({
       return;
     }
 
-    setIsSubmitting(true);
+    // Block offline submission — government form data must only be sent with confirmed connectivity
+    if (networkStatus.isOffline) {
+      setSubmitError(
+        language === 'mr'
+          ? '📡 इंटरनेट बंद आहे. अर्ज जमा करण्यासाठी इंटरनेट जोडणी आवश्यक आहे. आपचे सर्व उत्तरे सुरक्षित सहेजले आहेत.'
+          : language === 'en'
+          ? '📡 You are offline. Final submission requires an internet connection. All your answers are saved locally and will not be lost.'
+          : '📡 इंटरनेट बंद है। आवेदन जमा करने के लिए इंटरनेट ज़रूरी है। आपके सभी उत्तर सुरक्षित सहेजे गए हैं — कनेक्शन वापस आने पर जमा करें।'
+      );
+      return;
+    }
+
     setSubmitError(null);
 
     const formDataObj: Record<string, string> = {};
@@ -89,7 +103,8 @@ export const Review: React.FC<ReviewProps> = ({
 
   return (
     <div className="min-h-screen w-full bg-black/45 backdrop-blur-md flex flex-col justify-between p-3.5 sm:p-6 text-white">
-      <header className="max-w-2xl mx-auto w-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+      <ConnectionBanner status={networkStatus} />
+      <header className={`max-w-2xl mx-auto w-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 ${networkStatus.isOffline ? 'mt-16' : ''}`}>
         <button
           type="button"
           onClick={onBack}
@@ -151,9 +166,9 @@ export const Review: React.FC<ReviewProps> = ({
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!consentGiven || isSubmitting}
+            disabled={!consentGiven || isSubmitting || networkStatus.isOffline}
             className={`w-full max-w-md px-8 py-4 rounded-2xl font-bold text-base md:text-lg shadow-2xl transition-all duration-200 flex items-center justify-center gap-2 border ${
-              consentGiven && !isSubmitting
+              consentGiven && !isSubmitting && !networkStatus.isOffline
                 ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white border-emerald-300/40 shadow-emerald-950/80 active:scale-95 cursor-pointer'
                 : 'bg-white/10 text-slate-400 border-white/10 cursor-not-allowed shadow-none'
             }`}

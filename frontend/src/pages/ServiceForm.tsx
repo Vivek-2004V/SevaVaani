@@ -1,13 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FormField, SupportedLanguage, AssistTurnResponse } from '../types';
 import { ProgressBar } from '../components/ProgressBar';
 import { VoiceButton } from '../components/VoiceButton';
 import { TranscriptCard } from '../components/TranscriptCard';
 import { ConfirmationCard } from '../components/ConfirmationCard';
 import { FallbackPanel } from '../components/FallbackPanel';
+import { ConnectionBanner } from '../components/ConnectionBanner';
 import { processVoiceTurn, confirmField, submitFallbackText, requestHumanHelp } from '../services/api';
 import { INDIAN_LANGUAGES } from '../components/LanguageSelector';
 import { SevaVaaniLogo } from '../components/SevaVaaniLogo';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { useOfflineStore } from '../hooks/useOfflineStore';
+import { useOfflineSyncRunner } from '../hooks/useOfflineSyncRunner';
 
 export interface ServiceFormProps {
   sessionId: string;
@@ -52,9 +56,25 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   const [showFallback, setShowFallback] = useState(false);
   const [helpTicketId, setHelpTicketId] = useState<string | null>(null);
 
-  // Low Internet Indicator
-  const [isLowInternet, setIsLowInternet] = useState(false);
+  // ── Offline / Network ─────────────────────────────────────────────────────
+  const networkStatus = useNetworkStatus();
+  const { saveSession, enqueueSyncItem } = useOfflineStore();
+  const { isSyncing, pendingCount } = useOfflineSyncRunner(networkStatus);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+
+  // When we go offline, automatically show the text fallback
+  useEffect(() => {
+    if (networkStatus.isOffline && !showFallback && !showConfirmation) {
+      setShowFallback(true);
+      setVoiceError(
+        language === 'mr'
+          ? 'इंटरनेट बंद आहे. कृपया खाली टाईप करा.'
+          : language === 'en'
+          ? 'You are offline. Please type your answer below.'
+          : 'इंटरनेट बंद है। कृपया नीचे टाइप करके उत्तर दें।'
+      );
+    }
+  }, [networkStatus.isOffline]);
 
   const recognitionRef = useRef<any>(null);
 
@@ -196,6 +216,19 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
   // Browser Web Speech API setup
   const startListening = () => {
+    // Block voice when offline — STT uses cloud APIs (webkitSpeechRecognition → Google)
+    if (networkStatus.isOffline) {
+      setVoiceError(
+        language === 'mr'
+          ? 'इंटरनेट बंद असताना आवाज काम करत नाही. कृपया टाईप करा.'
+          : language === 'en'
+          ? 'Voice recognition requires an internet connection. Please type your answer.'
+          : 'इंटरनेट बंद है — आवाज़ काम नहीं करेगी। कृपया नीचे टाइप करें।'
+      );
+      setShowFallback(true);
+      return;
+    }
+
     setVoiceError(null);
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -314,8 +347,6 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   const handleConfirm = async () => {
     if (!pendingValue) return;
 
-    await confirmField(sessionId, currentField.id, true, pendingValue);
-
     const updated = [...fields];
     updated[currentIdx] = {
       ...currentField,
@@ -324,6 +355,24 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     };
     setFields(updated);
 
+    // ── Persist to IndexedDB immediately (offline-safe) ───────────────────
+    const nextIdx = currentIdx + 1;
+    await saveSession(sessionId, 'scholarship_post_matric', language, nextIdx, updated);
+
+    // ── Sync to backend: queue if offline, call directly if online ────────
+    if (networkStatus.isOffline) {
+      await enqueueSyncItem({
+        sessionId,
+        type: 'confirm_field',
+        payload: { sessionId, fieldId: currentField.id, confirmed: true, candidateValue: pendingValue },
+      });
+    } else {
+      // Fire-and-forget — answer is already saved locally
+      confirmField(sessionId, currentField.id, true, pendingValue).catch(
+        (err) => console.warn('[ServiceForm] confirmField backend error (non-critical):', err)
+      );
+    }
+
     setShowConfirmation(false);
     setPendingValue(null);
     setTranscript('');
@@ -331,7 +380,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     setHelpTicketId(null);
 
     if (currentIdx + 1 < fields.length) {
-      setCurrentIdx(currentIdx + 1);
+      setCurrentIdx(nextIdx);
     } else {
       onCompleteForm(updated);
     }
@@ -373,8 +422,16 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
   return (
     <div className="min-h-screen w-full bg-black/45 backdrop-blur-md flex flex-col justify-between p-3.5 sm:p-6 text-white">
+
+      {/* ── Real-time Connection Banner ────────────────────────────────── */}
+      <ConnectionBanner
+        status={networkStatus}
+        pendingSyncCount={pendingCount}
+        isSyncing={isSyncing}
+      />
+
       {/* Top Header with Multilingual Quick Switcher */}
-      <header className="max-w-2xl mx-auto w-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+      <header className={`max-w-2xl mx-auto w-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 ${networkStatus.isOffline ? 'mt-16' : ''}`}>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -389,19 +446,18 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
           </div>
         </div>
 
-        {/* Language switch & Low Internet indicator */}
+        {/* Language switch & Live Network Status pill */}
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => setIsLowInternet(!isLowInternet)}
+          {/* Live read-only network pill */}
+          <span
             className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors backdrop-blur-md ${
-              isLowInternet
+              networkStatus.isOffline
                 ? 'bg-amber-950/70 text-amber-200 border-amber-500/40'
                 : 'bg-emerald-950/70 text-emerald-300 border-emerald-500/40'
             }`}
           >
-            {isLowInternet ? '⚡ Low Net' : '📶 Online'}
-          </button>
+            {networkStatus.isOffline ? '⚡ Offline' : '📶 Online'}
+          </span>
 
           {/* Quick Pan-India Language Selector Dropdown */}
           <div className="relative">

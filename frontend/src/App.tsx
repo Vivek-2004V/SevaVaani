@@ -19,6 +19,8 @@ import Review from './pages/Review';
 import Success from './pages/Success';
 import JudgeMode from './pages/JudgeMode';
 import ExtensionModal from './components/ExtensionModal';
+import { SessionRecoveryBanner } from './components/SessionRecoveryBanner';
+import { useOfflineStore, PersistedSession } from './hooks/useOfflineStore';
 
 export type ScreenState =
   | 'welcome'
@@ -44,6 +46,10 @@ export const App: React.FC = () => {
   const [applicationId, setApplicationId] = useState<string>('');
   const [showJudgeMode, setShowJudgeMode] = useState<boolean>(false);
   const [showExtensionModal, setShowExtensionModal] = useState<boolean>(false);
+
+  // Session Recovery State
+  const [pendingRecovery, setPendingRecovery] = useState<PersistedSession | null>(null);
+  const { getLatestSession, clearSession } = useOfflineStore();
 
   // Initialize session and verify token on load
   useEffect(() => {
@@ -81,6 +87,17 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('message', handleGlobalAction);
   }, []);
 
+  // Check for saved incomplete session on auth initialization
+  useEffect(() => {
+    if (authInitialized && currentUser) {
+      getLatestSession().then((saved) => {
+        if (saved && saved.confirmedFields.length > 0) {
+          setPendingRecovery(saved);
+        }
+      });
+    }
+  }, [authInitialized, currentUser]);
+
   // Security Guard: Enforce Authentication on Protected Views
   useEffect(() => {
     if (authInitialized) {
@@ -102,14 +119,38 @@ export const App: React.FC = () => {
   const handleLoginSuccess = (user: AuthUser, token: string) => {
     setAuthToken(token);
     setCurrentUser(user);
-    // Step 6: After successful login, redirect to the authenticated dashboard
     setScreen('dashboard');
   };
 
   const handleLogout = async () => {
+    // Clear saved session on explicit logout
+    if (sessionId) await clearSession(sessionId);
     await logoutUser();
     setCurrentUser(null);
+    setPendingRecovery(null);
     setScreen('welcome');
+  };
+
+  // Handle session recovery choice
+  const handleResumeSession = (saved: PersistedSession) => {
+    const restoredFields = SCHOLARSHIP_FIELDS.map((f) => {
+      const confirmed = saved.confirmedFields.find((c) => c.fieldId === f.id);
+      return confirmed
+        ? { ...f, value: confirmed.value, confirmed: true }
+        : { ...f, value: undefined, confirmed: false };
+    });
+    setFields(restoredFields);
+    setSessionId(saved.id);
+    setLanguage(saved.language);
+    setServiceId(saved.serviceId);
+    setEditIndex(saved.currentFieldIndex);
+    setPendingRecovery(null);
+    setScreen('form');
+  };
+
+  const handleDiscardSession = async () => {
+    if (pendingRecovery) await clearSession(pendingRecovery.id);
+    setPendingRecovery(null);
   };
 
   // Service Session Launcher
@@ -186,6 +227,15 @@ export const App: React.FC = () => {
 
   return (
     <div className="relative min-h-screen w-full font-sans antialiased bg-[#121a13] text-white overflow-x-hidden">
+      {/* Session Recovery Modal — shown after login if a saved session is found */}
+      {pendingRecovery && currentUser && (
+        <SessionRecoveryBanner
+          savedSession={pendingRecovery}
+          onResume={handleResumeSession}
+          onDiscard={handleDiscardSession}
+        />
+      )}
+
       {/* ══════════════════════════════════════════════════════════════════
           PERSISTENT 3D LIVING WORLD SCENE
           Renders seamlessly behind all screens with continuous WebGL animation.
