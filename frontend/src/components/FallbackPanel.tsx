@@ -67,63 +67,65 @@ export const FallbackPanel: React.FC<FallbackPanelProps> = ({
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto my-4 p-5 bg-amber-50/95 border-2 border-amber-300 rounded-3xl shadow-lg animate-fade-in text-slate-800">
+    <div className="w-full max-w-xl mx-auto my-4 p-4 sm:p-5 bg-[#172418]/95 border-2 border-amber-400/40 rounded-3xl shadow-2xl backdrop-blur-2xl animate-fade-in text-white">
       <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 flex-shrink-0 mt-0.5">
+        <div className="w-9 h-9 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 flex-shrink-0 mt-0.5">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
         </div>
         <div className="flex-1">
-          <h4 className="font-bold text-base md:text-lg text-amber-900">
+          <h4 className="font-bold text-base md:text-lg text-amber-200">
             {getHeading()}
           </h4>
-          <p className="text-xs md:text-sm text-amber-800 mt-0.5">
+          <p className="text-xs md:text-sm text-emerald-100/80 mt-0.5">
             {getSubtext()}
           </p>
         </div>
       </div>
 
       {helpTicketId ? (
-        <div className="mt-4 p-4 bg-emerald-50 border border-emerald-300 rounded-2xl text-center">
-          <p className="text-emerald-800 font-bold text-base">
+        <div className="mt-4 p-4 bg-emerald-950/70 border border-emerald-500/40 rounded-2xl text-center">
+          <p className="text-emerald-300 font-bold text-base">
             सहायक अनुरोध दर्ज (Human Help Ticket Generated)
           </p>
-          <p className="text-emerald-700 text-sm mt-1">
-            टिकट क्रमांक: <span className="font-mono font-bold">{helpTicketId}</span>
+          <p className="text-emerald-100 text-sm mt-1">
+            टिकट क्रमांक: <span className="font-mono font-bold text-emerald-400">{helpTicketId}</span>
           </p>
-          <p className="text-xs text-emerald-600 mt-2">
+          <p className="text-xs text-emerald-300/80 mt-2">
             आपकी सभी प्रविष्टियां सुरक्षित हैं। एक ऑपरेटर जल्द ही संपर्क करेगा।
           </p>
         </div>
       ) : showTypeInput ? (
         <form onSubmit={handleTextSubmit} className="mt-4">
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="block text-xs font-semibold text-amber-200 mb-1">
             {fieldLabel} लिखकर दर्ज करें (Type Answer):
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={typedText}
               onChange={(e) => setTypedText(e.target.value)}
               placeholder="यहाँ उत्तर लिखें..."
               autoFocus
-              className="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+              className="flex-1 px-4 py-2.5 bg-black/50 border border-white/20 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:outline-none text-white text-sm"
             />
-            <button
-              type="submit"
-              disabled={!typedText.trim()}
-              className="px-4 py-2.5 bg-blue-600 text-white font-semibold rounded-xl text-sm hover:bg-blue-700 disabled:opacity-50"
-            >
-              पुष्टि करें (Save)
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowTypeInput(false)}
-              className="px-3 py-2.5 bg-slate-200 text-slate-600 font-medium rounded-xl text-sm"
-            >
-              रद्द करें
-            </button>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="submit"
+                disabled={!typedText.trim()}
+                className="px-4 py-2.5 bg-emerald-600 text-white font-semibold rounded-xl text-sm hover:bg-emerald-500 disabled:opacity-50 transition-all active:scale-95"
+              >
+                पुष्टि करें (Save)
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowTypeInput(false)}
+                className="px-3 py-2.5 bg-white/10 hover:bg-white/20 text-slate-300 font-medium rounded-xl text-sm transition-all"
+              >
+                रद्द करें
+              </button>
+            </div>
           </div>
         </form>
       ) : (

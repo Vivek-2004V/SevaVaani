@@ -84,12 +84,13 @@ export const VoiceButton: React.FC<VoiceButtonProps> = ({
         onClick={handleClick}
         disabled={isProcessing}
         aria-label={getButtonText()}
-        className={`relative flex items-center justify-center w-24 h-24 md:w-28 md:h-28 rounded-full shadow-2xl transition-all duration-300 transform active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300 ${
+        aria-pressed={isListening}
+        className={`relative flex items-center justify-center w-24 h-24 md:w-28 md:h-28 rounded-full shadow-2xl transition-all duration-300 transform active:scale-95 focus:outline-none focus:ring-4 focus:ring-emerald-400/40 ${
           isListening
-            ? 'bg-red-500 hover:bg-red-600 scale-105 shadow-red-200'
+            ? 'bg-red-500 hover:bg-red-600 scale-105 shadow-red-950/80 ring-4 ring-red-400/50'
             : isProcessing
-            ? 'bg-amber-500 cursor-wait'
-            : 'bg-blue-600 hover:bg-blue-700 hover:scale-102 shadow-blue-200'
+            ? 'bg-amber-500 cursor-wait shadow-amber-950/80'
+            : 'bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 hover:scale-105 border border-emerald-300/40 shadow-emerald-950/80'
         }`}
       >
         {/* Animated sound wave rings when listening */}
@@ -120,14 +121,21 @@ export const VoiceButton: React.FC<VoiceButtonProps> = ({
       </button>
 
       {/* Button label */}
-      <p className={`mt-3 font-medium text-sm md:text-base text-center transition-colors ${
-        isListening ? 'text-red-600 font-semibold' : isProcessing ? 'text-amber-600' : 'text-slate-700'
-      }`}>
+      <p
+        aria-live="polite"
+        className={`mt-3 font-semibold text-sm md:text-base text-center transition-colors ${
+          isListening ? 'text-red-400' : isProcessing ? 'text-amber-300' : 'text-emerald-100'
+        }`}
+      >
         {getButtonText()}
       </p>
 
       {error && (
-        <div className="mt-2 text-xs md:text-sm text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-200">
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="mt-2 text-xs md:text-sm text-red-200 bg-red-950/80 px-3.5 py-1.5 rounded-xl border border-red-500/40 backdrop-blur-md shadow-lg"
+        >
           {error}
         </div>
       )}

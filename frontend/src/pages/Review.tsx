@@ -88,29 +88,29 @@ export const Review: React.FC<ReviewProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 flex flex-col justify-between p-4 md:p-6 text-slate-800">
-      <header className="max-w-3xl mx-auto w-full flex items-center justify-between">
+    <div className="min-h-screen w-full bg-black/45 backdrop-blur-md flex flex-col justify-between p-3.5 sm:p-6 text-white">
+      <header className="max-w-2xl mx-auto w-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
         <button
           type="button"
           onClick={onBack}
-          className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 border border-slate-200"
+          className="text-xs font-semibold text-emerald-100 hover:text-white flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 backdrop-blur-lg shadow-sm transition-all active:scale-95 shrink-0"
         >
           ← वापस (Back)
         </button>
         <div className="flex items-center gap-2">
           <SevaVaaniLogo size={28} showWordmark={false} />
-          <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">
-            Step 3 of 4: समीक्षा एवं सहमति (Review & Consent)
+          <span className="text-[11px] sm:text-xs font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-500/30 px-3 py-1 rounded-full backdrop-blur-md shadow-sm">
+            Step 3 of 4: समीक्षा (Review)
           </span>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto w-full py-6 my-auto">
         <div className="text-center mb-6">
-          <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">
+          <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
             {getReviewHeading()}
           </h2>
-          <p className="text-xs md:text-sm text-slate-500 mt-1">
+          <p className="text-xs md:text-sm text-emerald-200/80 mt-1">
             कृपया अपने सभी उत्तरों की जांच करें। आवश्यकतानुसार 'बदलें' बटन दबाकर सुधार कर सकते हैं।
           </p>
         </div>
@@ -123,7 +123,7 @@ export const Review: React.FC<ReviewProps> = ({
         />
 
         {/* Consent Section (Section 9.J) */}
-        <div className="mt-6 p-5 bg-white/95 rounded-3xl border-2 border-blue-200 shadow-md">
+        <div className="mt-6 p-5 bg-[#121f15]/90 backdrop-blur-2xl rounded-3xl border border-emerald-500/40 shadow-2xl">
           <label className="flex items-start gap-3 cursor-pointer select-none">
             <input
               type="checkbox"
@@ -132,16 +132,16 @@ export const Review: React.FC<ReviewProps> = ({
                 setConsentGiven(e.target.checked);
                 if (e.target.checked) setSubmitError(null);
               }}
-              className="w-5 h-5 mt-1 rounded text-blue-600 focus:ring-blue-500 border-slate-300"
+              className="w-5 h-5 mt-1 rounded text-emerald-500 focus:ring-emerald-400 bg-black/40 border-white/20 accent-emerald-500"
             />
-            <span className="text-xs md:text-sm text-slate-700 leading-relaxed font-medium">
+            <span className="text-xs md:text-sm text-emerald-100 leading-relaxed font-medium">
               {getConsentText()}
             </span>
           </label>
         </div>
 
         {submitError && (
-          <div className="mt-3 p-3 bg-red-50 text-red-700 text-xs md:text-sm rounded-xl border border-red-200 text-center font-medium">
+          <div className="mt-3 p-3 bg-red-950/70 text-red-200 text-xs md:text-sm rounded-xl border border-red-500/40 text-center font-medium backdrop-blur-md">
             {submitError}
           </div>
         )}
@@ -152,10 +152,10 @@ export const Review: React.FC<ReviewProps> = ({
             type="button"
             onClick={handleSubmit}
             disabled={!consentGiven || isSubmitting}
-            className={`w-full max-w-md px-8 py-4 rounded-2xl font-bold text-base md:text-lg shadow-xl transition-all duration-200 flex items-center justify-center gap-2 ${
+            className={`w-full max-w-md px-8 py-4 rounded-2xl font-bold text-base md:text-lg shadow-2xl transition-all duration-200 flex items-center justify-center gap-2 border ${
               consentGiven && !isSubmitting
-                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20 active:scale-95'
-                : 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white border-emerald-300/40 shadow-emerald-950/80 active:scale-95 cursor-pointer'
+                : 'bg-white/10 text-slate-400 border-white/10 cursor-not-allowed shadow-none'
             }`}
           >
             {isSubmitting ? (

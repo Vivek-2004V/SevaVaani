@@ -34,19 +34,19 @@ export const TranscriptCard: React.FC<TranscriptCardProps> = ({
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto my-3 p-4 bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-md">
-      <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5 font-medium">
+    <div className="w-full max-w-xl mx-auto my-3 p-4 bg-[#121f15]/85 backdrop-blur-2xl rounded-2xl border border-white/15 shadow-xl text-white">
+      <div className="flex items-center justify-between text-xs text-emerald-300/80 mb-1.5 font-medium">
         <span className="flex items-center gap-1.5">
-          <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
+          <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`} />
           {getHeading()}
         </span>
         {confidence !== undefined && (
-          <span className="text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full text-[11px]">
+          <span className="text-emerald-300 bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-0.5 rounded-full text-[11px] font-semibold">
             Accuracy: {Math.round(confidence * 100)}%
           </span>
         )}
       </div>
-      <p className="text-base md:text-lg font-medium text-slate-800 italic">
+      <p className="text-base md:text-lg font-medium text-white italic">
         "{transcript}"
       </p>
     </div>

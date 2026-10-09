@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mock State Scholarship Portal (Synthetic Test Fixture)</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      padding: 24px;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    .header {
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .disclaimer {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      color: #92400e;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+    }
+    input, select {
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: #2563eb;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    .btn-submit {
+      margin-top: 24px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-submit:hover {
+      background: #1e293b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>🏛️ State Post-Matric Scholarship Scheme</h2>
+      <p style="color: #64748b; font-size: 14px; margin: 4px 0 0 0;">Department of Higher Education • Government of India</p>
+    </div>
+
+    <div class="disclaimer">
+      <strong>⚠️ Test Environment Only:</strong> This is a local synthetic form fixture created for testing the SEVA VAANI Chrome extension. It is not connected to a live government portal.
+    </div>
+
+    <form id="scholarship-demo-form" onsubmit="event.preventDefault(); alert('Demo form submission received!');">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="applicant_name">1. Full Name (पूरा नाम)</label>
+          <input type="text" id="applicant_name" name="full_name" placeholder="As per Aadhaar" />
+        </div>
+
+        <div class="form-group">
+          <label for="birth_date">2. Date of Birth (जन्मतारीख)</label>
+          <input type="text" id="birth_date" name="dob" placeholder="DD/MM/YYYY" />
+        </div>
+
+        <div class="form-group">
+          <label for="mobile_number">3. Mobile Number (मोबाइल नंबर)</label>
+          <input type="text" id="mobile_number" name="mobile" placeholder="10-digit number" />
+        </div>
+
+        <div class="form-group">
+          <label for="college_name">4. College / Institute Name (संस्थान)</label>
+          <input type="text" id="college_name" name="college" placeholder="e.g. PIEMR" />
+        </div>
+
+        <div class="form-group">
+          <label for="course_name">5. Course / Degree (कोर्स)</label>
+          <input type="text" id="course_name" name="course" placeholder="e.g. B.Tech CSE" />
+        </div>
+
+        <div class="form-group">
+          <label for="current_year">6. Academic Year (शैक्षणिक वर्ष)</label>
+          <select id="current_year" name="academic_year">
+            <option value="">Select Year</option>
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="family_income">7. Annual Income in INR (वार्षिक आय)</label>
+          <input type="text" id="family_income" name="annual_income" placeholder="e.g. 180000" />
+        </div>
+
+        <div class="form-group">
+          <label for="social_category">8. Social Category (सामाजिक वर्ग)</label>
+          <select id="social_category" name="category">
+            <option value="">Select Category</option>
+            <option value="General">General</option>
+            <option value="OBC">OBC</option>
+            <option value="SC">SC</option>
+            <option value="ST">ST</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="home_district">9. Home District (गृह जिला)</label>
+          <input type="text" id="home_district" name="district" placeholder="e.g. Indore" />
+        </div>
+
+        <div class="form-group">
+          <label for="doc_status">10. Certificate Status (दस्तावेज़ स्थिति)</label>
+          <select id="doc_status" name="document_status">
+            <option value="">Select Status</option>
+            <option value="Available">Available</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">Submit Application (Manual Consent Only)</button>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,23 +1,46 @@
-# Virtual environment
+# ─── Virtual environments ───────────────────────────────────────────────────
 backend/venv/
 venv/
 ENV/
+.venv/
 
-# Python cache
+# ─── Python cache & test artefacts ──────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
 
-# Frontend dependencies
+# ─── Frontend build output ───────────────────────────────────────────────────
+frontend/dist/
+frontend/build/
+
+# ─── Frontend dependencies ───────────────────────────────────────────────────
 frontend/node_modules/
 node_modules/
 
-# Databases
+# ─── Database files (SQLite main + WAL journal) ──────────────────────────────
 *.db
 *.sqlite3
+*.db-shm
+*.db-wal
 
-# OS / Editor
+# ─── Environment & secrets ───────────────────────────────────────────────────
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── OS / Editor artefacts ───────────────────────────────────────────────────
 .DS_Store
 .idea/
 .vscode/
+Thumbs.db

@@ -53,7 +53,7 @@ This Technical Requirements Document converts the SEVA VAANI PRD into an impleme
 
 ## 4. High-Level Architecture
 ```
-           CITIZEN (Hindi / Marathi)
+           CITIZEN (English / Hindi / Marathi / )
                       │
                       ▼
                REACT WEB UI

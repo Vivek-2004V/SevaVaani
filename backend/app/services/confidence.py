@@ -4,6 +4,7 @@ class ConfidenceEngine:
     """
     Evaluates extraction confidence, validation status, and turn failure count
     to determine the state machine behavior and citizen feedback according to PRD Section 15.
+    Supports Hindi ('hi'), Marathi ('mr'), and English ('en').
     """
 
     HIGH_CONFIDENCE_THRESHOLD = 0.85
@@ -30,9 +31,12 @@ class ConfidenceEngine:
 
         # 1. Check if failure count >= 3 -> Escalate to human help
         if attempt_count >= 3:
-            msg = ("लगातार तीन बार समझने में कठिनाई हुई। हमने आपके लिए सहायता टिकट (Help Ticket) बना दिया है। आप टेक्स्ट में लिख सकते हैं या ऑपरेटर की मदद ले सकते हैं।"
-                   if language == "hi" else
-                   "सतत तीन वेळा समजण्यात अडचण आली. आम्ही आपल्यासाठी मदत तिकीट तयार केले आहे. आपण मजकूर टाईप करू शकता किंवा ऑपरेटरची मदत घेऊ शकता.")
+            if language == "en":
+                msg = "We had difficulty understanding after multiple attempts. We have created a Help Ticket for you. You can type below or request operator assistance."
+            elif language == "mr":
+                msg = "सतत तीन वेळा समजण्यात अडचण आली. आम्ही आपल्यासाठी मदत तिकीट तयार केले आहे. आपण मजकूर टाईप करू शकता किंवा ऑपरेटरची मदत घेऊ शकता."
+            else:
+                msg = "लगातार तीन बार समझने में कठिनाई हुई। हमने आपके लिए सहायता टिकट (Help Ticket) बना दिया है। आप टेक्स्ट में लिख सकते हैं या ऑपरेटर की मदद ले सकते हैं।"
             return {
                 "action": "human_help",
                 "candidate_value": None,
@@ -43,9 +47,12 @@ class ConfidenceEngine:
 
         # 2. Check if failure count == 2 -> Offer text fallback prominently (TC08)
         if attempt_count == 2 and (not is_valid or confidence < cls.MEDIUM_CONFIDENCE_THRESHOLD):
-            msg = ("आवाज़ पहचानने में समस्या आ रही है। कृपया नीचे दिए गए बॉक्स में टाइप करके उत्तर दर्ज करें, या दोबारा बोलें।"
-                   if language == "hi" else
-                   "आवाज ओळखण्यात अडचण येत आहे. कृपया खाली दिलेल्या बॉक्समध्ये टाईप करून उत्तर नोंदवा, किंवा पुन्हा बोला.")
+            if language == "en":
+                msg = "We are having trouble recognizing speech. Please type your answer in the box below, or try speaking again."
+            elif language == "mr":
+                msg = "आवाज ओळखण्यात अडचण येत आहे. कृपया खाली दिलेल्या बॉक्समध्ये टाईप करून उत्तर नोंदवा, किंवा पुन्हा बोला."
+            else:
+                msg = "आवाज़ पहचानने में समस्या आ रही है। कृपया नीचे दिए गए बॉक्स में टाइप करके उत्तर दर्ज करें, या दोबारा बोलें।"
             return {
                 "action": "text_fallback",
                 "candidate_value": None,
@@ -56,9 +63,12 @@ class ConfidenceEngine:
 
         # 3. Low confidence (< 0.60) or no candidate extracted -> Ask user to repeat (TC07)
         if confidence < cls.MEDIUM_CONFIDENCE_THRESHOLD or candidate_value is None:
-            msg = ("मुझे आपकी आवाज़ स्पष्ट रूप से सुनाई नहीं दी। कृपया थोड़ा साफ़ और नज़दीक होकर दोबारा बोलें।"
-                   if language == "hi" else
-                   "मला आपला आवाज स्पष्ट ऐकू आला नाही. कृपया थोडे स्पष्ट आणि जवळ येऊन पुन्हा बोला.")
+            if language == "en":
+                msg = "I could not hear you clearly. Please speak clearly and try again."
+            elif language == "mr":
+                msg = "मला आपला आवाज स्पष्ट ऐकू आला नाही. कृपया थोडे स्पष्ट आणि जवळ येऊन पुन्हा बोला."
+            else:
+                msg = "मुझे आपकी आवाज़ स्पष्ट रूप से सुनाई नहीं दी। कृपया थोड़ा साफ़ और नज़दीक होकर दोबारा बोलें।"
             return {
                 "action": "retry",
                 "candidate_value": None,
@@ -79,9 +89,12 @@ class ConfidenceEngine:
 
         # 5. Medium confidence (0.60 to 0.85) -> Clarify question
         if confidence < cls.HIGH_CONFIDENCE_THRESHOLD or needs_clarification:
-            msg = (f"क्या आपका आशय '{candidate_value}' है? कृपया हाँ या नहीं में पुष्टि करें।"
-                   if language == "hi" else
-                   f"आपला अर्थ '{candidate_value}' असा आहे का? कृपया होय किंवा नाही असे सांगा.")
+            if language == "en":
+                msg = f"Did you mean '{candidate_value}'? Please confirm with Yes or No."
+            elif language == "mr":
+                msg = f"आपला अर्थ '{candidate_value}' असा आहे का? कृपया होय किंवा नाही असे सांगा."
+            else:
+                msg = f"क्या आपका आशय '{candidate_value}' है? कृपया हाँ या नहीं में पुष्टि करें।"
             return {
                 "action": "need_confirmation",
                 "candidate_value": candidate_value,

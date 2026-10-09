@@ -1,16 +1,21 @@
+from __future__ import annotations
+
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.config import settings
-from app.db.database import init_db
+from app.core.config import settings
+from app.models.database import init_db
+from app.api.routes import (
+    auth_router,
+    voice_router,
+    service_sessions_router,
+)
 from app.api.sessions import router as sessions_router
-from app.api.turns import router as turns_router
-from app.api.confirmations import router as confirmations_router
-from app.api.fallback import router as fallback_router
 from app.api.submission import router as submission_router
 from app.api.metrics import router as metrics_router
+from app.api.languages import router as languages_router
 
 # Initialize Database Schema
 init_db()
@@ -21,22 +26,23 @@ app = FastAPI(
     version=settings.VERSION
 )
 
-# CORS
+# CORS - Strictly restricted to authorized origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
 # Register Modular Routers (TRD Section 6)
+app.include_router(auth_router)
+app.include_router(voice_router)
+app.include_router(service_sessions_router)
 app.include_router(sessions_router)
-app.include_router(turns_router)
-app.include_router(confirmations_router)
-app.include_router(fallback_router)
 app.include_router(submission_router)
 app.include_router(metrics_router)
+app.include_router(languages_router)
 
 # Mount frontend directory for production or unified serving
 FRONTEND_DIST = os.path.join(settings.BASE_DIR, "frontend", "dist")

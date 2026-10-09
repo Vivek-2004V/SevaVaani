@@ -19,6 +19,8 @@ def fallback_text(payload: FallbackTextRequest):
             field_name=field,
             typed_value=val or ""
         )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -30,5 +32,7 @@ def request_help(payload: HelpRequest):
             field_name=payload.field_name,
             reason=payload.reason
         )
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

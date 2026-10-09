@@ -27,3 +27,171 @@
 .animate-fade-in {
   animation: fadeIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   SEVA VAANI RESPONSIVE HEADER & AUTH ACTION STYLING
+   Eliminates horizontal overflow without global overflow-x: hidden hacks.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Secondary Login Button */
+.seva-btn-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.15s ease-in-out;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.seva-btn-login:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Primary Create Account Button */
+.seva-btn-register {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: 1px solid rgba(52, 211, 153, 0.6);
+  border-radius: 9999px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  transition: all 0.15s ease-in-out;
+}
+.seva-btn-register:hover {
+  background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+/* User Profile Badge */
+.seva-user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  border-radius: 9999px;
+  color: #a7f3d0;
+  font-size: 12.5px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Floating Pill Navbar: No inner overflow scrollbar */
+.seva-pill-navbar {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.015) 36%, rgba(18,28,18,0.78) 100%), rgba(26,38,24,0.72);
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 9999px;
+  box-shadow: 0 16px 36px -4px rgba(4,16,8,0.55), 0 2px 10px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.16);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  box-sizing: border-box;
+}
+
+/* DESKTOP (>= 1080px) */
+@media (min-width: 1080px) {
+  .seva-desktop-layout {
+    display: block;
+  }
+  .seva-mobile-layout {
+    display: none;
+  }
+  .seva-nav-desktop-wrapper {
+    position: fixed;
+    top: 14px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 50;
+    padding: 0 24px;
+    box-sizing: border-box;
+  }
+  .seva-auth-desktop-wrapper {
+    position: fixed;
+    top: 14px;
+    right: 24px;
+    z-index: 51;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+/* TABLET (768px - 1079px) */
+@media (min-width: 768px) and (max-width: 1079px) {
+  .seva-desktop-layout {
+    display: block;
+  }
+  .seva-mobile-layout {
+    display: none;
+  }
+  .seva-nav-desktop-wrapper {
+    position: fixed;
+    top: 52px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    padding: 0 16px;
+    z-index: 50;
+    box-sizing: border-box;
+  }
+  .seva-auth-desktop-wrapper {
+    position: fixed;
+    top: 12px;
+    right: 18px;
+    z-index: 51;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .seva-pill-navbar {
+    padding: 5px 8px;
+    gap: 2px;
+  }
+}
+
+/* MOBILE (< 768px) */
+@media (max-width: 767px) {
+  .seva-desktop-layout {
+    display: none;
+  }
+  .seva-mobile-layout {
+    display: block;
+  }
+}
+

@@ -47,24 +47,24 @@ export const FieldSummary: React.FC<FieldSummaryProps> = ({
   };
 
   return (
-    <div className="w-full bg-white/95 rounded-3xl border border-slate-200/90 shadow-lg divide-y divide-slate-100 overflow-hidden">
+    <div className="w-full bg-[#121f15]/85 backdrop-blur-2xl rounded-3xl border border-white/15 shadow-2xl divide-y divide-white/10 overflow-hidden text-white">
       {fields.map((f, idx) => (
         <div
           key={f.id}
-          className="flex items-center justify-between p-3.5 md:p-4 hover:bg-slate-50/80 transition-colors"
+          className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 md:p-4 hover:bg-white/5 transition-colors gap-2 sm:gap-4"
         >
-          <div className="flex-1 pr-3">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
+          <div className="flex-1 min-w-0 pr-1 sm:pr-3">
+            <span className="text-xs font-semibold text-emerald-300/80 uppercase tracking-wider block">
               {f.label[language] || f.label.en}
             </span>
-            <span className="text-sm md:text-base font-medium text-slate-800 break-words mt-0.5 block">
+            <span className="text-sm md:text-base font-medium text-white break-words mt-0.5 block">
               {f.value || <span className="text-slate-400 italic">दर्ज नहीं किया गया (Not set)</span>}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
             {f.confirmed && (
-              <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
+              <span className="text-xs font-semibold text-emerald-300 bg-emerald-950/70 px-2.5 py-1 rounded-full border border-emerald-500/40 flex items-center gap-1 shadow-sm">
                 <span>✓</span> {getConfirmedLabel()}
               </span>
             )}
@@ -72,7 +72,7 @@ export const FieldSummary: React.FC<FieldSummaryProps> = ({
               <button
                 type="button"
                 onClick={() => onEditField(idx)}
-                className="px-2.5 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors border border-blue-200"
+                className="px-2.5 py-1 text-xs font-semibold text-emerald-200 hover:text-white hover:bg-emerald-600/30 rounded-lg transition-all border border-emerald-400/30 active:scale-95"
               >
                 {getEditLabel()}
               </button>

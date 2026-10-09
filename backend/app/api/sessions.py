@@ -1,16 +1,23 @@
-from fastapi import APIRouter, HTTPException
+from typing import Optional
+from fastapi import APIRouter, HTTPException, Depends
 from app.schemas.session import SessionCreateRequest, SessionLanguageRequest
 from app.services.form_engine import FormEngine
+from app.api.auth import get_optional_current_user
+from app.db.models import User
 
 router = APIRouter(prefix="/api/session", tags=["Session"])
 engine = FormEngine()
 
 @router.post("")
-def create_session(payload: SessionCreateRequest):
+def create_session(
+    payload: SessionCreateRequest,
+    current_user: Optional[User] = Depends(get_optional_current_user)
+):
     try:
         return engine.create_session(
             service_id=payload.service_id,
-            language=payload.language
+            language=payload.language,
+            user_id=current_user.id if current_user else None
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

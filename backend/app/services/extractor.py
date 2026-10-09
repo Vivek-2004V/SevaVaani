@@ -76,7 +76,7 @@ class ExtractorService:
 
         # Check for unclear or noise indicators (TC07)
         unclear_indicators = ["...", "???", "[unclear]", "अस्पष्ट", "समजले नाही", "kuch nahi", "hmm", "umm", "xyz"]
-        if transcript.lower() in [u.lower() for u in unclear_indicators] or len(transcript) < 2:
+        if transcript.lower() in [u.lower() for u in unclear_indicators] or (len(transcript) < 2 and not transcript.isdigit()):
             return {
                 "field": field_name,
                 "value": None,
@@ -122,8 +122,8 @@ class ExtractorService:
         # Strip common phrases:
         # "Mera naam ... hai", "Mera name ...", "माझं नाव ... आहे", "माझे नाव ... आहे", "My name is ..."
         patterns = [
-            r"^(?:mera\s+naam|mera\s+name|my\s+name\s+is|माझं\s+नाव|माझे\s+नाव|माझे\s+नांव|माझा\s+नाव)\s+(.+?)(?:\s+hai|\s+ahe|\s+आहे|\s+है|\s+ho)?$",
-            r"^(?:mai\s+|main\s+|मी\s+)(.+?)(?:\s+bol\s+raha\s+hoon|\s+boltoy|\s+बोलतोय|\s+हूं)?$"
+            r"^(?:mera\s+naam|mera\s+name|मेरा\s+नाम|my\s+name\s+is|माझं\s+नाव|माझे\s+नाव|माझे\s+नांव|माझा\s+नाव)\s+(.+?)(?:\s+hai|\s+ahe|\s+आहे|\s+है|\s+ho)?$",
+            r"^(?:mai\s+|main\s+|मैं\s+|मी\s+)(.+?)(?:\s+bol\s+raha\s+hoon|\s+boltoy|\s+बोलतोय|\s+बोल रहा हूँ|\s+हूं|\s+हूँ)?$"
         ]
         val = text
         for pat in patterns:
@@ -243,10 +243,9 @@ class ExtractorService:
 
     @classmethod
     def _extract_college(cls, text: str, language: str) -> Dict[str, Any]:
-        # Remove "Mera college ... hai", "मी ... कॉलेजमध्ये शिकतो", etc.
         patterns = [
-            r"^(?:mera\s+college|college\s+name|institute|माझे\s+कॉलेज|माझं\s+कॉलेज|महाविद्यालय)\s+(?:hai\s+|is\s+|आहे\s+)?(.+?)(?:\s+hai|\s+ahe|\s+आहे|\s+है)?$",
-            r"^(?:main\s+|मी\s+)(.+?)(?:\s+college\s+mein\s+padhta\s+hoon|\s+madhye\s+shiktoy|\s+कॉलेजमध्ये\s+शिकतो|\s+में\s+हूं)?$"
+            r"^(?:mera\s+college|college\s+name|institute|मेरा\s+कॉलेज|कॉलेज\s+का\s+नाम|कॉलेज|माझे\s+कॉलेज|माझं\s+कॉलेज|महाविद्यालय)\s+(?:hai\s+|is\s+|आहे\s+)?(.+?)(?:\s+hai|\s+ahe|\s+आहे|\s+है)?$",
+            r"^(?:main\s+|मी\s+|मैं\s+)(.+?)(?:\s+college\s+mein\s+padhta\s+hoon|\s+madhye\s+shiktoy|\s+कॉलेजमध्ये\s+शिकतो|\s+में\s+हूं|\s+में\s+पढ़ता\s+हूँ)?$"
         ]
         val = text
         for pat in patterns:
@@ -267,8 +266,8 @@ class ExtractorService:
     @classmethod
     def _extract_course(cls, text: str, language: str) -> Dict[str, Any]:
         patterns = [
-            r"^(?:mera\s+course|course\s+name|degree|माझा\s+अभ्यासक्रम|माझी\s+पदवी)\s+(?:hai\s+|is\s+|आहे\s+)?(.+?)(?:\s+hai|\s+ahe|\s+आहे|\s+है)?$",
-            r"^(?:main\s+|मी\s+)(.+?)(?:\s+kar\s+raha\s+hoon|\s+karto|\s+करतोय|\s+कर\s+रहा\s+हूं)?$"
+            r"^(?:mera\s+course|course\s+name|degree|मेरा\s+कोर्स|कोर्स\s+का\s+नाम|कोर्स|माझा\s+अभ्यासक्रम|माझी\s+पदवी|अभ्यासक्रम)\s+(?:hai\s+|is\s+|आहे\s+)?(.+?)(?:\s+hai|\s+ahe|\s+आहे|\s+है)?$",
+            r"^(?:main\s+|मी\s+|मैं\s+)(.+?)(?:\s+kar\s+raha\s+hoon|\s+karto|\s+करतोय|\s+कर\s+रहा\s+हूं|\s+कर\s+रहा\s+हूँ)?$"
         ]
         val = text
         for pat in patterns:
@@ -296,7 +295,7 @@ class ExtractorService:
             'chautha': '4', 'fourth': '4', 'final': '4', '4th': '4', '4': '4', 'चौथा': '4', 'चौथे': '4', 'चतुर्थ': '4'
         }
         for k, v in mapping.items():
-            if re.search(rf"\b{k}\b", norm):
+            if k in norm:
                 return {
                     "field": "academic_year",
                     "value": v,
@@ -439,15 +438,15 @@ class ExtractorService:
     @classmethod
     def _extract_category(cls, text: str, language: str) -> Dict[str, Any]:
         norm = text.lower()
-        if re.search(r"\b(obc|ओबीसी|अन्य\s+पिछड़ा\s+वर्ग|इतर\s+मागासवर्ग)\b", norm):
+        if any(w in norm for w in ["obc", "ओबीसी", "अन्य पिछड़ा वर्ग", "अन्य पिछडा वर्ग", "इतर मागासवर्ग"]):
             return {"field": "category", "value": "OBC", "confidence": 0.98, "needs_clarification": False, "raw_transcript": text}
-        if re.search(r"\b(sc|एससी|अनुसूचित\s+जाति|अनुसूचित\s+जाती)\b", norm):
+        if any(w in norm for w in ["sc", "एससी", "अनुसूचित जाति", "अनुसूचित जाती"]):
             return {"field": "category", "value": "SC", "confidence": 0.98, "needs_clarification": False, "raw_transcript": text}
-        if re.search(r"\b(st|एसटी|अनुसूचित\s+जनजाति|अनुसूचित\s+जमाती)\b", norm):
+        if any(w in norm for w in ["st", "एसटी", "अनुसूचित जनजाति", "अनुसूचित जमाती"]):
             return {"field": "category", "value": "ST", "confidence": 0.98, "needs_clarification": False, "raw_transcript": text}
-        if re.search(r"\b(general|सामान्य|खुला|open)\b", norm):
+        if any(w in norm for w in ["general", "सामान्य", "खुला", "open"]):
             return {"field": "category", "value": "General", "confidence": 0.96, "needs_clarification": False, "raw_transcript": text}
-        if re.search(r"\b(other|अन्य|इतर)\b", norm):
+        if any(w in norm for w in ["other", "अन्य", "इतर"]):
             return {"field": "category", "value": "Other", "confidence": 0.92, "needs_clarification": False, "raw_transcript": text}
         
         # TC15: Invalid category like "VIP" or "BPL" or gibberish
@@ -462,8 +461,8 @@ class ExtractorService:
     @classmethod
     def _extract_district(cls, text: str, language: str) -> Dict[str, Any]:
         patterns = [
-            r"^(?:mera\s+jila|mera\s+district|माझा\s+जिल्हा)\s+(?:hai\s+|is\s+|आहे\s+)?(.+?)(?:\s+hai|\s+ahe|\s+आहे|\s+है)?$",
-            r"^(?:main\s+|मी\s+)(.+?)(?:\s+se\s+hoon|\s+cha\s+aahe|\s+मधून\s+आहे|\s+रहता\s+हूं)?$"
+            r"^(?:mera\s+jila|mera\s+district|मेरा\s+जिला|गृह\s+जिला|जिला|माझा\s+जिल्हा|जिल्हा)\s+(?:hai\s+|is\s+|आहे\s+)?(.+?)(?:\s+hai|\s+ahe|\s+आहे|\s+है)?$",
+            r"^(?:main\s+|मी\s+|मैं\s+)(.+?)(?:\s+se\s+hoon|\s+cha\s+aahe|\s+मधून\s+आहे|\s+रहता\s+हूं|\s+रहता\s+हूँ)?$"
         ]
         val = text
         for pat in patterns:
@@ -484,10 +483,10 @@ class ExtractorService:
     @classmethod
     def _extract_document_status(cls, text: str, language: str) -> Dict[str, Any]:
         norm = text.lower()
-        if re.search(r"\b(available|उपलब्ध|हां|होय|yes|आहेत|हैं|sabhi\s+hai)\b", norm):
-            return {"field": "document_status", "value": "Available", "confidence": 0.95, "needs_clarification": False, "raw_transcript": text}
-        if re.search(r"\b(pending|लंबित|प्रलंबित|baaki|नाहीत|अजून\s+नाही|baki\s+hai)\b", norm):
+        if any(w in norm for w in ["pending", "लंबित", "प्रलंबित", "baaki", "बाकी", "नाहीत", "अजून नाही", "baki hai"]):
             return {"field": "document_status", "value": "Pending", "confidence": 0.95, "needs_clarification": False, "raw_transcript": text}
+        if any(w in norm for w in ["available", "उपलब्ध", "हां", "होय", "yes", "sabhi hai"]):
+            return {"field": "document_status", "value": "Available", "confidence": 0.95, "needs_clarification": False, "raw_transcript": text}
         
         return {
             "field": "document_status",

@@ -13,6 +13,7 @@ export interface ServiceFormProps {
   sessionId: string;
   fields: FormField[];
   language: SupportedLanguage;
+  initialIndex?: number;
   onLanguageChange: (lang: SupportedLanguage) => void;
   onCompleteForm: (fields: FormField[]) => void;
   onBack: () => void;
@@ -22,12 +23,19 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   sessionId,
   fields: initialFields,
   language,
+  initialIndex = 0,
   onLanguageChange,
   onCompleteForm,
   onBack
 }) => {
   const [fields, setFields] = useState<FormField[]>(initialFields);
-  const [currentIdx, setCurrentIdx] = useState(0);
+  const [currentIdx, setCurrentIdx] = useState(initialIndex);
+
+  useEffect(() => {
+    if (initialIndex !== undefined && initialIndex >= 0 && initialIndex < fields.length) {
+      setCurrentIdx(initialIndex);
+    }
+  }, [initialIndex]);
 
   // Voice Interaction state
   const [isListening, setIsListening] = useState(false);
@@ -364,32 +372,32 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   const currentLangObj = INDIAN_LANGUAGES.find(l => l.id === language) || INDIAN_LANGUAGES[0];
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-slate-50 via-blue-50/30 to-slate-100 flex flex-col justify-between p-4 md:p-6 text-slate-800">
+    <div className="min-h-screen w-full bg-black/45 backdrop-blur-md flex flex-col justify-between p-3.5 sm:p-6 text-white">
       {/* Top Header with Multilingual Quick Switcher */}
-      <header className="max-w-2xl mx-auto w-full flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
+      <header className="max-w-2xl mx-auto w-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onBack}
-            className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/90 border border-slate-200 shadow-sm"
+            className="text-xs font-semibold text-emerald-100 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 backdrop-blur-lg shadow-sm transition-all shrink-0 active:scale-95"
           >
             ← बाहर निकलें (Exit)
           </button>
           <div className="hidden sm:flex items-center gap-2 pl-1">
             <SevaVaaniLogo size={30} showWordmark={false} />
-            <span className="text-xs font-black text-slate-800 tracking-tight">SEVA VAANI</span>
+            <span className="text-xs font-black text-white tracking-tight">SEVA VAANI</span>
           </div>
         </div>
 
         {/* Language switch & Low Internet indicator */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => setIsLowInternet(!isLowInternet)}
-            className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${
+            className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors backdrop-blur-md ${
               isLowInternet
-                ? 'bg-amber-100 text-amber-800 border-amber-300'
-                : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                ? 'bg-amber-950/70 text-amber-200 border-amber-500/40'
+                : 'bg-emerald-950/70 text-emerald-300 border-emerald-500/40'
             }`}
           >
             {isLowInternet ? '⚡ Low Net' : '📶 Online'}
@@ -400,14 +408,14 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
             <button
               type="button"
               onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-              className="flex items-center gap-1.5 px-3 py-1 bg-white/95 border border-slate-200 rounded-lg shadow-sm text-xs font-bold text-blue-700 hover:bg-blue-50"
+              className="flex items-center gap-1.5 px-3 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full shadow-sm text-xs font-bold text-emerald-200 backdrop-blur-md transition-all"
             >
               <span>🌐 {currentLangObj.native}</span>
-              <span className="text-[9px] text-slate-400">▼</span>
+              <span className="text-[9px] text-emerald-400">▼</span>
             </button>
 
             {showLanguageDropdown && (
-              <div className="absolute right-0 mt-1 w-48 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 p-2 max-h-64 overflow-y-auto">
+              <div className="absolute right-0 mt-2 w-48 bg-[#111e14]/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 z-50 p-2 max-h-64 overflow-y-auto">
                 {INDIAN_LANGUAGES.map((l) => (
                   <button
                     key={l.id}
@@ -417,7 +425,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
                       setShowLanguageDropdown(false);
                     }}
                     className={`w-full text-left px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors ${
-                      language === l.id ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-100'
+                      language === l.id ? 'bg-emerald-600 text-white' : 'text-slate-200 hover:bg-white/10'
                     }`}
                   >
                     <span>{l.native}</span>
@@ -436,26 +444,26 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
         <ProgressBar fields={fields} currentIndex={currentIdx} />
 
         {/* Active Question Card */}
-        <div className="bg-white/95 backdrop-blur-md rounded-3xl p-5 md:p-6 border border-slate-200/90 shadow-xl text-center relative overflow-hidden mt-3">
-          <div className="inline-block px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-xs font-bold mb-3">
+        <div className="bg-[#121f15]/85 backdrop-blur-2xl rounded-3xl p-5 md:p-6 border border-white/15 shadow-2xl text-center relative overflow-hidden mt-3">
+          <div className="inline-block px-3.5 py-1 bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-bold mb-3 shadow-inner">
             प्रश्न {currentIdx + 1} / {fields.length}: {currentField.label[language] || currentField.label.hi || currentField.label.en}
           </div>
 
-          <h3 className="text-xl md:text-2xl font-bold text-slate-800 leading-snug">
+          <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">
             {currentField.prompt[language] || currentField.prompt.hi || currentField.prompt.en}
           </h3>
 
-          <p className="text-xs text-slate-400 mt-2 font-medium">
+          <p className="text-xs text-emerald-200/70 mt-2 font-medium">
             माइक दबाकर बोलें। आपके उत्तर की तुरंत पुष्टि की जाएगी।
           </p>
 
           {/* Assistant Voice Accent wave */}
           <div className="flex items-center justify-center gap-1.5 my-3 h-5">
-            <span className={`w-1 bg-blue-500 rounded-full transition-all duration-300 ${isListening ? 'h-5 animate-pulse' : 'h-1.5'}`} />
-            <span className={`w-1 bg-blue-400 rounded-full transition-all duration-300 ${isListening ? 'h-4 animate-bounce' : 'h-2'}`} />
-            <span className={`w-1 bg-blue-600 rounded-full transition-all duration-300 ${isListening ? 'h-5 animate-pulse' : 'h-3'}`} />
-            <span className={`w-1 bg-blue-400 rounded-full transition-all duration-300 ${isListening ? 'h-3 animate-bounce' : 'h-2'}`} />
-            <span className={`w-1 bg-blue-500 rounded-full transition-all duration-300 ${isListening ? 'h-4 animate-pulse' : 'h-1.5'}`} />
+            <span className={`w-1 bg-emerald-400 rounded-full transition-all duration-300 ${isListening ? 'h-5 animate-pulse' : 'h-1.5'}`} />
+            <span className={`w-1 bg-teal-300 rounded-full transition-all duration-300 ${isListening ? 'h-4 animate-bounce' : 'h-2'}`} />
+            <span className={`w-1 bg-emerald-500 rounded-full transition-all duration-300 ${isListening ? 'h-5 animate-pulse' : 'h-3'}`} />
+            <span className={`w-1 bg-teal-300 rounded-full transition-all duration-300 ${isListening ? 'h-3 animate-bounce' : 'h-2'}`} />
+            <span className={`w-1 bg-emerald-400 rounded-full transition-all duration-300 ${isListening ? 'h-4 animate-pulse' : 'h-1.5'}`} />
           </div>
         </div>
 
@@ -506,8 +514,8 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
         )}
 
         {/* Clickable Quick Sample Utterances (Hackathon Demo Helpers) */}
-        <div className="mt-4 pt-3 border-t border-slate-200/80 text-center">
-          <span className="text-[11px] font-semibold text-slate-500 block mb-1.5 uppercase tracking-wider">
+        <div className="mt-4 pt-3 border-t border-white/10 text-center">
+          <span className="text-[11px] font-semibold text-emerald-300/80 block mb-1.5 uppercase tracking-wider">
             त्वरित उदाहरण (Quick Samples):
           </span>
           <div className="flex flex-wrap justify-center gap-1.5">
@@ -519,7 +527,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
                   setTranscript(sample);
                   handleUtterance(sample);
                 }}
-                className="px-2.5 py-1 text-xs bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 rounded-full shadow-2xs transition-colors"
+                className="px-3 py-1 text-xs bg-white/10 hover:bg-emerald-600/30 text-emerald-100 hover:text-white border border-white/15 hover:border-emerald-400/50 rounded-full backdrop-blur-md shadow-sm transition-all"
               >
                 "{sample}"
               </button>

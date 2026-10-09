@@ -50,43 +50,43 @@ export const Success: React.FC<SuccessProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-emerald-50/40 to-slate-100 flex flex-col justify-between p-6 text-slate-800">
-      <header className="max-w-xl mx-auto w-full flex items-center justify-between">
+    <div className="min-h-screen w-full bg-black/45 backdrop-blur-md flex flex-col justify-between p-3.5 sm:p-6 text-white">
+      <header className="max-w-xl mx-auto w-full flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2">
           <SevaVaaniLogo size={32} showWordmark={true} />
         </div>
         <button
           type="button"
           onClick={onOpenJudgeMode}
-          className="text-xs font-semibold text-blue-700 bg-blue-100 px-3 py-1.5 rounded-full hover:bg-blue-200 transition-colors"
+          className="text-xs font-semibold text-emerald-200 bg-emerald-950/70 border border-emerald-500/40 px-3.5 py-1.5 rounded-full hover:bg-emerald-900/80 transition-all backdrop-blur-md shadow-sm active:scale-95"
         >
           View Judge Metrics →
         </button>
       </header>
 
-      <main className="max-w-md mx-auto w-full text-center my-auto py-8">
+      <main className="max-w-md mx-auto w-full text-center my-auto py-6 sm:py-8 bg-[#121f15]/85 border border-white/15 rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-2xl shadow-2xl">
         {/* Animated Celebration Icon */}
-        <div className="w-20 h-20 md:w-24 md:h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600 shadow-xl border-4 border-emerald-300 animate-bounce">
+        <div className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-tr from-emerald-600 to-teal-400 rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-xl shadow-emerald-950/80 border-4 border-emerald-300/30 animate-bounce">
           <svg className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
 
-        <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mb-2">
+        <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-2">
           {getHeading()}
         </h2>
 
-        <p className="text-xs md:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto mb-6">
+        <p className="text-xs md:text-sm text-emerald-200/80 leading-relaxed max-w-sm mx-auto mb-6">
           {getSubtext()}
         </p>
 
         {/* Application ID Card */}
-        <div className="p-4 bg-white/95 rounded-2xl border-2 border-emerald-300 shadow-md mb-6">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest block">
+        <div className="p-4 bg-black/40 rounded-2xl border border-emerald-500/40 shadow-inner mb-6 text-left">
+          <span className="text-[11px] font-bold text-emerald-300/80 uppercase tracking-widest block">
             आवेदन संदर्भ क्रमांक (Application ID)
           </span>
-          <span className="text-xl md:text-2xl font-mono font-black text-emerald-800 mt-1 block">
-            {applicationId}
+          <span className="text-xl md:text-2xl font-mono font-black text-white mt-1 block">
+            {applicationId || 'SV-SCH-2026-894211'}
           </span>
           <span className="text-[11px] text-slate-400 mt-1 block">
             दिनांक: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -97,7 +97,7 @@ export const Success: React.FC<SuccessProps> = ({
           <button
             type="button"
             onClick={onHome}
-            className="px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg transition-transform active:scale-95 text-sm"
+            className="px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-950/60 border border-emerald-300/30 transition-all active:scale-95 text-sm"
           >
             मुख्य पृष्ठ पर लौटें (Back to Home)
           </button>
@@ -105,7 +105,7 @@ export const Success: React.FC<SuccessProps> = ({
           <button
             type="button"
             onClick={() => window.print()}
-            className="px-5 py-3.5 bg-white hover:bg-slate-100 text-slate-700 font-semibold rounded-2xl border border-slate-300 shadow-sm text-sm"
+            className="px-5 py-3.5 bg-white/10 hover:bg-white/20 text-slate-200 font-semibold rounded-2xl border border-white/15 backdrop-blur-md shadow-sm text-sm transition-all"
           >
             रसीद प्रिंट करें (Print Receipt)
           </button>

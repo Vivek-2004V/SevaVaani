@@ -19,5 +19,7 @@ def submit_application(payload: SubmissionRequest):
                 "application_id": None
             }
         return result
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

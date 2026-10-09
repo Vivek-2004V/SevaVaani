@@ -85,18 +85,18 @@ export const ServiceSelect: React.FC<ServiceSelectProps> = ({
   ];
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 flex flex-col justify-between p-6">
-      <header className="max-w-4xl mx-auto w-full flex items-center justify-between">
+    <div className="min-h-screen w-full bg-black/45 backdrop-blur-md flex flex-col justify-between p-3.5 sm:p-6 text-white">
+      <header className="max-w-4xl mx-auto w-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
         <button
           type="button"
           onClick={onBack}
-          className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 border border-slate-200"
+          className="text-xs font-semibold text-emerald-100 hover:text-white flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 backdrop-blur-lg shadow-sm transition-all active:scale-95 shrink-0"
         >
           ← भाषा बदलें (Back)
         </button>
         <div className="flex items-center gap-2">
           <SevaVaaniLogo size={28} showWordmark={false} />
-          <span className="text-xs font-bold text-blue-700 bg-blue-100/80 px-3 py-1 rounded-full">
+          <span className="text-[11px] sm:text-xs font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-500/30 px-3 py-1 rounded-full backdrop-blur-md shadow-sm">
             Step 2 of 4: सेवा चयन (Select Service)
           </span>
         </div>
@@ -104,10 +104,10 @@ export const ServiceSelect: React.FC<ServiceSelectProps> = ({
 
       <main className="max-w-4xl mx-auto w-full py-8 my-auto">
         <div className="text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">
+          <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
             सेवा का चयन करें (Choose Public Service)
           </h2>
-          <p className="text-xs md:text-sm text-slate-500 mt-1">
+          <p className="text-xs md:text-sm text-emerald-200/80 mt-1">
             जिस योजना या प्रमाण पत्र के लिए आवेदन करना है, उसे चुनें:
           </p>
         </div>
@@ -117,30 +117,34 @@ export const ServiceSelect: React.FC<ServiceSelectProps> = ({
             <div
               key={svc.id}
               onClick={() => svc.active && onSelectService(svc.id)}
-              className={`p-5 rounded-3xl border-2 transition-all duration-200 relative flex flex-col justify-between ${
+              className={`p-5 rounded-3xl border transition-all duration-200 relative flex flex-col justify-between backdrop-blur-2xl shadow-xl ${
                 svc.active
-                  ? 'bg-white/95 border-blue-500 hover:border-blue-600 hover:shadow-xl cursor-pointer ring-2 ring-blue-500/20'
-                  : 'bg-slate-50/80 border-slate-200/90 opacity-75 cursor-not-allowed'
+                  ? 'bg-[#142317]/85 border-emerald-400/50 hover:border-emerald-300 hover:shadow-2xl hover:shadow-emerald-950/80 cursor-pointer ring-2 ring-emerald-400/30 transform hover:-translate-y-1'
+                  : 'bg-white/5 border-white/10 opacity-60 cursor-not-allowed'
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-3xl">{svc.icon}</span>
-                  <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${svc.badgeColor}`}>
+                  <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${
+                    svc.active
+                      ? 'bg-emerald-900/60 text-emerald-200 border-emerald-400/40'
+                      : 'bg-white/10 text-slate-400 border-white/10'
+                  }`}>
                     {svc.badge}
                   </span>
                 </div>
-                <h3 className="text-lg font-bold text-slate-800 mb-1">
+                <h3 className="text-lg font-bold text-white mb-1">
                   {svc.name[language] || svc.name.en}
                 </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-slate-300 leading-relaxed">
                   {svc.desc[language] || svc.desc.en}
                 </p>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between">
                 {svc.active ? (
-                  <span className="text-xs font-bold text-blue-600 flex items-center gap-1">
+                  <span className="text-xs font-bold text-emerald-300 flex items-center gap-1">
                     आवेदन शुरू करें (Start Application) →
                   </span>
                 ) : (

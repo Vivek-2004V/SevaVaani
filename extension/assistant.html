@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEVA VAANI Assistant</title>
+  <link rel="stylesheet" href="assistant.css" />
+</head>
+<body>
+  <div class="assistant-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-icon">🇮🇳</div>
+        <div>
+          <div class="brand-title">SEVA VAANI</div>
+          <div class="brand-subtitle">सेवा वाणी • Voice Assistant</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <select id="language-select" class="lang-picker" aria-label="भाषा चुनें / Select Language">
+          <option value="hi">हिन्दी (HI)</option>
+          <option value="mr">मराठी (MR)</option>
+          <option value="en">English (EN)</option>
+        </select>
+        <button id="close-btn" class="icon-btn" title="Close Panel" aria-label="Close">✕</button>
+      </div>
+    </header>
+
+    <!-- User Auth Status Strip -->
+    <div class="auth-bar" id="auth-bar">
+      <div class="auth-user-info" id="auth-user-info">
+        <span class="auth-status-dot unauthenticated" id="auth-status-dot"></span>
+        <span class="auth-user-label" id="auth-user-label">अतिथि सत्र (Guest Session)</span>
+      </div>
+      <div class="auth-bar-actions">
+        <button id="auth-toggle-btn" class="mini-btn btn-auth-toggle">🔐 लॉगिन / साइन अप</button>
+        <button id="logout-btn" class="mini-btn btn-logout hidden">लॉग आउट</button>
+      </div>
+    </div>
+
+    <!-- Collapsible Auth Panel (Modal/Dropdown) -->
+    <div id="auth-panel" class="auth-panel hidden">
+      <div class="auth-card">
+        <div class="auth-card-header">
+          <div class="auth-tabs">
+            <button id="auth-tab-login" class="auth-tab active">लॉगिन (Login)</button>
+            <button id="auth-tab-register" class="auth-tab">पंजीकरण (Register)</button>
+          </div>
+          <button id="auth-close-btn" class="icon-btn-sm" title="Close Auth">✕</button>
+        </div>
+
+        <form id="auth-form" class="auth-form" onsubmit="return false;">
+          <div id="auth-name-group" class="form-group hidden">
+            <label for="auth-name">पूरा नाम (Full Name)</label>
+            <input type="text" id="auth-name" placeholder="उदा. रमेश कुमार" autocomplete="name" />
+          </div>
+          <div class="form-group">
+            <label for="auth-email">ईमेल (Email ID)</label>
+            <input type="email" id="auth-email" placeholder="citizen@example.com" required autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label for="auth-password">पासवर्ड (Password)</label>
+            <input type="password" id="auth-password" placeholder="••••••••" required autocomplete="current-password" />
+          </div>
+
+          <div id="auth-error" class="auth-error-banner hidden"></div>
+
+          <div class="auth-form-actions">
+            <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-sm">लॉगिन करें</button>
+            <button type="button" id="auth-cancel-btn" class="btn btn-ghost btn-sm">रद्द करें</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Error / Mic Permission Denied Banner -->
+    <div id="error-banner" class="error-banner hidden" role="alert">
+      <div class="error-banner-content">
+        <span class="error-banner-icon">⚠️</span>
+        <div class="error-banner-text" id="error-message-text">माइक्रोफ़ोन त्रुटि</div>
+      </div>
+      <button id="dismiss-error-btn" class="icon-btn-sm">✕</button>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="progress-section">
+      <div class="progress-bar-bg">
+        <div id="progress-bar-fill" class="progress-bar-fill" style="width: 10%;"></div>
+      </div>
+      <div class="progress-meta">
+        <span id="field-counter">Field 1 of 10</span>
+        <span id="progress-percent">10%</span>
+      </div>
+    </div>
+
+    <!-- Main Body -->
+    <main class="main-body">
+      <!-- Active Question Prompt Card -->
+      <div class="prompt-card">
+        <div class="prompt-badge" id="active-field-badge">पूरा नाम (Full Name)</div>
+        <div class="prompt-text" id="active-prompt-text">
+          कृपया अपना पूरा नाम बताएं जैसा कि आपके आधार कार्ड में है।
+        </div>
+        <div class="prompt-actions">
+          <button id="speak-prompt-btn" class="mini-voice-btn" title="Listen again">
+            🔊 <span id="speak-prompt-label">सुनिए (Listen)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Explicit Confirmation Card -->
+      <div id="confirmation-card" class="confirmation-card hidden" aria-live="polite">
+        <div class="confirm-header">
+          <span class="confirm-icon">❓</span>
+          <span class="confirm-title" id="confirm-title-text">कृपया पुष्टि करें (Please Confirm)</span>
+        </div>
+        <div id="confirm-message" class="confirm-message">
+          मैंने समझा कि आपका नाम Ramesh Kumar है। क्या यह सही है?
+        </div>
+        <div class="confirm-actions">
+          <button id="confirm-yes-btn" class="btn btn-confirm">✓ हाँ, सही है (Yes, fill)</button>
+          <button id="confirm-no-btn" class="btn btn-reject">✗ नहीं, सुधारें (No, retry)</button>
+        </div>
+        <div class="confirm-sub-actions">
+          <button id="confirm-replay-btn" class="mini-btn-link">🔊 दोबारा सुनें (Replay Audio)</button>
+        </div>
+      </div>
+
+      <!-- Live & Editable Transcript Preview Card -->
+      <div id="transcript-card" class="transcript-card hidden">
+        <div class="transcript-header">
+          <span class="transcript-label" id="transcript-title">📝 सुनाई दिया (Transcript - आप संपादित कर सकते हैं):</span>
+        </div>
+        <textarea id="transcript-editor" class="transcript-editor" rows="2" placeholder="यहाँ बोला गया पाठ दिखाई देगा..."></textarea>
+        <div class="transcript-actions">
+          <button id="transcript-process-btn" class="btn btn-primary btn-xs">✓ प्रोसेस करें (Process)</button>
+          <button id="transcript-retry-btn" class="btn btn-secondary btn-xs">🔄 पुनः बोलें (Retry)</button>
+          <button id="transcript-clear-btn" class="btn btn-ghost btn-xs">✕ रद्द करें</button>
+        </div>
+      </div>
+
+      <!-- Voice Microphone Section -->
+      <div class="mic-container">
+        <div class="mic-button-wrapper">
+          <button id="mic-btn" class="mic-button" aria-label="बोलने के लिए माइक दबाएं (Tap to Speak)">
+            <svg class="mic-icon" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+          </button>
+          <!-- Active Sound Pulse Wave Ring -->
+          <div id="mic-pulse-ring" class="mic-pulse-ring hidden"></div>
+        </div>
+        <div id="mic-status-label" class="mic-status">बोलने के लिए माइक दबाएं (Tap to Speak)</div>
+      </div>
+
+      <!-- Text Fallback Alternative -->
+      <div class="fallback-section">
+        <details id="fallback-details">
+          <summary class="fallback-summary">⌨️ टाइप करके उत्तर दें (Type text fallback)</summary>
+          <div class="fallback-input-row">
+            <input type="text" id="fallback-text-input" placeholder="यहाँ उत्तर टाइप करें..." />
+            <button id="fallback-submit-btn" class="btn btn-primary btn-sm">दर्ज करें</button>
+          </div>
+        </details>
+      </div>
+
+      <!-- Human Help Request Section -->
+      <div class="help-section">
+        <button id="human-help-btn" class="help-link">🆘 सहायता ऑपरेटर से मदद चाहिए? (Request Help Ticket)</button>
+      </div>
+    </main>
+
+    <!-- Footer Status -->
+    <footer class="footer">
+      <div class="connection-status">
+        <span class="status-dot" id="server-status-dot"></span>
+        <span id="backend-status-text">FastAPI Backend: http://127.0.0.1:8000</span>
+      </div>
+      <div class="safety-tag">🛡️ Conservative Fill • Zero Auto-Submit • SQLite Persisted</div>
+    </footer>
+  </div>
+
+  <script src="assistant.js"></script>
+</body>
+</html>

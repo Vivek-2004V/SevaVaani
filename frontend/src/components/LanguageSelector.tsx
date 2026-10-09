@@ -107,24 +107,24 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             key={lang.id}
             type="button"
             onClick={() => onSelectLanguage(lang.id)}
-            className={`p-3 rounded-2xl text-left transition-all duration-200 border-2 relative flex flex-col justify-between ${
+            className={`p-2.5 sm:p-3.5 rounded-2xl text-left transition-all duration-200 border relative flex flex-col justify-between backdrop-blur-md active:scale-95 ${
               isSelected
-                ? 'bg-blue-50/95 border-blue-600 shadow-md ring-2 ring-blue-400/20'
-                : 'bg-white/80 border-slate-200/90 hover:border-slate-300 hover:bg-white'
+                ? 'bg-emerald-900/60 border-emerald-400 text-white shadow-lg shadow-emerald-950/70 ring-2 ring-emerald-400/40 scale-[1.02]'
+                : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20 text-slate-200 hover:text-white'
             }`}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="text-lg font-bold text-slate-800 leading-tight">
+              <span className="text-lg font-bold leading-tight">
                 {lang.native}
               </span>
               {isSelected && (
-                <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">
+                <span className="w-4 h-4 rounded-full bg-emerald-500 text-black flex items-center justify-center text-[10px] font-black">
                   ✓
                 </span>
               )}
             </div>
             <div>
-              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+              <p className="text-[11px] font-semibold text-emerald-300/80 uppercase tracking-wider">
                 {lang.english}
               </p>
               <p className="text-[10px] text-slate-400 mt-0.5 truncate">

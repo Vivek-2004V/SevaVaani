@@ -17,31 +17,31 @@ export const LanguageSelect: React.FC<LanguageSelectProps> = ({
   const [selected, setSelected] = useState<SupportedLanguage>(currentLanguage);
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50/40 to-slate-100 flex flex-col justify-between p-6">
-      <header className="max-w-2xl mx-auto w-full flex items-center justify-between">
+    <div className="min-h-screen w-full bg-black/45 backdrop-blur-md flex flex-col justify-between p-3.5 sm:p-6 text-white">
+      <header className="max-w-2xl mx-auto w-full flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
         <button
           type="button"
           onClick={onBack}
-          className="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/80 border border-slate-200"
+          className="text-xs font-semibold text-emerald-100 hover:text-white flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 backdrop-blur-lg shadow-sm transition-all active:scale-95 shrink-0"
         >
           ← वापस (Back)
         </button>
         <div className="flex items-center gap-2">
           <SevaVaaniLogo size={28} showWordmark={false} />
-          <span className="text-xs font-bold text-blue-700 bg-blue-100/80 px-3 py-1 rounded-full">
+          <span className="text-[11px] sm:text-xs font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-500/30 px-3 py-1 rounded-full backdrop-blur-md shadow-sm">
             Step 1 of 4: भाषा चयन (Select Language)
           </span>
         </div>
       </header>
 
-      <main className="max-w-xl mx-auto w-full text-center my-auto py-8">
-        <h2 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight mb-2">
+      <main className="max-w-2xl mx-auto w-full text-center my-auto py-6 sm:py-8 bg-[#121f15]/80 border border-white/15 rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60">
+        <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-2">
           अपनी भाषा चुनें <br />
-          <span className="text-base md:text-lg font-normal text-slate-500">
+          <span className="text-base md:text-lg font-normal text-emerald-200/80">
             आप किस भाषा में बातचीत करना पसंद करेंगे?
           </span>
         </h2>
-        <p className="text-xs text-slate-400 mb-6">
+        <p className="text-xs text-slate-300 mb-6">
           You can switch language anytime during the application.
         </p>
 
@@ -54,7 +54,7 @@ export const LanguageSelect: React.FC<LanguageSelectProps> = ({
           <button
             type="button"
             onClick={() => onConfirmLanguage(selected)}
-            className="w-full max-w-sm px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition-transform active:scale-95"
+            className="w-full max-w-sm px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-900/50 border border-emerald-300/30 transition-all active:scale-95"
           >
             आगे बढ़ें (Continue with {selected === 'hi' ? 'हिन्दी' : selected === 'mr' ? 'मराठी' : 'English'}) →
           </button>

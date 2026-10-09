@@ -1,90 +1,29 @@
-import sqlite3
+"""
+Database connection and initialization module for SEVA VAANI.
+Provides backwards-compatible interface bridging to app.db.engine and app.db.init_db.
+Enforces foreign-key constraints and owner-only 0o600 file permissions.
+"""
+
 import os
-import json
-from datetime import datetime
-from typing import Optional, Dict, Any, List
+import sqlite3
+from typing import Optional
 
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "seva_vaani.db")
+from app.config import settings
+from app.db.engine import get_raw_connection
+from app.db.init_db import init_database
 
-def get_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+DB_PATH = (
+    settings.DATABASE_URL.replace("sqlite:///", "")
+    if settings.DATABASE_URL.startswith("sqlite:///")
+    else settings.SQLITE_DB_PATH
+)
 
-def init_db():
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    # 1. Sessions table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS sessions (
-        session_id TEXT PRIMARY KEY,
-        service_id TEXT NOT NULL,
-        language TEXT NOT NULL,
-        current_field TEXT,
-        status TEXT NOT NULL,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
-    );
-    """)
-    
-    # 2. FieldValues table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS field_values (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        session_id TEXT NOT NULL,
-        field_name TEXT NOT NULL,
-        candidate_value TEXT,
-        confirmed_value TEXT,
-        confidence REAL,
-        attempts INTEGER DEFAULT 0,
-        confirmed_at TEXT,
-        FOREIGN KEY (session_id) REFERENCES sessions (session_id),
-        UNIQUE(session_id, field_name)
-    );
-    """)
-    
-    # 3. Turns table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS turns (
-        turn_id TEXT PRIMARY KEY,
-        session_id TEXT NOT NULL,
-        field_name TEXT NOT NULL,
-        input_type TEXT NOT NULL,
-        transcript TEXT,
-        result TEXT,
-        latency_ms INTEGER,
-        created_at TEXT NOT NULL,
-        FOREIGN KEY (session_id) REFERENCES sessions (session_id)
-    );
-    """)
-    
-    # 4. HelpTickets table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS help_tickets (
-        ticket_id TEXT PRIMARY KEY,
-        session_id TEXT NOT NULL,
-        field_name TEXT,
-        reason TEXT NOT NULL,
-        status TEXT NOT NULL,
-        created_at TEXT NOT NULL,
-        FOREIGN KEY (session_id) REFERENCES sessions (session_id)
-    );
-    """)
-    
-    # 5. Applications table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS applications (
-        application_id TEXT PRIMARY KEY,
-        session_id TEXT NOT NULL,
-        service_id TEXT NOT NULL,
-        data_json TEXT NOT NULL,
-        consent INTEGER NOT NULL,
-        status TEXT NOT NULL,
-        submitted_at TEXT NOT NULL,
-        FOREIGN KEY (session_id) REFERENCES sessions (session_id)
-    );
-    """)
-    
-    conn.commit()
-    conn.close()
+
+def get_connection(db_path: Optional[str] = None) -> sqlite3.Connection:
+    """Returns a raw SQLite connection with PRAGMA foreign_keys = ON and Row factory."""
+    return get_raw_connection(db_path or DB_PATH)
+
+
+def init_db(db_path: Optional[str] = None) -> str:
+    """Initializes all database tables, indexes, and applies security permissions."""
+    return init_database(db_path or DB_PATH)

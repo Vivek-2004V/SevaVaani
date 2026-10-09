@@ -92,15 +92,20 @@ export const ConfirmationCard: React.FC<ConfirmationCardProps> = ({
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto my-4 p-5 bg-white/95 backdrop-blur-md rounded-3xl border-2 border-blue-400 shadow-xl animate-fade-in">
+    <div
+      role="region"
+      aria-live="polite"
+      aria-label={`${fieldLabel} confirmation`}
+      className="w-full max-w-xl mx-auto my-4 p-5 bg-[#121f15]/90 backdrop-blur-2xl rounded-3xl border border-emerald-500/40 shadow-2xl animate-fade-in text-white"
+    >
       <div className="text-center mb-4">
-        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full uppercase tracking-wider mb-2">
+        <span className="inline-block px-3.5 py-1 bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 text-xs font-semibold rounded-full uppercase tracking-wider mb-2">
           {fieldLabel}
         </span>
-        <h3 className="text-xl md:text-2xl font-bold text-slate-800 mb-1">
+        <h3 className="text-xl md:text-2xl font-bold text-white mb-1">
           {candidateValue}
         </h3>
-        <p className="text-sm md:text-base text-slate-600 mt-2 font-medium">
+        <p className="text-sm md:text-base text-emerald-100/90 mt-2 font-medium">
           {getDefaultMessage()}
         </p>
       </div>
@@ -109,7 +114,7 @@ export const ConfirmationCard: React.FC<ConfirmationCardProps> = ({
         <button
           type="button"
           onClick={onConfirm}
-          className="flex items-center justify-center gap-1.5 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl shadow-md transition-transform active:scale-95 focus:ring-4 focus:ring-emerald-200"
+          className="flex items-center justify-center gap-1.5 px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-semibold rounded-2xl shadow-lg shadow-emerald-950/50 transition-transform active:scale-95 border border-emerald-300/30"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -120,9 +125,9 @@ export const ConfirmationCard: React.FC<ConfirmationCardProps> = ({
         <button
           type="button"
           onClick={onChange}
-          className="flex items-center justify-center gap-1.5 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-2xl border border-slate-300 transition-transform active:scale-95"
+          className="flex items-center justify-center gap-1.5 px-4 py-3 bg-white/10 hover:bg-white/20 text-slate-200 font-semibold rounded-2xl border border-white/15 backdrop-blur-md transition-transform active:scale-95"
         >
-          <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
           <span className="text-sm">{getChangeLabel()}</span>
@@ -131,9 +136,9 @@ export const ConfirmationCard: React.FC<ConfirmationCardProps> = ({
         <button
           type="button"
           onClick={onRetry}
-          className="flex items-center justify-center gap-1.5 px-4 py-3 bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold rounded-2xl border border-amber-300 transition-transform active:scale-95"
+          className="flex items-center justify-center gap-1.5 px-4 py-3 bg-amber-950/60 hover:bg-amber-900/70 text-amber-200 font-semibold rounded-2xl border border-amber-500/30 backdrop-blur-md transition-transform active:scale-95"
         >
-          <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           <span className="text-sm">{getRetryLabel()}</span>
