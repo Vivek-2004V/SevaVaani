@@ -11,7 +11,7 @@ export interface ReviewProps {
   fields: FormField[];
   language: SupportedLanguage;
   onEditField: (index: number) => void;
-  onSubmitSuccess: (applicationId: string) => void;
+  onSubmitSuccess: (applicationId: string, persistenceScope?: string, governmentPortalSubmitted?: boolean) => void;
   onBack: () => void;
 }
 
@@ -81,6 +81,7 @@ export const Review: React.FC<ReviewProps> = ({
     }
 
     setSubmitError(null);
+    setIsSubmitting(true);
 
     const formDataObj: Record<string, string> = {};
     fields.forEach((f) => {
@@ -90,14 +91,20 @@ export const Review: React.FC<ReviewProps> = ({
     try {
       const res = await submitFinalApplication(sessionId, true, formDataObj);
       setIsSubmitting(false);
-      if (res.application_id) {
-        onSubmitSuccess(res.application_id);
+      if (res.success && res.application_id) {
+        onSubmitSuccess(res.application_id, res.persistence_scope, res.government_portal_submitted);
       } else {
-        onSubmitSuccess(`SV-SCH-${Math.floor(100000 + Math.random() * 900000)}`);
+        if (res.status === 'local_draft_saved') {
+          setSubmitError(
+            'सर्वर से संपर्क नहीं हो सका। आपका ड्राफ्ट इस डिवाइस पर सुरक्षित है। सर्वर उपलब्ध होने पर पुनः प्रयास करें।'
+          );
+        } else {
+          setSubmitError(res.message || 'जमा करने में समस्या हुई। कृपया पुनः प्रयास करें.');
+        }
       }
-    } catch (err) {
+    } catch (err: any) {
       setIsSubmitting(false);
-      setSubmitError('जमा करने में समस्या हुई। कृपया पुनः प्रयास करें.');
+      setSubmitError(err?.message || 'जमा करने में समस्या हुई। कृपया पुनः प्रयास करें.');
     }
   };
 

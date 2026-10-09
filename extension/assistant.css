@@ -693,3 +693,14 @@ body {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.privacy-notice-card {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #166534;
+}

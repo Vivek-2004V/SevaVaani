@@ -289,6 +289,21 @@ class OpenAICompatibleLLMAdapter(BaseLLMAdapter):
             logger.info("LLM API key not configured. Using deterministic fallback.")
             return self._fallback.extract_field_candidate(request)
 
+        # Privacy Firewall: Block transmission of sensitive citizen identity data to remote AI models
+        from app.services.privacy_firewall import PrivacyFirewall
+        inspection = PrivacyFirewall.inspect_llm_outbound_payload(
+            endpoint_url=self.base_url,
+            field_name=request.field_name,
+            transcript=request.transcript
+        )
+        if not inspection.allowed:
+            logger.warning(
+                "Privacy Firewall BLOCKED remote LLM request for field '%s': %s. Safely falling back to local deterministic rules.",
+                request.field_name,
+                inspection.reason
+            )
+            return self._fallback.extract_field_candidate(request)
+
         system_prompt = (
             "You are an empathetic, bounded NLU assistant for Indian public services (Scholarship Portal). "
             f"Your single task is to extract the candidate value for ONLY the field '{request.field_name}' "

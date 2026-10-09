@@ -1,4 +1,5 @@
 import { AssistTurnResponse, MetricsSummary, SupportedLanguage } from '../types';
+import { privacyFetch } from './privacyFirewall';
 
 const API_BASE = 'http://127.0.0.1:8000';
 
@@ -34,7 +35,7 @@ export async function createSession(serviceId = 'scholarship_app', language: Sup
   }
 
   try {
-    const res = await fetch(`${API_BASE}/api/session`, {
+    const res = await privacyFetch(`${API_BASE}/api/session`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -63,7 +64,7 @@ export async function processVoiceTurn(
 ): Promise<AssistTurnResponse> {
   const startTime = Date.now();
   try {
-    const res = await fetch(`${API_BASE}/api/assist/turn`, {
+    const res = await privacyFetch(`${API_BASE}/api/assist/turn`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -151,7 +152,7 @@ export async function confirmField(
   candidateValue: string
 ) {
   try {
-    const res = await fetch(`${API_BASE}/api/confirm`, {
+    const res = await privacyFetch(`${API_BASE}/api/confirm`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -179,7 +180,7 @@ export async function submitFallbackText(
   text: string
 ) {
   try {
-    const res = await fetch(`${API_BASE}/api/fallback/text`, {
+    const res = await privacyFetch(`${API_BASE}/api/fallback/text`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -207,12 +208,34 @@ export async function submitFallbackText(
   }
 }
 
+export interface HelpRequestResponse {
+  success: boolean;
+  ticket_id: string | null;
+  status: string;
+  message: string;
+  persistence_scope: 'saved_in_backend' | 'none';
+  external_notification_sent: boolean;
+  external_notification_channel: string;
+}
+
+export interface FinalSubmissionResponse {
+  success: boolean;
+  application_id: string | null;
+  submission_time: string | null;
+  status: 'saved_in_backend' | 'submitted_to_government_portal' | 'local_draft_saved' | 'submission_failed' | 'blocked' | 'incomplete';
+  message: string;
+  persistence_scope: 'saved_in_backend' | 'government_portal' | 'local_draft_only' | 'none';
+  government_portal_submitted: boolean;
+  government_portal_status?: string;
+  is_duplicate?: boolean;
+}
+
 export async function requestHumanHelp(
   sessionId: string,
   reason: string
-) {
+): Promise<HelpRequestResponse> {
   try {
-    const res = await fetch(`${API_BASE}/api/help/request`, {
+    const res = await privacyFetch(`${API_BASE}/api/help/request`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -221,13 +244,30 @@ export async function requestHumanHelp(
         reason
       })
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err) {
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.detail || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
     return {
-      ticket_id: `TICK-${Math.floor(100000 + Math.random() * 900000)}`,
-      status: 'pending_agent_callback',
-      message: 'Sahayata anurodh darj ho gaya hai. Aapki prathmik jankari surakshit hai.'
+      success: true,
+      ticket_id: data.ticket_id || null,
+      status: data.status || 'ticket_created',
+      message: data.message || 'सहायता अनुरोध आंतरिक रूप से दर्ज कर लिया गया है।',
+      persistence_scope: 'saved_in_backend',
+      external_notification_sent: Boolean(data.external_notification_sent),
+      external_notification_channel: data.external_notification_channel || 'none_configured'
+    };
+  } catch (err: any) {
+    // Never generate random ticket ID on error
+    return {
+      success: false,
+      ticket_id: null,
+      status: 'failed',
+      message: 'सहायता अनुरोध सर्वर पर दर्ज नहीं हो सका (सर्वर अनुपलब्ध है)। कोई टिकट नहीं बना।',
+      persistence_scope: 'none',
+      external_notification_sent: false,
+      external_notification_channel: 'none'
     };
   }
 }
@@ -236,7 +276,7 @@ export async function submitFinalApplication(
   sessionId: string,
   consent: boolean,
   formData?: Record<string, string>
-) {
+): Promise<FinalSubmissionResponse> {
   const token = getAuthToken();
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) {
@@ -244,7 +284,7 @@ export async function submitFinalApplication(
   }
 
   try {
-    const res = await fetch(`${API_BASE}/api/submit`, {
+    const res = await privacyFetch(`${API_BASE}/api/submit`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -252,27 +292,66 @@ export async function submitFinalApplication(
         consent: consent
       })
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.detail || `HTTP ${res.status}`);
+    }
     const data = await res.json();
-    return {
-      success: data.status !== 'blocked',
-      application_id: data.application_id || `SV-SCH-${Math.floor(100000 + Math.random() * 900000)}`,
-      submission_time: new Date().toISOString(),
-      status: data.status || 'SUBMITTED'
-    };
-  } catch (err) {
+
+    if (data.status === 'blocked' || data.status === 'incomplete') {
+      return {
+        success: false,
+        application_id: null,
+        submission_time: null,
+        status: data.status,
+        message: data.message || 'आवेदन प्रक्रिया पूरी नहीं है।',
+        persistence_scope: 'none',
+        government_portal_submitted: false
+      };
+    }
+
     return {
       success: true,
-      application_id: `SV-SCH-${Math.floor(100000 + Math.random() * 900000)}`,
-      submission_time: new Date().toISOString(),
-      status: 'SUBMITTED'
+      application_id: data.application_id || null,
+      submission_time: data.submitted_at || new Date().toISOString(),
+      status: data.government_portal_submitted ? 'submitted_to_government_portal' : 'saved_in_backend',
+      message: data.message || 'आवेदन SEVA VAANI बैकएंड में दर्ज हो गया है।',
+      persistence_scope: (data.persistence_scope || 'saved_in_backend') as 'saved_in_backend',
+      government_portal_submitted: Boolean(data.government_portal_submitted),
+      government_portal_status: data.government_portal_status || 'no_direct_integration',
+      is_duplicate: Boolean(data.is_duplicate)
+    };
+  } catch (err: any) {
+    // Preserve recoverable draft in localStorage
+    try {
+      if (formData) {
+        localStorage.setItem(`sv_draft_${sessionId}`, JSON.stringify({
+          sessionId,
+          formData,
+          savedAt: new Date().toISOString()
+        }));
+      }
+    } catch (e) {
+      console.warn('Could not store local draft in localStorage:', e);
+    }
+
+    // Never generate random application ID on failure
+    return {
+      success: false,
+      application_id: null,
+      submission_time: null,
+      status: 'local_draft_saved',
+      message: 'सर्वर से संपर्क नहीं हो सका। आपका ड्राफ्ट इस डिवाइस पर सुरक्षित है, लेकिन आवेदन सर्वर या सरकारी पोर्टल पर जमा नहीं हुआ है।',
+      persistence_scope: 'local_draft_only',
+      government_portal_submitted: false,
+      government_portal_status: 'unreachable'
     };
   }
 }
 
 export async function fetchJudgeMetrics(): Promise<MetricsSummary> {
   try {
-    const res = await fetch(`${API_BASE}/api/metrics`);
+    const res = await privacyFetch(`${API_BASE}/api/metrics`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     return {
@@ -316,7 +395,7 @@ export interface AuthLoginResponse {
 }
 
 export async function loginUser(email: string, password: string): Promise<AuthLoginResponse> {
-  const res = await fetch(`${API_BASE}/api/auth/login`, {
+  const res = await privacyFetch(`${API_BASE}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
@@ -329,7 +408,7 @@ export async function loginUser(email: string, password: string): Promise<AuthLo
 }
 
 export async function registerUser(email: string, password: string): Promise<AuthUser> {
-  const res = await fetch(`${API_BASE}/api/auth/register`, {
+  const res = await privacyFetch(`${API_BASE}/api/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
@@ -343,7 +422,7 @@ export async function registerUser(email: string, password: string): Promise<Aut
 
 export async function fetchCurrentUser(token: string): Promise<AuthUser | null> {
   try {
-    const res = await fetch(`${API_BASE}/api/auth/me`, {
+    const res = await privacyFetch(`${API_BASE}/api/auth/me`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (!res.ok) return null;
@@ -357,7 +436,7 @@ export async function logoutUser(token?: string): Promise<void> {
   const t = token || getAuthToken();
   if (t) {
     try {
-      await fetch(`${API_BASE}/api/auth/logout`, {
+      await privacyFetch(`${API_BASE}/api/auth/logout`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${t}` }
       });
@@ -372,7 +451,7 @@ export async function getUserSavedSessions(token?: string): Promise<any[]> {
   const t = token || getAuthToken();
   if (!t) return [];
   try {
-    const res = await fetch(`${API_BASE}/api/service-sessions/my`, {
+    const res = await privacyFetch(`${API_BASE}/api/service-sessions/my`, {
       headers: { Authorization: `Bearer ${t}` }
     });
     if (!res.ok) return [];

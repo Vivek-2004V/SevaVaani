@@ -18,6 +18,7 @@ import ServiceForm from './pages/ServiceForm';
 import Review from './pages/Review';
 import Success from './pages/Success';
 import JudgeMode from './pages/JudgeMode';
+import NotFound from './pages/NotFound';
 import ExtensionModal from './components/ExtensionModal';
 import { SessionRecoveryBanner } from './components/SessionRecoveryBanner';
 import { useOfflineStore, PersistedSession } from './hooks/useOfflineStore';
@@ -29,7 +30,8 @@ export type ScreenState =
   | 'service'
   | 'form'
   | 'review'
-  | 'success';
+  | 'success'
+  | 'not-found';
 
 export const App: React.FC = () => {
   // Authentication State
@@ -44,6 +46,8 @@ export const App: React.FC = () => {
   const [fields, setFields] = useState<FormField[]>(SCHOLARSHIP_FIELDS);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [applicationId, setApplicationId] = useState<string>('');
+  const [submissionScope, setSubmissionScope] = useState<string>('saved_in_backend');
+  const [governmentPortalSubmitted, setGovernmentPortalSubmitted] = useState<boolean>(false);
   const [showJudgeMode, setShowJudgeMode] = useState<boolean>(false);
   const [showExtensionModal, setShowExtensionModal] = useState<boolean>(false);
 
@@ -85,6 +89,20 @@ export const App: React.FC = () => {
     };
     window.addEventListener('message', handleGlobalAction);
     return () => window.removeEventListener('message', handleGlobalAction);
+  }, []);
+
+  // Custom 404 Route Detection for unrecognized URL navigation
+  useEffect(() => {
+    const checkHashRoute = () => {
+      const rawHash = window.location.hash.replace(/^#\/?/, '').trim().toLowerCase();
+      const validHashes = ['', 'welcome', 'dashboard', 'language', 'service', 'form', 'review', 'success', 'privacy', 'terms'];
+      if (rawHash && !validHashes.includes(rawHash)) {
+        setScreen('not-found');
+      }
+    };
+    window.addEventListener('hashchange', checkHashRoute);
+    checkHashRoute();
+    return () => window.removeEventListener('hashchange', checkHashRoute);
   }, []);
 
   // Check for saved incomplete session on auth initialization
@@ -207,8 +225,10 @@ export const App: React.FC = () => {
     setScreen('form');
   };
 
-  const handleSubmitSuccess = (appId: string) => {
+  const handleSubmitSuccess = (appId: string, persistenceScope?: string, govSubmitted?: boolean) => {
     setApplicationId(appId);
+    if (persistenceScope) setSubmissionScope(persistenceScope);
+    setGovernmentPortalSubmitted(Boolean(govSubmitted));
     setScreen('success');
   };
 
@@ -331,8 +351,20 @@ export const App: React.FC = () => {
           <Success
             applicationId={applicationId}
             language={language}
+            persistenceScope={submissionScope}
+            governmentPortalSubmitted={governmentPortalSubmitted}
             onHome={handleBackToHome}
             onOpenJudgeMode={() => setShowJudgeMode(true)}
+          />
+        )}
+
+        {/* 8. NOT FOUND (404) FALLBACK */}
+        {screen === 'not-found' && (
+          <NotFound
+            onGoHome={() => {
+              window.location.hash = '';
+              setScreen(currentUser ? 'dashboard' : 'welcome');
+            }}
           />
         )}
 

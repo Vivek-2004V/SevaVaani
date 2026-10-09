@@ -21,6 +21,7 @@ frontend/build/
 
 # ─── Frontend dependencies ───────────────────────────────────────────────────
 frontend/node_modules/
+node_modules
 node_modules/
 
 # ─── Database files (SQLite main + WAL journal) ──────────────────────────────
@@ -28,6 +29,10 @@ node_modules/
 *.sqlite3
 *.db-shm
 *.db-wal
+
+# ─── Private database backups & archives (never commit) ──────────────────────
+data/backups/
+data/archive/
 
 # ─── Environment & secrets ───────────────────────────────────────────────────
 .env

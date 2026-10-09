@@ -55,6 +55,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   // Fallback state
   const [showFallback, setShowFallback] = useState(false);
   const [helpTicketId, setHelpTicketId] = useState<string | null>(null);
+  const [helpError, setHelpError] = useState<string | null>(null);
 
   // ── Offline / Network ─────────────────────────────────────────────────────
   const networkStatus = useNetworkStatus();
@@ -411,11 +412,17 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   };
 
   const handleRequestHelp = async () => {
+    setHelpError(null);
     const res = await requestHumanHelp(
       sessionId,
       `Difficulty on field ${currentField.id}: ${currentField.label.en}`
     );
-    setHelpTicketId(res.ticket_id);
+    if (res.success && res.ticket_id) {
+      setHelpTicketId(res.ticket_id);
+    } else {
+      setHelpTicketId(null);
+      setHelpError(res.message || 'सहायता अनुरोध सर्वर पर दर्ज नहीं हो सका (सर्वर अनुपलब्ध है)।');
+    }
   };
 
   const currentLangObj = INDIAN_LANGUAGES.find(l => l.id === language) || INDIAN_LANGUAGES[0];
@@ -554,6 +561,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
             onSubmitText={handleFallbackText}
             onRequestHelp={handleRequestHelp}
             helpTicketId={helpTicketId}
+            helpError={helpError}
           />
         )}
 

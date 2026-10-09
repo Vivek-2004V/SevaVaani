@@ -1,5 +1,6 @@
 import React from 'react';
-import logoImg from '../assets/seva-vaani-logo.png';
+import logoPng from '../assets/seva-vaani-logo.png';
+import logoWebp from '../assets/seva-vaani-logo.webp';
 
 export interface SevaVaaniLogoProps {
   size?: number;
@@ -10,7 +11,7 @@ export interface SevaVaaniLogoProps {
 
 /**
  * SEVA VAANI Clean Official Brand Logo
- * - Transparent, seamless presentation (no clunky boxes or borders)
+ * - Modern WebP delivery with transparent PNG fallback
  * - Pure, elegant hover effect: smooth scale lift + soft emerald & gold ambient glow
  * - Fast, butter-smooth cubic-bezier transition
  */
@@ -30,17 +31,20 @@ export const SevaVaaniLogo: React.FC<SevaVaaniLogoProps> = ({
         style={{ transform: 'scale(1.15)' }}
       />
 
-      {/* Clean Transparent Logo Image */}
-      <img
-        src={logoImg}
-        alt="SEVA VAANI — सेवा वाणी"
-        className="w-auto object-contain transition-all duration-300 ease-out filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_20px_rgba(34,197,94,0.5)] group-hover:drop-shadow-[0_0_32px_rgba(234,179,8,0.3)] group-hover:brightness-105"
-        style={{
-          height: size,
-          maxHeight: size,
-        }}
-        loading="eager"
-      />
+      {/* Clean Transparent Logo with WebP + PNG Fallback */}
+      <picture className="contents">
+        <source srcSet={logoWebp} type="image/webp" />
+        <img
+          src={logoPng}
+          alt="SEVA VAANI — सेवा वाणी"
+          className="w-auto object-contain transition-all duration-300 ease-out filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_20px_rgba(34,197,94,0.5)] group-hover:drop-shadow-[0_0_32px_rgba(234,179,8,0.3)] group-hover:brightness-105"
+          style={{
+            height: size,
+            maxHeight: size,
+          }}
+          loading="eager"
+        />
+      </picture>
     </div>
   );
 };

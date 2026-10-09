@@ -9,6 +9,8 @@ export interface FallbackPanelProps {
   onSubmitText: (text: string) => void;
   onRequestHelp: () => void;
   helpTicketId?: string | null;
+  helpError?: string | null;
+  externalNotificationSent?: boolean;
 }
 
 export const FallbackPanel: React.FC<FallbackPanelProps> = ({
@@ -18,7 +20,9 @@ export const FallbackPanel: React.FC<FallbackPanelProps> = ({
   onRetryVoice,
   onSubmitText,
   onRequestHelp,
-  helpTicketId
+  helpTicketId,
+  helpError,
+  externalNotificationSent = false
 }) => {
   const [typedText, setTypedText] = useState('');
   const [showTypeInput, setShowTypeInput] = useState(false);
@@ -86,14 +90,27 @@ export const FallbackPanel: React.FC<FallbackPanelProps> = ({
 
       {helpTicketId ? (
         <div className="mt-4 p-4 bg-emerald-950/70 border border-emerald-500/40 rounded-2xl text-center">
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold mb-2">
+            <span>●</span> आंतरिक संदर्भ रिकॉर्ड (Internal Reference Record)
+          </div>
           <p className="text-emerald-300 font-bold text-base">
-            सहायक अनुरोध दर्ज (Human Help Ticket Generated)
+            सहायता अनुरोध आंतरिक डेटाबेस में दर्ज (Help Request Saved)
           </p>
           <p className="text-emerald-100 text-sm mt-1">
-            टिकट क्रमांक: <span className="font-mono font-bold text-emerald-400">{helpTicketId}</span>
+            आंतरिक टिकट क्रमांक: <span className="font-mono font-bold text-emerald-400">{helpTicketId}</span>
           </p>
-          <p className="text-xs text-emerald-300/80 mt-2">
-            आपकी सभी प्रविष्टियां सुरक्षित हैं। एक ऑपरेटर जल्द ही संपर्क करेगा।
+          <div className="mt-3 p-2.5 bg-black/40 rounded-xl border border-white/10 text-xs text-amber-200/90 text-left">
+            <span className="font-semibold block text-amber-300">ℹ️ प्रेषण सूचना (Dispatch Status):</span>
+            बाह्य हेल्पडेस्क या ईमेल प्रदाता कॉन्फ़िगर नहीं है; बाह्य सूचना प्रेषित नहीं हुई है। आपकी जानकारी केवल SEVA VAANI स्थानीय सर्वर पर सुरक्षित है।
+          </div>
+        </div>
+      ) : helpError ? (
+        <div className="mt-4 p-3 bg-rose-950/80 border border-rose-500/40 rounded-2xl text-center">
+          <p className="text-rose-200 text-xs font-semibold">
+            ⚠️ {helpError}
+          </p>
+          <p className="text-[11px] text-rose-300/80 mt-1">
+            कोई टिकट उत्पन्न नहीं किया गया। कृपया दोबारा प्रयास करें या उत्तर लिखकर भरें।
           </p>
         </div>
       ) : showTypeInput ? (

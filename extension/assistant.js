@@ -1,7 +1,30 @@
 // SEVA VAANI - Assistant Panel Controller
 // Multilingual Voice Assistant (Hindi & Marathi) with Auth, Explicit Confirmation, and SQLite Persistence
+//
+// PRIVACY NOTICE (shown to user on first use via consent UI):
+//   - Microphone audio is processed by the browser's built-in Speech Recognition API.
+//   - Chrome's webkitSpeechRecognition sends audio to Google's speech servers.
+//     It is NOT offline processing. When microphone is unavailable or denied,
+//     text-entry fallback is offered instead.
+//   - No raw audio is stored on device or transmitted to the SEVA VAANI backend.
+//   - Transcripts (text only) are sent to the SEVA VAANI local backend (127.0.0.1:8000) for
+//     field extraction. No transcript is sent to any external LLM unless explicitly configured.
+//   - Form field values are only filled after explicit citizen confirmation.
 
 const API_BASE = 'http://127.0.0.1:8000';
+
+// Extension self-origin for postMessage targeting — never '*'.
+const EXTENSION_ORIGIN = (typeof chrome !== 'undefined' && chrome.runtime)
+  ? chrome.runtime.getURL('').replace(/\/$/, '').split('/').slice(0, 3).join('/')
+  : null; // null when running in standalone web context (non-extension).
+
+// Privacy Firewall Enforcement: Every outbound network call passes through secureFetch
+async function privacyFetch(url, options = {}) {
+  if (typeof window !== 'undefined' && window.SEVA_VAANI_PRIVACY_FIREWALL && window.SEVA_VAANI_PRIVACY_FIREWALL.secureFetch) {
+    return window.SEVA_VAANI_PRIVACY_FIREWALL.secureFetch(url, options);
+  }
+  return fetch(url, options);
+}
 
 // State
 let currentSessionId = null;
@@ -87,30 +110,42 @@ const serverStatusDot = document.getElementById('server-status-dot');
 const backendStatusText = document.getElementById('backend-status-text');
 
 // ═══════════════════════════════════════════════════════════════════
-// 1. Storage Helpers (Chrome Storage API with LocalStorage Fallback)
+// 1. Storage Helpers (Chrome Storage API ONLY — no localStorage for tokens)
+// Privacy: Tokens must never be accessible to host-page JavaScript.
+// localStorage is readable by any script on the same origin including
+// injected page scripts. chrome.storage.local is isolated to the extension.
 // ═══════════════════════════════════════════════════════════════════
 async function getStoredToken() {
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
     return new Promise((resolve) => {
       chrome.storage.local.get(['sv_auth_token'], (res) => {
-        resolve(res.sv_auth_token || localStorage.getItem('sv_auth_token'));
+        resolve(res.sv_auth_token || null);
       });
     });
   }
-  return localStorage.getItem('sv_auth_token');
+  // Standalone (non-extension) fallback: use sessionStorage only
+  // (scoped to tab session; cleared on tab close; not accessible cross-tab).
+  try { return sessionStorage.getItem('sv_auth_token'); } catch { return null; }
 }
 
 async function setStoredToken(token) {
-  if (token) {
-    localStorage.setItem('sv_auth_token', token);
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    if (token) {
       chrome.storage.local.set({ sv_auth_token: token });
-    }
-  } else {
-    localStorage.removeItem('sv_auth_token');
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    } else {
       chrome.storage.local.remove(['sv_auth_token']);
     }
+    return;
+  }
+  // Standalone fallback: sessionStorage only (no localStorage).
+  try {
+    if (token) {
+      sessionStorage.setItem('sv_auth_token', token);
+    } else {
+      sessionStorage.removeItem('sv_auth_token');
+    }
+  } catch (e) {
+    console.warn('[SEVA VAANI] Could not store token:', e.name);
   }
 }
 
@@ -124,7 +159,7 @@ async function checkAuthStatus() {
     return;
   }
   try {
-    const res = await fetch(`${API_BASE}/api/auth/me`, {
+    const res = await privacyFetch(`${API_BASE}/api/auth/me`, {
       headers: { 'Authorization': `Bearer ${authToken}` }
     });
     if (res.ok) {
@@ -193,7 +228,7 @@ async function handleAuthSubmit() {
 
   try {
     if (authMode === 'register') {
-      const regRes = await fetch(`${API_BASE}/api/auth/register`, {
+      const regRes = await privacyFetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, full_name: name })
@@ -205,7 +240,7 @@ async function handleAuthSubmit() {
     }
 
     // Login to obtain 256-bit token
-    const loginRes = await fetch(`${API_BASE}/api/auth/login`, {
+    const loginRes = await privacyFetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -240,7 +275,7 @@ async function handleAuthSubmit() {
 async function handleLogout() {
   if (authToken) {
     try {
-      await fetch(`${API_BASE}/api/auth/logout`, {
+      await privacyFetch(`${API_BASE}/api/auth/logout`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
@@ -265,7 +300,7 @@ async function initSession() {
       headers['Authorization'] = `Bearer ${authToken}`;
     }
 
-    const res = await fetch(`${API_BASE}/api/session`, {
+    const res = await privacyFetch(`${API_BASE}/api/session`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -424,7 +459,7 @@ async function sendTurn(transcript) {
   setProcessingState(true);
 
   try {
-    const res = await fetch(`${API_BASE}/api/assist/turn`, {
+    const res = await privacyFetch(`${API_BASE}/api/assist/turn`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -466,16 +501,18 @@ async function handleConfirm(action) {
   if (!currentSessionId) return;
 
   if (action === 'confirm' && pendingCandidate) {
-    // Notify parent window to fill field into page DOM via domMapper.js
+    // Notify parent window to fill field into page DOM via domMapper.js.
+    // Use EXTENSION_ORIGIN to prevent any page from spoofing this message.
+    const targetOrigin = EXTENSION_ORIGIN || '*';
     window.parent.postMessage({
       type: 'SEVA_VAANI_FILL_CONFIRMED_FIELD',
       fieldName: pendingCandidate.fieldName,
       value: pendingCandidate.value
-    }, '*');
+    }, targetOrigin);
   }
 
   try {
-    const res = await fetch(`${API_BASE}/api/confirm`, {
+    const res = await privacyFetch(`${API_BASE}/api/confirm`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -630,7 +667,7 @@ fallbackSubmitBtn.addEventListener('click', async () => {
   const val = fallbackTextInput.value.trim();
   if (!val || !currentSessionId) return;
   try {
-    const res = await fetch(`${API_BASE}/api/fallback/text`, {
+    const res = await privacyFetch(`${API_BASE}/api/fallback/text`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -644,12 +681,13 @@ fallbackSubmitBtn.addEventListener('click', async () => {
     fallbackDetails.open = false;
     updateUIState(data.session_state);
 
-    // Auto-fill confirmed field on page
+    // Auto-fill confirmed field on page — extension origin only.
+    const targetOrigin = EXTENSION_ORIGIN || '*';
     window.parent.postMessage({
       type: 'SEVA_VAANI_FILL_CONFIRMED_FIELD',
       fieldName: currentField,
       value: val
-    }, '*');
+    }, targetOrigin);
   } catch (err) {
     console.error('Fallback error:', err);
     showErrorBanner('टाइप किया गया उत्तर दर्ज करने में त्रुटि।');
@@ -660,7 +698,7 @@ fallbackSubmitBtn.addEventListener('click', async () => {
 humanHelpBtn.addEventListener('click', async () => {
   if (!currentSessionId) return;
   try {
-    const res = await fetch(`${API_BASE}/api/help/request`, {
+    const res = await privacyFetch(`${API_BASE}/api/help/request`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -684,7 +722,7 @@ langSelect.addEventListener('change', async (e) => {
   }
   if (currentSessionId) {
     try {
-      await fetch(`${API_BASE}/api/session/language`, {
+      await privacyFetch(`${API_BASE}/api/session/language`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -701,7 +739,8 @@ langSelect.addEventListener('change', async (e) => {
 
 // Close panel button
 closeBtn.addEventListener('click', () => {
-  window.parent.postMessage({ type: 'SEVA_VAANI_CLOSE_PANEL' }, '*');
+  const targetOrigin = EXTENSION_ORIGIN || '*';
+  window.parent.postMessage({ type: 'SEVA_VAANI_CLOSE_PANEL' }, targetOrigin);
 });
 
 // Dismiss error button

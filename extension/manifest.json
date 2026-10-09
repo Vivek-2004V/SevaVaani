@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SEVA VAANI — Public Service Assistant",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "User-invoked multilingual voice assistant for completing digital public service forms with explicit field confirmation.",
   "permissions": [
     "activeTab",
@@ -35,11 +35,23 @@
       "resources": [
         "assistant.html",
         "assistant.css",
-        "assistant.js",
+        "privacyFirewall.js",
+        "assistant.js"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "file://*/*"
+      ]
+    },
+    {
+      "resources": [
         "domMapper.js"
       ],
       "matches": [
-        "<all_urls>"
+        "http://*/*",
+        "https://*/*",
+        "file://*/*"
       ]
     }
   ]

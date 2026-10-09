@@ -96,6 +96,13 @@
 
     <!-- Main Body -->
     <main class="main-body">
+      <!-- Privacy & Data Protection Notice -->
+      <div id="privacy-notice-card" class="privacy-notice-card" role="note">
+        <div class="privacy-notice-text">
+          🔒 <strong>गोपनीयता सूचना (Privacy Notice):</strong> आपका फॉर्म डेटा आपके कंप्यूटर (127.0.0.1:8000) पर सुरक्षित रहता है। वॉइस इनपुट ब्राउज़र स्पीच पहचान का उपयोग करता है; बिना माइक्रोफ़ोन के 100% ऑफ़लाइन टाइपिंग के लिए नीचे 'टाइप करके उत्तर दें' चुनें।
+        </div>
+      </div>
+
       <!-- Active Question Prompt Card -->
       <div class="prompt-card">
         <div class="prompt-badge" id="active-field-badge">पूरा नाम (Full Name)</div>
@@ -178,10 +185,11 @@
         <span class="status-dot" id="server-status-dot"></span>
         <span id="backend-status-text">FastAPI Backend: http://127.0.0.1:8000</span>
       </div>
-      <div class="safety-tag">🛡️ Conservative Fill • Zero Auto-Submit • SQLite Persisted</div>
+      <div class="safety-tag">🛡️ Privacy-First • Local SQLite • Zero Auto-Submit</div>
     </footer>
   </div>
 
+  <script src="privacyFirewall.js"></script>
   <script src="assistant.js"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -16,6 +16,14 @@ from app.api.sessions import router as sessions_router
 from app.api.submission import router as submission_router
 from app.api.metrics import router as metrics_router
 from app.api.languages import router as languages_router
+
+import logging
+from app.services.privacy_firewall import SensitiveDataLoggingFilter
+
+# Install Privacy Log Filter to redact sensitive tokens & citizen identity data from all application logs
+_privacy_log_filter = SensitiveDataLoggingFilter()
+logging.getLogger().addFilter(_privacy_log_filter)
+logging.getLogger("seva_vaani").addFilter(_privacy_log_filter)
 
 # Initialize Database Schema
 init_db()
@@ -32,8 +40,30 @@ app.add_middleware(
     allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"],
+    # Explicit allowlist: Content-Type for JSON bodies, Authorization for bearer tokens.
+    # Never use ["*"] here; that would permit any custom header including attacker-controlled ones.
+    allow_headers=["Content-Type", "Authorization", "Accept", "X-Requested-With"],
+    max_age=600,
 )
+
+
+# HTTP Security Headers middleware
+# Applied to every response. These are defense-in-depth; they complement CSP/CORS, not replace them.
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response: Response = await call_next(request)
+    # Prevent MIME-type sniffing attacks.
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    # Deny embedding in iframes from external origins (clickjacking protection).
+    response.headers["X-Frame-Options"] = "DENY"
+    # Restrict referrer to same origin; prevents form-field URLs leaking to third parties.
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    # Disable browser features not needed by this API backend.
+    response.headers["Permissions-Policy"] = "microphone=(), camera=(), geolocation=()"
+    # Note: HSTS (Strict-Transport-Security) is intentionally omitted here because
+    # the local dev server runs on plain HTTP. Add it in your reverse-proxy/CDN config
+    # for production with: Strict-Transport-Security: max-age=63072000; includeSubDomains
+    return response
 
 # Register Modular Routers (TRD Section 6)
 app.include_router(auth_router)

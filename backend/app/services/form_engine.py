@@ -585,7 +585,13 @@ class FormEngine:
     def create_help_ticket(self, session_id: str, field_name: Optional[str], reason: str = "user_request") -> Dict[str, Any]:
         """
         Creates human-help ticket (FR-011, TC09).
+        Persists record genuinely in SQLite before returning ticket ID.
+        Explicitly indicates that external notification has not been sent.
         """
+        # Validate that session exists first
+        state = self.get_session_state(session_id)
+        lang = state.get("language", "hi")
+
         ticket_id = f"TKT-{uuid.uuid4().hex[:6].upper()}"
         now = datetime.utcnow().isoformat()
         conn = get_connection()
@@ -600,16 +606,17 @@ class FormEngine:
         conn.commit()
         conn.close()
 
-        state = self.get_session_state(session_id)
-        lang = state["language"]
-        msg = (f"सहायता टिकट {ticket_id} दर्ज कर लिया गया है। सहायता ऑपरेटर जल्द ही आपके सत्र की समीक्षा करेगा।"
+        msg = (f"सहायता अनुरोध आंतरिक रूप से दर्ज किया गया (टिकट: {ticket_id})। बाह्य हेल्पडेस्क/ईमेल सेवा कॉन्फ़िगर नहीं है; बाह्य सूचना प्रेषित नहीं हुई है।"
                if lang == "hi" else
-               f"मदत तिकीट {ticket_id} नोंदवले गेले आहे. सहाय्यक ऑपरेटर लवकरच आपल्या सत्राचे पुनरावलोकन करेल.")
+               f"मदत विनंती अंतर्गत नोंदवली गेली (तिकीट: {ticket_id}). बाह्य हेल्पडेस्क/ईमेल सेवा कॉन्फिगर केलेली नाही; बाह्य सूचना पाठवली नाही.")
 
         return {
             "ticket_id": ticket_id,
             "session_id": session_id,
             "status": "ticket_created",
+            "persistence_scope": "saved_in_backend",
+            "external_notification_sent": False,
+            "external_notification_channel": "none_configured",
             "message": msg,
             "audio_text": msg,
             "session_state": state
@@ -621,6 +628,7 @@ class FormEngine:
         Submission is BLOCKED if consent is false.
         Generates Application ID if consent is true.
         Zero unconfirmed values can be submitted.
+        Clearly reports persistence in backend vs lack of direct government portal integration.
         """
         state = self.get_session_state(session_id)
         lang = state["language"]
@@ -633,7 +641,9 @@ class FormEngine:
             return {
                 "status": "blocked",
                 "message": msg,
-                "application_id": None
+                "application_id": None,
+                "persistence_scope": "none",
+                "government_portal_submitted": False
             }
 
         # Check all required fields are confirmed
@@ -646,18 +656,48 @@ class FormEngine:
             return {
                 "status": "incomplete",
                 "message": msg,
-                "application_id": None
+                "application_id": None,
+                "persistence_scope": "none",
+                "government_portal_submitted": False
+            }
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Idempotency / duplicate request check: return existing record if already submitted
+        cursor.execute(
+            "SELECT application_id, submitted_at FROM applications WHERE session_id = ?",
+            (session_id,)
+        )
+        existing = cursor.fetchone()
+        if existing:
+            conn.close()
+            existing_id, existing_time = existing[0], existing[1]
+            dup_msg = (
+                f"यह आवेदन पहले ही SEVA VAANI बैकएंड में दर्ज किया जा चुका है (आंतरिक संदर्भ: {existing_id})।"
+                if lang == "hi" else
+                f"हा अर्ज आधीच SEVA VAANI बॅकएंडमध्ये नोंदवला गेला आहे (अंतर्गत संदर्भ: {existing_id})."
+            )
+            return {
+                "status": "success",
+                "application_id": existing_id,
+                "submitted_at": existing_time,
+                "persistence_scope": "saved_in_backend",
+                "government_portal_submitted": False,
+                "government_portal_status": "no_direct_integration",
+                "is_duplicate": True,
+                "message": dup_msg,
+                "audio_text": dup_msg,
+                "session_state": self.get_session_state(session_id)
             }
 
         app_id = f"SV-SCH-2026-{uuid.uuid4().hex[:6].upper()}"
         now = datetime.utcnow().isoformat()
 
-        conn = get_connection()
-        cursor = conn.cursor()
         cursor.execute(
             """
             INSERT INTO applications (application_id, session_id, service_id, data_json, consent, status, submitted_at)
-            VALUES (?, ?, ?, ?, 1, 'submitted', ?)
+            VALUES (?, ?, ?, ?, 1, 'saved_in_backend', ?)
             """,
             (app_id, session_id, state["service_id"], json.dumps(confirmed, ensure_ascii=False), now)
         )
@@ -674,15 +714,19 @@ class FormEngine:
         conn.close()
 
         success_msg = (
-            f"बधाई! आपका छात्रवृत्ति आवेदन सफलतापूर्वक जमा हो गया है। आपका आवेदन क्रमांक है: {app_id}."
+            f"बधाई! आपका छात्रवृत्ति आवेदन SEVA VAANI बैकएंड में सुरक्षित रूप से दर्ज कर लिया गया है। आंतरिक संदर्भ क्रमांक: {app_id}। (नोट: सरकारी पोर्टल एकीकरण सक्रिय नहीं है; यह आंतरिक रिकॉर्ड है।)"
             if lang == "hi" else
-            f"अभिनंदन! आपला शिष्यवृत्ती अर्ज यशस्वीरित्या सादर झाला आहे. आपला अर्ज क्रमांक आहे: {app_id}."
+            f"अभिनंदन! आपला शिष्यवृत्ती अर्ज SEVA VAANI बॅकएंडमध्ये सुरक्षितपणे नोंदवला गेला आहे. अंतर्गत संदर्भ क्रमांक: {app_id}. (नोंद: थेट सरकारी पोर्टल एकत्रीकरण सक्रिय नाही; ही अंतर्गत नोंद आहे.)"
         )
 
         return {
             "status": "success",
             "application_id": app_id,
             "submitted_at": now,
+            "persistence_scope": "saved_in_backend",
+            "government_portal_submitted": False,
+            "government_portal_status": "no_direct_integration",
+            "is_duplicate": False,
             "message": success_msg,
             "audio_text": success_msg,
             "session_state": self.get_session_state(session_id)

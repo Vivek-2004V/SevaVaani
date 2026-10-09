@@ -37,14 +37,25 @@ class Settings:
     DEFAULT_SERVICE_PATH: str = os.path.join(SERVICES_DIR, "scholarship.json")
 
     # Database: Always normalize to canonical BASE_DIR/seva_vaani.db
-    _raw_db_url = os.getenv("DATABASE_URL", "")
-    if _raw_db_url and _raw_db_url.startswith("sqlite:///./"):
-        DATABASE_URL: str = f"sqlite:///{os.path.join(BASE_DIR, _raw_db_url.replace('sqlite:///./', ''))}"
+    CANONICAL_DB_FILE: str = os.path.join(BASE_DIR, "seva_vaani.db")
+    _raw_db_url = os.getenv("DATABASE_URL", "").strip()
+
+    if _raw_db_url.startswith("sqlite:///"):
+        _rel_path = _raw_db_url.replace("sqlite:///", "")
+        if os.path.isabs(_rel_path):
+            DATABASE_URL: str = _raw_db_url
+            SQLITE_DB_PATH: str = _rel_path
+        else:
+            _norm_rel = _rel_path.lstrip("./")
+            _resolved_file = os.path.join(BASE_DIR, _norm_rel) if _norm_rel else CANONICAL_DB_FILE
+            DATABASE_URL: str = f"sqlite:///{_resolved_file}"
+            SQLITE_DB_PATH: str = _resolved_file
     elif _raw_db_url:
         DATABASE_URL: str = _raw_db_url
+        SQLITE_DB_PATH: str = CANONICAL_DB_FILE
     else:
-        DATABASE_URL: str = f"sqlite:///{os.path.join(BASE_DIR, 'seva_vaani.db')}"
-    SQLITE_DB_PATH: str = os.path.join(BASE_DIR, "seva_vaani.db")
+        DATABASE_URL: str = f"sqlite:///{CANONICAL_DB_FILE}"
+        SQLITE_DB_PATH: str = CANONICAL_DB_FILE
 
     # CORS - Restricted to authorized local frontend and extension ports
     FRONTEND_ORIGIN: str = os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")

@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from app.db.engine import get_db
 from app.db.models import User
 from app.services.auth_service import AuthService
+from app.core.rate_limiter import auth_limiter
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
@@ -93,7 +94,7 @@ def get_optional_current_user(
 # ═══════════════════════════════════════════════════════════════════
 # Endpoints
 # ═══════════════════════════════════════════════════════════════════
-@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserResponse)
+@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserResponse, dependencies=[Depends(auth_limiter)])
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     """Registers a new user with normalized email and Argon2id hash."""
     try:
@@ -113,7 +114,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Registration failed")
 
 
-@router.post("/login", response_model=LoginResponse)
+@router.post("/login", response_model=LoginResponse, dependencies=[Depends(auth_limiter)])
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
     """Authenticates credentials and returns a secure 256-bit session token."""
     try:

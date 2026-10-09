@@ -1,0 +1,12 @@
+# SEVA VAANI — Search Engine Crawl Policy
+# Disallows sensitive authenticated session views, review pages, and internal APIs.
+
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /review
+Disallow: /api/
+
+# Production Deployment Note:
+# Once a verified production domain is configured, append:
+# Sitemap: https://<YOUR_DEPLOYED_DOMAIN>/sitemap.xml

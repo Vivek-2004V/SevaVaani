@@ -12,11 +12,13 @@ def submit_application(payload: SubmissionRequest):
             session_id=payload.session_id,
             consent=payload.consent
         )
-        if result["status"] == "blocked":
+        if result["status"] in ("blocked", "incomplete"):
             return {
-                "status": "blocked",
+                "status": result["status"],
                 "message": result["message"],
-                "application_id": None
+                "application_id": None,
+                "persistence_scope": "none",
+                "government_portal_submitted": False
             }
         return result
     except ValueError as ve:

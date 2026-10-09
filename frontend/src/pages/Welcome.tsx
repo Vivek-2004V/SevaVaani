@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SylvaHero } from '../effects/sylva-living-world/SylvaLivingWorldScene';
 import logoImg from '../assets/seva-vaani-logo.png';
 import { loginUser, registerUser, setAuthToken, AuthUser } from '../services/api';
+import { LegalModal, LegalModalTab } from '../components/LegalModal';
 
 export interface WelcomeProps {
   currentUser?: AuthUser | null;
@@ -37,6 +38,10 @@ export const Welcome: React.FC<WelcomeProps> = ({
 
   // Mobile menu toggle
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Legal Modal (Privacy Policy & Terms of Use)
+  const [legalModalOpen, setLegalModalOpen] = useState(false);
+  const [legalTab, setLegalTab] = useState<LegalModalTab>('privacy');
 
   const handleHeroStart = () => {
     if (!currentUser) {
@@ -347,7 +352,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
                 background: 'linear-gradient(145deg, #34d399 0%, #10b981 50%, #047857 100%)',
                 boxShadow: '0 2px 10px rgba(16,185,129,0.45), inset 0 1px 1px rgba(255,255,255,0.38)'
               }}>
-                <img src={logoImg} alt="" style={{ width: 16, height: 16, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                <img src={logoImg} alt="" aria-hidden="true" style={{ width: 16, height: 16, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
               </span>
               <span style={{ fontSize: 13.5, fontWeight: 600, color: '#f0fdf4', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
                 Seva Vaani
@@ -491,7 +496,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
               background: 'linear-gradient(145deg, #34d399 0%, #10b981 50%, #047857 100%)',
               boxShadow: '0 2px 8px rgba(16,185,129,0.4)'
             }}>
-              <img src={logoImg} alt="" style={{ width: 16, height: 16, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+              <img src={logoImg} alt="" aria-hidden="true" style={{ width: 16, height: 16, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
             </span>
             <span style={{ fontSize: 14, fontWeight: 700, color: '#f0fdf4' }}>
               Seva Vaani
@@ -1110,7 +1115,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
                   background: 'linear-gradient(145deg, #34d399 0%, #10b981 50%, #047857 100%)',
                   boxShadow: '0 2px 10px rgba(16,185,129,0.45)'
                 }}>
-                  <img src={logoImg} alt="" style={{ width: 19, height: 19, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                  <img src={logoImg} alt="" aria-hidden="true" style={{ width: 19, height: 19, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
                 </span>
                 <div>
                   <h3 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: '#f0fdf4' }}>
@@ -1268,6 +1273,81 @@ export const Welcome: React.FC<WelcomeProps> = ({
           </div>
         </div>
       )}
+
+      {/* Transparent Privacy & Legal Footer */}
+      <footer
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 30,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: 14,
+          padding: '8px 16px',
+          background: 'rgba(5, 12, 8, 0.85)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          fontSize: 11.5,
+          color: 'rgba(203, 213, 225, 0.75)'
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#86efac' }}>
+          <span>🛡️</span> शून्य ट्रैकिंग कुकीज़ • स्थानीय सत्र केवल
+        </span>
+        <span style={{ color: 'rgba(255, 255, 255, 0.2)' }}>•</span>
+        <button
+          type="button"
+          id="link-privacy-policy"
+          onClick={() => {
+            setLegalTab('privacy');
+            setLegalModalOpen(true);
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#a7f3d0',
+            cursor: 'pointer',
+            padding: 0,
+            fontSize: 11.5,
+            textDecoration: 'underline'
+          }}
+        >
+          गोपनीयता नीति (Privacy Policy)
+        </button>
+        <span style={{ color: 'rgba(255, 255, 255, 0.2)' }}>•</span>
+        <button
+          type="button"
+          id="link-terms-of-use"
+          onClick={() => {
+            setLegalTab('terms');
+            setLegalModalOpen(true);
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#93c5fd',
+            cursor: 'pointer',
+            padding: 0,
+            fontSize: 11.5,
+            textDecoration: 'underline'
+          }}
+        >
+          सेवा की शर्तें (Terms of Use)
+        </button>
+      </footer>
+
+      {/* Legal Modal Dialog */}
+      <LegalModal
+        isOpen={legalModalOpen}
+        activeTab={legalTab}
+        onClose={() => setLegalModalOpen(false)}
+        onTabChange={(tab) => setLegalTab(tab)}
+      />
     </div>
 
   );
