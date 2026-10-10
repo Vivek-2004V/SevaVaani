@@ -1267,13 +1267,12 @@ fallbackSubmitBtn.addEventListener('click', async () => {
     fallbackDetails.open = false;
     updateUIState(data.session_state);
 
-    // Auto-fill confirmed field on host page — extension origin only
-    const targetOrigin = EXTENSION_ORIGIN || '*';
+    // Auto-fill confirmed field on host page
     window.parent.postMessage({
       type: 'SEVA_VAANI_FILL_CONFIRMED_FIELD',
       fieldName: currentField,
       value: val
-    }, targetOrigin);
+    }, '*');
   } catch (err) {
     console.error('Fallback error:', err);
     showErrorBanner(currentLanguage === 'mr' ? 'टाइप केलेले उत्तर नोंदवण्यात त्रुटी.' : 'टाइप किया गया उत्तर दर्ज करने में त्रुटि।');
@@ -1364,8 +1363,7 @@ closeBtn.addEventListener('click', () => {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
-  const targetOrigin = EXTENSION_ORIGIN || '*';
-  window.parent.postMessage({ type: 'SEVA_VAANI_CLOSE_PANEL' }, targetOrigin);
+  window.parent.postMessage({ type: 'SEVA_VAANI_CLOSE_PANEL' }, '*');
 });
 
 // Dismiss error button

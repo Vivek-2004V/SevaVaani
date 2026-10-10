@@ -22,6 +22,7 @@
     '/api/assist/turn',
     '/api/confirm',
     '/api/fallback/text',
+    '/api/help',
     '/api/help/request',
     '/api/auth/login',
     '/api/auth/register',

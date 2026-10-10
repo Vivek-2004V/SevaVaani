@@ -1,7 +1,12 @@
 // SEVA VAANI - DOM Field Mapper & Conservative Form Autofill Guard
 // Complies with PRD & TRD: Zero unconfirmed commits, zero auto-submits, strictly excludes sensitive inputs.
 
-const SENSITIVE_KEYWORDS = ['password', 'otp', 'captcha', 'token', 'secret', 'cvv', 'card', 'pin', 'aadhaar', 'pan'];
+(function () {
+  if (typeof window !== 'undefined' && window.DOMFieldMapper) {
+    return;
+  }
+
+  const SENSITIVE_KEYWORDS = ['password', 'otp', 'captcha', 'token', 'secret', 'cvv', 'card', 'pin', 'aadhaar', 'pan'];
 
 const FIELD_SYNONYMS = {
   full_name: ['name', 'fullname', 'full_name', 'applicant_name', 'applicantname', 'student_name', 'candidate_name', 'txtapplicantname', 'txtname', 'txtfullname', 'naam', 'नाम', 'नाव', 'पूर्ण नाव', 'अर्जदाराचे नाव', 'विद्यार्थ्याचे नाव'],
@@ -288,9 +293,10 @@ class DOMFieldMapper {
   }
 }
 
-if (typeof window !== 'undefined') {
-  window.DOMFieldMapper = DOMFieldMapper;
-}
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { DOMFieldMapper };
-}
+  if (typeof window !== 'undefined') {
+    window.DOMFieldMapper = DOMFieldMapper;
+  }
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { DOMFieldMapper };
+  }
+})();

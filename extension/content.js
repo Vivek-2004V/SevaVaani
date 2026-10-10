@@ -43,9 +43,6 @@
     iframe.src = chrome.runtime.getURL('assistant.html');
     // microphone permission is scoped to this iframe only; not delegated to the host page.
     iframe.setAttribute('allow', 'microphone; speaker-selection');
-    // Sandbox: allow-scripts needed for assistant.js; allow-same-origin so chrome.storage works
-    // inside the extension page; do NOT allow-forms or allow-top-navigation.
-    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups');
     iframe.style.cssText = `
       width: 100%;
       height: 100%;
@@ -153,15 +150,21 @@
   window.addEventListener('message', (event) => {
     if (!event.data || !event.data.type) return;
 
-    // PRIVACY FIREWALL: Only accept privileged messages from our own extension origin.
-    // Reject any message from the host page, other iframes, or cross-origin sources.
+    // PRIVACY FIREWALL & AUTHENTICATION:
+    // Check if the message is coming from our assistant iframe or trusted extension origin.
     const senderOrigin = event.origin;
-    const isFromExtension = EXTENSION_ORIGIN ? senderOrigin === EXTENSION_ORIGIN : (senderOrigin === window.location.origin);
+    const iframeWindow = panelContainer ? panelContainer.querySelector('iframe')?.contentWindow : null;
+    const isFromAssistantIframe = Boolean(event.source && iframeWindow && event.source === iframeWindow);
+    const isFromExtension = isFromAssistantIframe || (EXTENSION_ORIGIN && senderOrigin === EXTENSION_ORIGIN);
 
-    // SEVA_VAANI_TOGGLE_PANEL is sent by the assistant iframe to close the panel;
-    // it must also be extension-origin only.
+    // SEVA_VAANI_TOGGLE_PANEL or SEVA_VAANI_OPEN_EXTENSION:
+    // Safe action: allows opening/closing from assistant iframe, host webpage button, or local demo portal.
     if (event.data.type === 'SEVA_VAANI_TOGGLE_PANEL' || event.data.type === 'SEVA_VAANI_OPEN_EXTENSION') {
-      if (!isFromExtension) {
+      const isTrustedToggleOrigin = isFromExtension ||
+        senderOrigin === window.location.origin ||
+        senderOrigin === 'null' ||
+        (typeof senderOrigin === 'string' && (senderOrigin.startsWith('http://localhost') || senderOrigin.startsWith('http://127.0.0.1')));
+      if (!isTrustedToggleOrigin) {
         console.warn('[SEVA VAANI] Rejected toggle from untrusted origin:', senderOrigin);
         return;
       }
@@ -169,7 +172,7 @@
       return;
     }
 
-    // SEVA_VAANI_FILL_CONFIRMED_FIELD: privileged form-fill; extension-origin only.
+    // SEVA_VAANI_FILL_CONFIRMED_FIELD: privileged form-fill; assistant iframe / extension only.
     if (event.data.type === 'SEVA_VAANI_FILL_CONFIRMED_FIELD') {
       if (!isFromExtension) {
         console.warn('[SEVA VAANI] Rejected fill from untrusted origin:', senderOrigin);
@@ -178,14 +181,13 @@
       const { fieldName, value } = event.data;
       if (window.DOMFieldMapper) {
         const result = window.DOMFieldMapper.fillField(fieldName, value);
-        // Reply back to the extension frame only — never to '*'.
         if (event.source) {
           event.source.postMessage({
             type: 'SEVA_VAANI_FILL_RESULT',
             fieldName,
             value,
             result
-          }, EXTENSION_ORIGIN || '*');
+          }, '*');
         }
       } else {
         if (event.source) {
@@ -194,17 +196,17 @@
             fieldName,
             value,
             result: { success: false, message: 'DOMFieldMapper not loaded in content script.' }
-          }, EXTENSION_ORIGIN || '*');
+          }, '*');
         }
       }
     } else if (event.data.type === 'SEVA_VAANI_CLOSE_PANEL') {
-      // Close is non-privileged; any message can close the panel (low risk).
+      // Close panel requested
       if (isPanelVisible) togglePanel();
     }
   });
 
-  // Load DOMFieldMapper via scripting API into the ISOLATED content-script world,
-  // not into the page's main world. This prevents host-page JS from accessing
-  // or tampering with the mapper. We request injection from the background worker.
-  chrome.runtime.sendMessage({ type: 'SEVA_VAANI_INJECT_MAPPER' });
+  // Ensure DOMFieldMapper is present in the isolated content-script world
+  if (!window.DOMFieldMapper && typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+    chrome.runtime.sendMessage({ type: 'SEVA_VAANI_INJECT_MAPPER' });
+  }
 })();

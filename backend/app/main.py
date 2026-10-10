@@ -47,6 +47,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origin_regex=r"^chrome-extension://[a-z0-9_-]+$",
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
     # Explicit allowlist: Content-Type for JSON bodies, Authorization for bearer tokens.
@@ -54,6 +55,7 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization", "Accept", "X-Requested-With"],
     max_age=600,
 )
+
 
 
 # HTTP Security Headers middleware
