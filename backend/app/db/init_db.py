@@ -104,65 +104,71 @@ def _init_sqlite_compat(target_path: str) -> None:
     """)
 
     # 3. Safe Migrations for legacy databases
+    def _safe_alter(sql: str):
+        try:
+            cursor.execute(sql)
+        except sqlite3.OperationalError:
+            pass
+
     cursor.execute("PRAGMA table_info(sessions);")
     columns = [row[1] for row in cursor.fetchall()]
     if "session_id" not in columns and "id" in columns:
-        cursor.execute("ALTER TABLE sessions RENAME COLUMN id TO session_id;")
+        _safe_alter("ALTER TABLE sessions RENAME COLUMN id TO session_id;")
     if "user_id" not in columns:
-        cursor.execute("ALTER TABLE sessions ADD COLUMN user_id TEXT REFERENCES users(id) ON DELETE CASCADE;")
+        _safe_alter("ALTER TABLE sessions ADD COLUMN user_id TEXT REFERENCES users(id) ON DELETE CASCADE;")
 
     cursor.execute("PRAGMA table_info(field_values);")
     fv_cols = [row[1] for row in cursor.fetchall()]
     if "confirmed_at" not in fv_cols:
-        cursor.execute("ALTER TABLE field_values ADD COLUMN confirmed_at TEXT;")
+        _safe_alter("ALTER TABLE field_values ADD COLUMN confirmed_at TEXT;")
     if "source" not in fv_cols:
-        cursor.execute("ALTER TABLE field_values ADD COLUMN source TEXT NOT NULL DEFAULT 'voice_recognition';")
+        _safe_alter("ALTER TABLE field_values ADD COLUMN source TEXT NOT NULL DEFAULT 'voice_recognition';")
     if "verification_status" not in fv_cols:
-        cursor.execute("ALTER TABLE field_values ADD COLUMN verification_status TEXT NOT NULL DEFAULT 'unverified';")
+        _safe_alter("ALTER TABLE field_values ADD COLUMN verification_status TEXT NOT NULL DEFAULT 'unverified';")
     if "is_encrypted" not in fv_cols:
-        cursor.execute("ALTER TABLE field_values ADD COLUMN is_encrypted INTEGER NOT NULL DEFAULT 0;")
+        _safe_alter("ALTER TABLE field_values ADD COLUMN is_encrypted INTEGER NOT NULL DEFAULT 0;")
 
     cursor.execute("PRAGMA table_info(form_answers);")
     fa_cols = [row[1] for row in cursor.fetchall()]
     if "source" not in fa_cols:
-        cursor.execute("ALTER TABLE form_answers ADD COLUMN source TEXT NOT NULL DEFAULT 'manual_entry';")
+        _safe_alter("ALTER TABLE form_answers ADD COLUMN source TEXT NOT NULL DEFAULT 'manual_entry';")
     if "verification_status" not in fa_cols:
-        cursor.execute("ALTER TABLE form_answers ADD COLUMN verification_status TEXT NOT NULL DEFAULT 'unverified';")
+        _safe_alter("ALTER TABLE form_answers ADD COLUMN verification_status TEXT NOT NULL DEFAULT 'unverified';")
     if "document_type" not in fa_cols:
-        cursor.execute("ALTER TABLE form_answers ADD COLUMN document_type TEXT;")
+        _safe_alter("ALTER TABLE form_answers ADD COLUMN document_type TEXT;")
     if "is_encrypted" not in fa_cols:
-        cursor.execute("ALTER TABLE form_answers ADD COLUMN is_encrypted INTEGER NOT NULL DEFAULT 0;")
+        _safe_alter("ALTER TABLE form_answers ADD COLUMN is_encrypted INTEGER NOT NULL DEFAULT 0;")
 
     cursor.execute("PRAGMA table_info(turns);")
     turn_cols = [row[1] for row in cursor.fetchall()]
     if "turn_id" not in turn_cols and "id" in turn_cols:
-        cursor.execute("ALTER TABLE turns RENAME COLUMN id TO turn_id;")
+        _safe_alter("ALTER TABLE turns RENAME COLUMN id TO turn_id;")
     if "result" not in turn_cols and "action" in turn_cols:
-        cursor.execute("ALTER TABLE turns RENAME COLUMN action TO result;")
+        _safe_alter("ALTER TABLE turns RENAME COLUMN action TO result;")
     elif "result" not in turn_cols:
-        cursor.execute("ALTER TABLE turns ADD COLUMN result TEXT;")
+        _safe_alter("ALTER TABLE turns ADD COLUMN result TEXT;")
 
     cursor.execute("PRAGMA table_info(help_tickets);")
     ht_cols = [row[1] for row in cursor.fetchall()]
     if "ticket_id" not in ht_cols and "id" in ht_cols:
-        cursor.execute("ALTER TABLE help_tickets RENAME COLUMN id TO ticket_id;")
+        _safe_alter("ALTER TABLE help_tickets RENAME COLUMN id TO ticket_id;")
     if "user_id" not in ht_cols:
-        cursor.execute("ALTER TABLE help_tickets ADD COLUMN user_id TEXT REFERENCES users(id) ON DELETE CASCADE;")
+        _safe_alter("ALTER TABLE help_tickets ADD COLUMN user_id TEXT REFERENCES users(id) ON DELETE CASCADE;")
     if "category" not in ht_cols:
-        cursor.execute("ALTER TABLE help_tickets ADD COLUMN category TEXT DEFAULT 'other';")
+        _safe_alter("ALTER TABLE help_tickets ADD COLUMN category TEXT DEFAULT 'other';")
     if "description" not in ht_cols:
-        cursor.execute("ALTER TABLE help_tickets ADD COLUMN description TEXT;")
+        _safe_alter("ALTER TABLE help_tickets ADD COLUMN description TEXT;")
     if "notification_status" not in ht_cols:
-        cursor.execute("ALTER TABLE help_tickets ADD COLUMN notification_status TEXT DEFAULT 'not_configured';")
+        _safe_alter("ALTER TABLE help_tickets ADD COLUMN notification_status TEXT DEFAULT 'not_configured';")
     if "notification_channel" not in ht_cols:
-        cursor.execute("ALTER TABLE help_tickets ADD COLUMN notification_channel TEXT DEFAULT 'none_configured';")
+        _safe_alter("ALTER TABLE help_tickets ADD COLUMN notification_channel TEXT DEFAULT 'none_configured';")
     if "updated_at" not in ht_cols:
-        cursor.execute("ALTER TABLE help_tickets ADD COLUMN updated_at TEXT;")
+        _safe_alter("ALTER TABLE help_tickets ADD COLUMN updated_at TEXT;")
 
     cursor.execute("PRAGMA table_info(applications);")
     app_cols = [row[1] for row in cursor.fetchall()]
     if "application_id" not in app_cols and "id" in app_cols:
-        cursor.execute("ALTER TABLE applications RENAME COLUMN id TO application_id;")
+        _safe_alter("ALTER TABLE applications RENAME COLUMN id TO application_id;")
 
     # 4. Performance Indexes
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);")

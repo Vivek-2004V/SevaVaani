@@ -85,10 +85,16 @@ class SlidingWindowRateLimiter:
         self.check(request)
 
 
-# Pre-configured rate limiters for authentication
+# Pre-configured rate limiters for authentication and API operations
 auth_limiter = SlidingWindowRateLimiter(times=5, seconds=60, scope="auth")
+api_limiter = SlidingWindowRateLimiter(times=120, seconds=60, scope="api")
 
 
 def check_auth_rate_limit(request: Request) -> None:
     """FastAPI dependency for authenticating rate limit on endpoints."""
     auth_limiter.check(request)
+
+
+def check_api_rate_limit(request: Request) -> None:
+    """FastAPI dependency for general API rate limiting."""
+    api_limiter.check(request)

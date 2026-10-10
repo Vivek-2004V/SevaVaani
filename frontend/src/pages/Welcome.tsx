@@ -109,7 +109,12 @@ export const Welcome: React.FC<WelcomeProps> = ({
         setAuthSuccessMsg('✅ खाता सफलतापूर्वक बन गया! कृपया लॉगिन करने के लिए अपना पासवर्ड दर्ज करें। (Account created! Please login)');
       }
     } catch (err: any) {
-      setAuthError(err.message || 'प्रमाणीकरण में त्रुटि हुई');
+      const rawMsg = err.message || '';
+      if (rawMsg.includes('Failed to fetch') || rawMsg.includes('NetworkError') || rawMsg.includes('fetch')) {
+        setAuthError('सर्वर से संपर्क नहीं हो पा रहा है। कृपया सुनिश्चित करें कि बैकएंड सर्वर (Port 8000) चालू है।');
+      } else {
+        setAuthError(rawMsg || 'प्रमाणीकरण में त्रुटि हुई');
+      }
     } finally {
       setAuthLoading(false);
     }

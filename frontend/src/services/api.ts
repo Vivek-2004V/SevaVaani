@@ -489,29 +489,43 @@ export interface AuthLoginResponse {
 }
 
 export async function loginUser(email: string, password: string): Promise<AuthLoginResponse> {
-  const res = await privacyFetch(`${API_BASE}/api/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
-  });
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({ detail: 'लॉगिन विफल रहा (Login failed)' }));
-    throw new Error(errorData.detail || 'लॉगिन विफल रहा (Login failed)');
+  try {
+    const res = await privacyFetch(`${API_BASE}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({ detail: 'लॉगिन विफल रहा (Login failed)' }));
+      throw new Error(errorData.detail || 'लॉगिन विफल रहा (Login failed)');
+    }
+    return await res.json();
+  } catch (err: any) {
+    if (err.name === 'TypeError' || err.message?.includes('fetch') || err.message?.includes('NetworkError')) {
+      throw new Error('सर्वर से संपर्क नहीं हो पा रहा है। कृपया सुनिश्चित करें कि बैकएंड सर्वर (Port 8000) चालू है।');
+    }
+    throw err;
   }
-  return await res.json();
 }
 
 export async function registerUser(email: string, password: string): Promise<AuthUser> {
-  const res = await privacyFetch(`${API_BASE}/api/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
-  });
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({ detail: 'खाता निर्माण विफल रहा (Registration failed)' }));
-    throw new Error(errorData.detail || 'खाता निर्माण विफल रहा (Registration failed)');
+  try {
+    const res = await privacyFetch(`${API_BASE}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({ detail: 'खाता निर्माण विफल रहा (Registration failed)' }));
+      throw new Error(errorData.detail || 'खाता निर्माण विफल रहा (Registration failed)');
+    }
+    return await res.json();
+  } catch (err: any) {
+    if (err.name === 'TypeError' || err.message?.includes('fetch') || err.message?.includes('NetworkError')) {
+      throw new Error('सर्वर से संपर्क नहीं हो पा रहा है। कृपया सुनिश्चित करें कि बैकएंड सर्वर (Port 8000) चालू है।');
+    }
+    throw err;
   }
-  return await res.json();
 }
 
 export async function fetchCurrentUser(token: string): Promise<AuthUser | null> {
