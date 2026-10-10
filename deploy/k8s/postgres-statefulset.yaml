@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: seva-vaani-postgres
+spec:
+  serviceName: seva-vaani-postgres-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seva-vaani-postgres
+  template:
+    metadata:
+      labels:
+        app: seva-vaani-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: seva_vaani_db
+            - name: POSTGRES_USER
+              value: seva_vaani
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: seva-vaani-secrets
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2000m"
+              memory: "4Gi"
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seva-vaani-postgres-svc
+spec:
+  selector:
+    app: seva-vaani-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+  clusterIP: None

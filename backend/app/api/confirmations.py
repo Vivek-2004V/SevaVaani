@@ -27,7 +27,11 @@ def confirm_candidate(payload: ConfirmRequest):
         return engine.confirm_candidate(
             session_id=payload.session_id,
             field_name=field_name,
-            action=action or "confirm"
+            action=action or "confirm",
+            updated_value=payload.updated_value,
+            source=payload.source or "voice_recognition",
+            verification_status=payload.verification_status or "unverified",
+            document_type=payload.document_type
         )
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))

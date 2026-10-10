@@ -1,0 +1,559 @@
+{
+  "benchmark_version": "1.0.0",
+  "provider_evaluated": "browser_native",
+  "provider_type": "browser_fallback",
+  "is_mock": false,
+  "timestamp": 1791573814.602252,
+  "total_samples_evaluated": 24,
+  "overall_metrics": {
+    "sample_count": 24,
+    "is_reliable_sample": true,
+    "warning": null,
+    "wer_mean": 0.0,
+    "cer_mean": 0.0,
+    "lid_accuracy": 0.9583,
+    "intent_accuracy": 0.9583,
+    "entity_accuracy": 0.7222,
+    "numeric_accuracy": 1.0,
+    "clarification_rate": 0.2083,
+    "completion_rate": 0.7917,
+    "completion_rate_95_ci": [
+      0.6292,
+      0.9542
+    ],
+    "ci_margin_error": 0.1625,
+    "latency_p50_ms": 0.0,
+    "latency_p95_ms": 0.0,
+    "provider_failures": 0
+  },
+  "subgroups": {
+    "by_language": {
+      "hi": {
+        "sample_count": 6,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 0.8333,
+        "entity_accuracy": 0.75,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.1667,
+        "completion_rate": 0.8333,
+        "completion_rate_95_ci": [
+          0.5351,
+          1.0
+        ],
+        "ci_margin_error": 0.2982,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "mr": {
+        "sample_count": 6,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 0.8333,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 0.6,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.3333,
+        "completion_rate": 0.6667,
+        "completion_rate_95_ci": [
+          0.2895,
+          1.0
+        ],
+        "ci_margin_error": 0.3772,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "en": {
+        "sample_count": 6,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 0.8,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.1667,
+        "completion_rate": 0.8333,
+        "completion_rate_95_ci": [
+          0.5351,
+          1.0
+        ],
+        "ci_margin_error": 0.2982,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "hi-en": {
+        "sample_count": 6,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 0.75,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.1667,
+        "completion_rate": 0.8333,
+        "completion_rate_95_ci": [
+          0.5351,
+          1.0
+        ],
+        "ci_margin_error": 0.2982,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      }
+    },
+    "by_regional_variety": {
+      "Bundelkhand, UP/MP": {
+        "sample_count": 1,
+        "is_reliable_sample": false,
+        "warning": "Sample size (N=1) is below reliable threshold (5). Demographic conclusions should not be published.",
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 1.0,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.0,
+        "completion_rate": 1.0,
+        "completion_rate_95_ci": [
+          1.0,
+          1.0
+        ],
+        "ci_margin_error": 0.0,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "Indian English Standard": {
+        "sample_count": 6,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 0.8,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.1667,
+        "completion_rate": 0.8333,
+        "completion_rate_95_ci": [
+          0.5351,
+          1.0
+        ],
+        "ci_margin_error": 0.2982,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "Malwa, Madhya Pradesh": {
+        "sample_count": 2,
+        "is_reliable_sample": false,
+        "warning": "Sample size (N=2) is below reliable threshold (5). Demographic conclusions should not be published.",
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 0.5,
+        "entity_accuracy": 1.0,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.0,
+        "completion_rate": 1.0,
+        "completion_rate_95_ci": [
+          1.0,
+          1.0
+        ],
+        "ci_margin_error": 0.0,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "Marathwada": {
+        "sample_count": 1,
+        "is_reliable_sample": false,
+        "warning": "Sample size (N=1) is below reliable threshold (5). Demographic conclusions should not be published.",
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 1.0,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.0,
+        "completion_rate": 1.0,
+        "completion_rate_95_ci": [
+          1.0,
+          1.0
+        ],
+        "ci_margin_error": 0.0,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "Standard Hindi (North)": {
+        "sample_count": 2,
+        "is_reliable_sample": false,
+        "warning": "Sample size (N=2) is below reliable threshold (5). Demographic conclusions should not be published.",
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 0.5,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.5,
+        "completion_rate": 0.5,
+        "completion_rate_95_ci": [
+          0.0,
+          1.0
+        ],
+        "ci_margin_error": 0.693,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "Urban Hinglish": {
+        "sample_count": 6,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 0.75,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.1667,
+        "completion_rate": 0.8333,
+        "completion_rate_95_ci": [
+          0.5351,
+          1.0
+        ],
+        "ci_margin_error": 0.2982,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "Vidarbha (Varhadi)": {
+        "sample_count": 2,
+        "is_reliable_sample": false,
+        "warning": "Sample size (N=2) is below reliable threshold (5). Demographic conclusions should not be published.",
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 0.0,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.5,
+        "completion_rate": 0.5,
+        "completion_rate_95_ci": [
+          0.0,
+          1.0
+        ],
+        "ci_margin_error": 0.693,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "Vidarbha, Maharashtra": {
+        "sample_count": 1,
+        "is_reliable_sample": false,
+        "warning": "Sample size (N=1) is below reliable threshold (5). Demographic conclusions should not be published.",
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 1.0,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.0,
+        "completion_rate": 1.0,
+        "completion_rate_95_ci": [
+          1.0,
+          1.0
+        ],
+        "ci_margin_error": 0.0,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "Western / Mumbai Colloquial": {
+        "sample_count": 1,
+        "is_reliable_sample": false,
+        "warning": "Sample size (N=1) is below reliable threshold (5). Demographic conclusions should not be published.",
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 1.0,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.0,
+        "completion_rate": 1.0,
+        "completion_rate_95_ci": [
+          1.0,
+          1.0
+        ],
+        "ci_margin_error": 0.0,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "Western Maharashtra (Pune)": {
+        "sample_count": 2,
+        "is_reliable_sample": false,
+        "warning": "Sample size (N=2) is below reliable threshold (5). Demographic conclusions should not be published.",
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 0.5,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 0.5,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.5,
+        "completion_rate": 0.5,
+        "completion_rate_95_ci": [
+          0.0,
+          1.0
+        ],
+        "ci_margin_error": 0.693,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      }
+    },
+    "by_acoustic_environment": {
+      "quiet_room": {
+        "sample_count": 12,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 0.9167,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 0.6667,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.25,
+        "completion_rate": 0.75,
+        "completion_rate_95_ci": [
+          0.505,
+          0.995
+        ],
+        "ci_margin_error": 0.245,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "noisy_outdoor": {
+        "sample_count": 7,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 0.8571,
+        "entity_accuracy": 0.6,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.2857,
+        "completion_rate": 0.7143,
+        "completion_rate_95_ci": [
+          0.3796,
+          1.0
+        ],
+        "ci_margin_error": 0.3347,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "mobile_speakerphone": {
+        "sample_count": 5,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 1.0,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.0,
+        "completion_rate": 1.0,
+        "completion_rate_95_ci": [
+          1.0,
+          1.0
+        ],
+        "ci_margin_error": 0.0,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      }
+    },
+    "by_speech_rate": {
+      "slow_careful": {
+        "sample_count": 6,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 0.8333,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 1.0,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.0,
+        "completion_rate": 1.0,
+        "completion_rate_95_ci": [
+          1.0,
+          1.0
+        ],
+        "ci_margin_error": 0.0,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "normal_conversational": {
+        "sample_count": 12,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 0.5,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.3333,
+        "completion_rate": 0.6667,
+        "completion_rate_95_ci": [
+          0.4,
+          0.9334
+        ],
+        "ci_margin_error": 0.2667,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "fast_rapid": {
+        "sample_count": 6,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 0.8333,
+        "entity_accuracy": 0.75,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.1667,
+        "completion_rate": 0.8333,
+        "completion_rate_95_ci": [
+          0.5351,
+          1.0
+        ],
+        "ci_margin_error": 0.2982,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      }
+    },
+    "by_field_category": {
+      "names_and_locations": {
+        "sample_count": 6,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 0.0,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.8333,
+        "completion_rate": 0.1667,
+        "completion_rate_95_ci": [
+          0.0,
+          0.4649
+        ],
+        "ci_margin_error": 0.2982,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "dates_and_phones": {
+        "sample_count": 7,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 0.8571,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 1.0,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.0,
+        "completion_rate": 1.0,
+        "completion_rate_95_ci": [
+          1.0,
+          1.0
+        ],
+        "ci_margin_error": 0.0,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "currency_and_income": {
+        "sample_count": 6,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 1.0,
+        "entity_accuracy": 1.0,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.0,
+        "completion_rate": 1.0,
+        "completion_rate_95_ci": [
+          1.0,
+          1.0
+        ],
+        "ci_margin_error": 0.0,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      },
+      "public_service_terminology": {
+        "sample_count": 5,
+        "is_reliable_sample": true,
+        "warning": null,
+        "wer_mean": 0.0,
+        "cer_mean": 0.0,
+        "lid_accuracy": 1.0,
+        "intent_accuracy": 0.8,
+        "entity_accuracy": 1.0,
+        "numeric_accuracy": 1.0,
+        "clarification_rate": 0.0,
+        "completion_rate": 1.0,
+        "completion_rate_95_ci": [
+          1.0,
+          1.0
+        ],
+        "ci_margin_error": 0.0,
+        "latency_p50_ms": 0.0,
+        "latency_p95_ms": 0.0,
+        "provider_failures": 0
+      }
+    }
+  },
+  "gap_analysis": [
+    {
+      "dimension": "acoustic_environment",
+      "severity": "medium",
+      "finding": "Task completion drops by 3.6% in noisy outdoor environments compared to quiet rooms.",
+      "recommendation": "Integrate Silero VAD spectral subtraction and in-memory noise reduction prior to ASR inference."
+    },
+    {
+      "dimension": "field_categories",
+      "severity": "high",
+      "finding": "Names and locations have an entity accuracy of 0.0%.",
+      "recommendation": "Expand Indian Census district trie and Indic soundex phonetic fuzzy matcher."
+    }
+  ]
+}

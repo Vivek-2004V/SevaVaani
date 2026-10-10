@@ -15,7 +15,7 @@
         "https://*/*",
         "file://*/*"
       ],
-      "js": ["content.js"]
+      "js": ["domMapper.js", "content.js"]
     }
   ],
   "host_permissions": [
@@ -24,8 +24,12 @@
     "http://localhost:5173/*",
     "http://127.0.0.1:5173/*"
   ],
+  "icons": {
+    "128": "icon.png"
+  },
   "action": {
-    "default_title": "Open SEVA VAANI Assistant"
+    "default_title": "Open SEVA VAANI Assistant",
+    "default_icon": "icon.png"
   },
   "background": {
     "service_worker": "background.js"

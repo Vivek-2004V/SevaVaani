@@ -1,72 +1,178 @@
 import React from 'react';
 import { SupportedLanguage } from '../types';
+import { HumzieSymbol } from './HumzieSymbol';
+
+export type AssistantVisualState =
+  | 'ready'
+  | 'mic_permission_required'
+  | 'listening'
+  | 'processing'
+  | 'transcript_available'
+  | 'confirmation_required'
+  | 'answer_confirmed'
+  | 'correction_required'
+  | 'speaking'
+  | 'network_error'
+  | 'unsupported_feature'
+  | 'stopped';
 
 export interface VoiceButtonProps {
   isListening: boolean;
   isProcessing: boolean;
+  isSpeaking?: boolean;
+  assistantState?: AssistantVisualState;
   error?: string | null;
   onStartListening: () => void;
   onStopListening: () => void;
+  onRepeatAudio?: () => void;
+  onSlowRepeatAudio?: () => void;
+  onToggleFallbackText?: () => void;
   language: SupportedLanguage;
 }
 
 export const VoiceButton: React.FC<VoiceButtonProps> = ({
   isListening,
   isProcessing,
+  isSpeaking = false,
+  assistantState,
   error,
   onStartListening,
   onStopListening,
+  onRepeatAudio,
+  onSlowRepeatAudio,
+  onToggleFallbackText,
   language
 }) => {
-  const getButtonText = () => {
-    if (isProcessing) {
-      const msgs: Record<SupportedLanguage, string> = {
-        hi: 'आवाज़ समझ रहे हैं... (Processing)',
-        mr: 'आवाज प्रक्रिया सुरू आहे... (Processing)',
-        bn: 'কথা বিশ্লেষণ করা হচ্ছে... (Processing)',
-        te: 'మాటను ప్రాసెస్ చేస్తున్నాము... (Processing)',
-        ta: 'குரல் செயலாக்கப்படுகிறது... (Processing)',
-        gu: 'અવાજ સમજી રહ્યા છીએ... (Processing)',
-        kn: 'ಧ್ವನಿ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲಾಗುತ್ತಿದೆ... (Processing)',
-        ml: 'ശബ്ദം പ്രോസസ്സ് ചെയ്യുന്നു... (Processing)',
-        pa: 'ਆਵਾਜ਼ ਸਮਝ ਰਹੇ ਹਾਂ... (Processing)',
-        or: 'ସ୍ୱର ବିଶ୍ଳେଷଣ ଚାଲିଛି... (Processing)',
-        en: 'Processing speech...'
-      };
-      return msgs[language] || msgs.en;
+  // Derive effective state if not explicitly supplied
+  const effectiveState: AssistantVisualState = (() => {
+    if (assistantState) return assistantState;
+    if (error) {
+      if (error.toLowerCase().includes('permission') || error.toLowerCase().includes('अनुमति')) {
+        return 'mic_permission_required';
+      }
+      if (error.toLowerCase().includes('network') || error.toLowerCase().includes('इंटरनेट')) {
+        return 'network_error';
+      }
+      if (error.toLowerCase().includes('unsupported') || error.toLowerCase().includes('असमर्थित')) {
+        return 'unsupported_feature';
+      }
+      return 'correction_required';
     }
-    if (isListening) {
-      const msgs: Record<SupportedLanguage, string> = {
-        hi: 'बोलिए, हम सुन रहे हैं (Listening...)',
-        mr: 'बोला, आम्ही ऐकत आहोत... (Listening)',
-        bn: 'বলুন, আমরা শুনছি... (Listening)',
-        te: 'మాట్లాడండి, వింటున్నాము... (Listening)',
-        ta: 'பேசுங்கள், கேட்கிறோம்... (Listening)',
-        gu: 'બોલો, અમે સાંભળી રહ્યા છીએ... (Listening)',
-        kn: 'ಮಾತನಾಡಿ, ನಾವು ಕೇಳುತ್ತಿದ್ದೇವೆ... (Listening)',
-        ml: 'സംസാരിക്കൂ, ഞങ്ങൾ കേൾക്കുന്നു... (Listening)',
-        pa: 'ਬੋਲੋ, ਅਸੀਂ ਸੁਣ ਰਹੇ ਹਾਂ... (Listening)',
-        or: 'କୁହନ୍ତୁ, ଆମେ ଶୁଣୁଛୁ... (Listening)',
-        en: 'Listening... Speak now'
-      };
-      return msgs[language] || msgs.en;
-    }
+    if (isProcessing) return 'processing';
+    if (isListening) return 'listening';
+    if (isSpeaking) return 'speaking';
+    return 'ready';
+  })();
 
-    const msgs: Record<SupportedLanguage, string> = {
-      hi: 'बोलने के लिए माइक दबाएं (Tap to Speak)',
-      mr: 'बोलण्यासाठी माइक दाबा (Tap to Speak)',
-      bn: 'কথা বলতে মাইকে চাপ দিন (Tap to Speak)',
-      te: 'మాట్లాడటానికి మైక్ నొక్కండి (Tap to Speak)',
-      ta: 'பேச மைக்கை அழுத்தவும் (Tap to Speak)',
-      gu: 'બોલવા માટે માઇક દબાવો (Tap to Speak)',
-      kn: 'ಮಾತನಾಡಲು ಮೈಕ್ ಒತ್ತಿ (Tap to Speak)',
-      ml: 'സംസാരിക്കാൻ മൈക്ക് അമർത്തുക (Tap to Speak)',
-      pa: 'ਬੋਲਣ ਲਈ ਮਾਈਕ ਦਬਾਓ (Tap to Speak)',
-      or: 'କହିବା ପାଇଁ ମାଇକ୍ ଦବାନ୍ତୁ (Tap to Speak)',
-      en: 'Tap to Speak'
-    };
-    return msgs[language] || msgs.en;
+  const getStateMeta = (): {
+    title: string;
+    badge: string;
+    icon: string;
+    badgeClass: string;
+    buttonClass: string;
+  } => {
+    switch (effectiveState) {
+      case 'listening':
+        return {
+          title: language === 'mr' ? 'ऐकत आहोत... बोला' : language === 'en' ? 'Listening... Speak now' : 'बोलिए, हम सुन रहे हैं',
+          badge: language === 'mr' ? 'सक्रिय ध्वनी नोंदणी' : language === 'en' ? 'Recording Voice' : 'आवाज़ रिकॉर्ड हो रही है',
+          icon: '🎙️',
+          badgeClass: 'bg-red-950/80 text-red-300 border-red-500/50 animate-pulse',
+          buttonClass: 'bg-gradient-to-tr from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 ring-4 ring-red-400/50 shadow-red-950/90 scale-105'
+        };
+      case 'processing':
+        return {
+          title: language === 'mr' ? 'आवाज विश्लेषण सुरू आहे...' : language === 'en' ? 'Processing speech...' : 'आवाज़ समझ रहे हैं...',
+          badge: language === 'mr' ? 'प्रक्रिया सुरू' : language === 'en' ? 'Processing' : 'विश्लेषण जारी',
+          icon: '⏳',
+          badgeClass: 'bg-amber-950/80 text-amber-300 border-amber-500/50',
+          buttonClass: 'bg-amber-500 cursor-wait shadow-amber-950/80'
+        };
+      case 'speaking':
+        return {
+          title: language === 'mr' ? 'सहाय्यक उत्तर वाचत आहे...' : language === 'en' ? 'Speaking response...' : 'सहायक बोल रहा है...',
+          badge: language === 'mr' ? 'आवाज सुरू' : language === 'en' ? 'Audio Playing' : 'ऑडियो सक्रिय',
+          icon: '🔊',
+          badgeClass: 'bg-sky-950/80 text-sky-300 border-sky-500/50',
+          buttonClass: 'bg-gradient-to-tr from-sky-600 to-cyan-500 ring-4 ring-sky-400/40'
+        };
+      case 'mic_permission_required':
+        return {
+          title: language === 'mr' ? 'मायक्रोफोन परवानगी आवश्यक' : language === 'en' ? 'Microphone permission required' : 'माइक अनुमति आवश्यक है',
+          badge: language === 'mr' ? 'परवानगी आवश्यक' : language === 'en' ? 'Permission Denied' : 'अनुमति दें',
+          icon: '🔒',
+          badgeClass: 'bg-amber-950/80 text-amber-300 border-amber-500/50',
+          buttonClass: 'bg-amber-700 hover:bg-amber-600 border border-amber-400/50'
+        };
+      case 'transcript_available':
+        return {
+          title: language === 'mr' ? 'उत्तर नोंदवले गेले' : language === 'en' ? 'Transcript available' : 'उत्तर दर्ज हुआ',
+          badge: language === 'mr' ? 'तपासा' : language === 'en' ? 'Review Transcript' : 'जांचें',
+          icon: '📝',
+          badgeClass: 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40',
+          buttonClass: 'bg-gradient-to-tr from-emerald-600 to-teal-500'
+        };
+      case 'confirmation_required':
+        return {
+          title: language === 'mr' ? 'पुष्टी आवश्यक आहे' : language === 'en' ? 'Confirmation required' : 'पुष्टि आवश्यक है',
+          badge: language === 'mr' ? 'होय किंवा नाही सांगा' : language === 'en' ? 'Needs Confirmation' : 'सहमति दें',
+          icon: '❓',
+          badgeClass: 'bg-teal-950/80 text-teal-300 border-teal-500/40',
+          buttonClass: 'bg-gradient-to-tr from-emerald-600 to-teal-500'
+        };
+      case 'answer_confirmed':
+        return {
+          title: language === 'mr' ? 'उत्तर पुष्टी झाली!' : language === 'en' ? 'Answer confirmed!' : 'उत्तर की पुष्टि हो गई!',
+          badge: language === 'mr' ? 'पुष्टीत' : language === 'en' ? 'Confirmed' : 'पुष्टीकृत',
+          icon: '✅',
+          badgeClass: 'bg-emerald-950/80 text-emerald-200 border-emerald-500/50',
+          buttonClass: 'bg-emerald-600'
+        };
+      case 'correction_required':
+        return {
+          title: language === 'mr' ? 'सुधारणा आवश्यक • पुन्हा बोला' : language === 'en' ? 'Correction required • Try again' : 'सुधार आवश्यक • दोबारा बोलें',
+          badge: language === 'mr' ? 'अस्पष्ट उत्तर' : language === 'en' ? 'Uncertain' : 'अस्पष्ट उत्तर',
+          icon: '🔄',
+          badgeClass: 'bg-amber-950/80 text-amber-300 border-amber-500/50',
+          buttonClass: 'bg-amber-600 hover:bg-amber-500'
+        };
+      case 'network_error':
+        return {
+          title: language === 'mr' ? 'इंटरनेट समस्या • खाली टाईप करा' : language === 'en' ? 'Network error • Use typing' : 'इंटरनेट समस्या • नीचे टाइप करें',
+          badge: language === 'mr' ? 'ऑफलाइन' : language === 'en' ? 'Offline' : 'ऑफ़लाइन',
+          icon: '⚡',
+          badgeClass: 'bg-rose-950/80 text-rose-300 border-rose-500/50',
+          buttonClass: 'bg-rose-700 hover:bg-rose-600'
+        };
+      case 'unsupported_feature':
+        return {
+          title: language === 'mr' ? 'ब्राउझरमध्ये ध्वनी असमर्थित' : language === 'en' ? 'Browser voice unsupported' : 'ब्राउज़र में आवाज़ असमर्थित',
+          badge: language === 'mr' ? 'टाईप करा' : language === 'en' ? 'Use Keyboard' : 'कीबोर्ड का उपयोग करें',
+          icon: '⌨️',
+          badgeClass: 'bg-slate-900 text-slate-300 border-slate-600',
+          buttonClass: 'bg-slate-700'
+        };
+      case 'stopped':
+        return {
+          title: language === 'mr' ? 'आवाज थांबवला' : language === 'en' ? 'Voice input stopped' : 'आवाज़ रोक दी गई',
+          badge: language === 'mr' ? 'थांबवले' : language === 'en' ? 'Stopped' : 'रोका गया',
+          icon: '⏹️',
+          badgeClass: 'bg-slate-900 text-slate-300 border-slate-600',
+          buttonClass: 'bg-slate-700 hover:bg-slate-600'
+        };
+      case 'ready':
+      default:
+        return {
+          title: language === 'mr' ? 'बोलण्यासाठी माइक दाबा' : language === 'en' ? 'Tap to Speak' : 'बोलने के लिए माइक दबाएं',
+          badge: language === 'mr' ? 'सज्ज' : language === 'en' ? 'Ready' : 'तैयार',
+          icon: '🎤',
+          badgeClass: 'bg-emerald-950/70 text-emerald-300 border-emerald-500/40',
+          buttonClass: 'bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 hover:scale-105 border border-emerald-300/40 shadow-emerald-950/80'
+        };
+    }
   };
+
+  const meta = getStateMeta();
 
   const handleClick = () => {
     if (isProcessing) return;
@@ -78,68 +184,142 @@ export const VoiceButton: React.FC<VoiceButtonProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center my-4 select-none">
-      <button
-        type="button"
-        onClick={handleClick}
-        disabled={isProcessing}
-        aria-label={getButtonText()}
-        aria-pressed={isListening}
-        className={`relative flex items-center justify-center w-24 h-24 md:w-28 md:h-28 rounded-full shadow-2xl transition-all duration-300 transform active:scale-95 focus:outline-none focus:ring-4 focus:ring-emerald-400/40 ${
-          isListening
-            ? 'bg-red-500 hover:bg-red-600 scale-105 shadow-red-950/80 ring-4 ring-red-400/50'
-            : isProcessing
-            ? 'bg-amber-500 cursor-wait shadow-amber-950/80'
-            : 'bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 hover:scale-105 border border-emerald-300/40 shadow-emerald-950/80'
-        }`}
-      >
-        {/* Animated sound wave rings when listening */}
+    <section
+      aria-label="Voice Assistant Interaction Area"
+      className="flex flex-col items-center justify-center my-3 sm:my-4 select-none w-full max-w-md mx-auto"
+    >
+      {/* Visual State & Language Status Badge */}
+      <div className="flex items-center gap-2 mb-2.5">
+        <span
+          role="status"
+          aria-live="polite"
+          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold border backdrop-blur-md shadow-sm transition-all ${meta.badgeClass}`}
+        >
+          <span>{meta.icon}</span>
+          <span>{meta.badge}</span>
+          <span className="opacity-60">•</span>
+          <span className="uppercase tracking-wider">
+            {language === 'mr' ? 'मराठी' : language === 'en' ? 'English' : 'हिन्दी'}
+          </span>
+        </span>
+      </div>
+
+      {/* Prominent Circular Microphone Trigger (Touch Target >= 44x44px; actual 88px-104px) */}
+      <div className="relative flex items-center justify-center">
+        {/* Animated sound wave rings when actively recording */}
         {isListening && (
           <>
-            <span className="absolute inset-0 rounded-full bg-red-400 opacity-75 animate-ping" />
-            <span className="absolute -inset-2 rounded-full border-2 border-red-300 animate-pulse" />
+            <span
+              aria-hidden="true"
+              className="absolute w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-red-400/25 animate-ping"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute -inset-2 rounded-full border-2 border-red-400/60 animate-pulse"
+            />
           </>
         )}
 
-        {/* Icon */}
-        <div className="relative z-10 text-white">
-          {isProcessing ? (
-            <svg className="w-10 h-10 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-            </svg>
-          ) : isListening ? (
-            <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
-              <rect x="6" y="6" width="12" height="12" rx="2" />
-            </svg>
-          ) : (
-            <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-            </svg>
-          )}
-        </div>
-      </button>
+        {isSpeaking && (
+          <span
+            aria-hidden="true"
+            className="absolute -inset-2 rounded-full border-2 border-sky-400/60 animate-pulse"
+          />
+        )}
 
-      {/* Button label */}
+        <button
+          id="btn-voice-push-to-talk"
+          type="button"
+          onClick={handleClick}
+          disabled={isProcessing}
+          aria-label={`${meta.title} (${language})`}
+          aria-pressed={isListening}
+          className={`relative z-10 touch-target-44 flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full shadow-2xl transition-all duration-300 transform active:scale-95 focus-visible:ring-4 focus-visible:ring-emerald-400/60 cursor-pointer ${meta.buttonClass}`}
+        >
+          {/* Inner Icon — Humzie Symbol */}
+          <div className="relative text-white pointer-events-none">
+            {isProcessing ? (
+              /* Spinning Humzie while processing */
+              <div className="animate-spin">
+                <HumzieSymbol size={40} variant="amber" />
+              </div>
+            ) : isListening ? (
+              /* Pulsing Humzie while listening */
+              <HumzieSymbol size={40} variant="white" animated />
+            ) : isSpeaking ? (
+              /* Humzie speaking state */
+              <HumzieSymbol size={40} variant="white" animated />
+            ) : (
+              /* Default Humzie ready state */
+              <HumzieSymbol size={40} variant="white" />
+            )}
+          </div>
+        </button>
+      </div>
+
+      {/* Button Text Label */}
       <p
         aria-live="polite"
-        className={`mt-3 font-semibold text-sm md:text-base text-center transition-colors ${
+        className={`mt-3 font-bold text-xs sm:text-sm md:text-base text-center transition-colors px-2 ${
           isListening ? 'text-red-400' : isProcessing ? 'text-amber-300' : 'text-emerald-100'
         }`}
       >
-        {getButtonText()}
+        {meta.title}
       </p>
 
+      {/* Accessible Secondary Audio Controls (Slow Repeat, Replay, Stop, Keyboard Fallback) */}
+      <div className="flex flex-wrap items-center justify-center gap-2 mt-3 pt-2">
+        {onRepeatAudio && (
+          <button
+            type="button"
+            id="btn-voice-replay-normal"
+            onClick={onRepeatAudio}
+            className="touch-target-44 px-3 py-1.5 text-xs font-semibold bg-white/10 hover:bg-white/20 border border-white/15 rounded-full text-emerald-200 transition-all active:scale-95 shadow-sm inline-flex items-center gap-1.5"
+            title="Repeat Question at Normal Speed"
+          >
+            <span>🔊</span>
+            <span>{language === 'mr' ? 'पुन्हा ऐका (Replay)' : language === 'en' ? 'Replay' : 'पुनः सुनें (Replay)'}</span>
+          </button>
+        )}
+
+        {onSlowRepeatAudio && (
+          <button
+            type="button"
+            id="btn-voice-replay-slow"
+            onClick={onSlowRepeatAudio}
+            className="touch-target-44 px-3 py-1.5 text-xs font-semibold bg-teal-950/70 hover:bg-teal-900/80 border border-teal-500/30 rounded-full text-teal-200 transition-all active:scale-95 shadow-sm inline-flex items-center gap-1.5"
+            title="Hear Question Slower (0.70x Speed)"
+          >
+            <span>🐢</span>
+            <span>{language === 'mr' ? 'हळू ऐका 0.70x' : language === 'en' ? 'Slow 0.70x' : 'धीमे सुनें 0.70x'}</span>
+          </button>
+        )}
+
+        {onToggleFallbackText && (
+          <button
+            type="button"
+            id="btn-voice-fallback-toggle"
+            onClick={onToggleFallbackText}
+            className="touch-target-44 px-3 py-1.5 text-xs font-semibold bg-white/5 hover:bg-white/15 border border-white/15 rounded-full text-slate-300 transition-all active:scale-95 shadow-sm inline-flex items-center gap-1.5"
+            title="Switch to Typing"
+          >
+            <span>⌨️</span>
+            <span>{language === 'mr' ? 'टाईप करा' : language === 'en' ? 'Type Answer' : 'टाइप करें'}</span>
+          </button>
+        )}
+      </div>
+
+      {/* Honest Error Banner if underlying operation failed */}
       {error && (
         <div
           role="alert"
           aria-live="assertive"
-          className="mt-2 text-xs md:text-sm text-red-200 bg-red-950/80 px-3.5 py-1.5 rounded-xl border border-red-500/40 backdrop-blur-md shadow-lg"
+          className="mt-3 text-xs sm:text-sm text-red-100 bg-red-950/90 px-4 py-2 rounded-2xl border border-red-500/50 backdrop-blur-md shadow-lg max-w-sm text-center font-medium"
         >
           {error}
         </div>
       )}
-    </div>
+    </section>
   );
 };
 

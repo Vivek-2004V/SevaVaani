@@ -43,7 +43,7 @@ SENSITIVE_FIELDS: Set[str] = {
 }
 
 # Regex patterns for common sensitive Indian identity & financial tokens
-AADHAAR_PATTERN = re.compile(r"\b\d{4}\s?\d{4}\s?\d{4}\b")
+AADHAAR_PATTERN = re.compile(r"\b\d{4}[-\s]?\d{4}[-\s]?\d{4}\b")
 AADHAAR_12DIGIT = re.compile(r"\b\d{12}\b")
 PAN_PATTERN = re.compile(r"\b[A-Z]{5}[0-9]{4}[A-Z]\b", re.IGNORECASE)
 BANK_ACCOUNT_PATTERN = re.compile(r"\b\d{9,18}\b")
@@ -207,6 +207,8 @@ class PrivacyFirewall:
         redacted = PAN_PATTERN.sub("[REDACTED_PAN]", redacted)
         # Redact password fields in JSON-like strings
         redacted = re.sub(r'("password"\s*:\s*)"[^"]+"', r'\1"[REDACTED_PASSWORD]"', redacted)
+        # Redact Indian 10-digit phone numbers
+        redacted = re.sub(r'\b([6-9]\d)\d{6}(\d{2})\b', r'[REDACTED_PHONE: \1XXXXXX\2]', redacted)
 
         return redacted
 

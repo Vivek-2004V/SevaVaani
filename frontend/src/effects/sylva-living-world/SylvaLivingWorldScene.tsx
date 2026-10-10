@@ -88,6 +88,7 @@ export const SylvaLivingWorldScene: React.FC<SylvaLivingWorldSceneProps> = ({
    ───────────────────────────────────────────────────────────── */
 export interface SylvaHeroProps {
   variant?: 'living-green' | 'sakura-sunset' | 'maple-autumn' | 'sequoia-mist';
+  language?: string;
   className?: string;
   style?: CSSProperties;
   headingFont?: string;
@@ -102,6 +103,7 @@ export interface SylvaHeroProps {
 
 export const SylvaHero: React.FC<SylvaHeroProps> = ({
   variant = 'living-green',
+  language = 'hi',
   className = '',
   style = {},
   headingFont = 'lexend',
@@ -118,6 +120,14 @@ export const SylvaHero: React.FC<SylvaHeroProps> = ({
   // For living-green: load the canonical page byte-for-byte (local-patched)
   // For other variants: the canonical source handles them via JS (future)
   const src = '/landing-pages/inner-green-3d-local.html';
+
+  useEffect(() => {
+    const frame = iframeRef.current;
+    if (!frame || !frame.contentWindow) return;
+    try {
+      frame.contentWindow.postMessage({ type: 'SET_LANGUAGE', language: language || 'hi' }, '*');
+    } catch (e) {}
+  }, [language]);
 
   // Inject typography customization into the iframe once loaded
   // (follows the pattern from pageTypography.ts: append one stylesheet to <head>)
@@ -167,9 +177,18 @@ export const SylvaHero: React.FC<SylvaHeroProps> = ({
       }
     };
 
-    frame.addEventListener('load', applyTypography);
-    return () => frame.removeEventListener('load', applyTypography);
-  }, [headingFont, bodyFont, headingWeight, bodyWeight, primaryColor, headingSize, bodySize, headingLetterSpacing]);
+    const handleLoad = () => {
+      applyTypography();
+      try {
+        if (frame.contentWindow) {
+          frame.contentWindow.postMessage({ type: 'SET_LANGUAGE', language: language || 'hi' }, '*');
+        }
+      } catch (_) {}
+    };
+
+    frame.addEventListener('load', handleLoad);
+    return () => frame.removeEventListener('load', handleLoad);
+  }, [language, headingFont, bodyFont, headingWeight, bodyWeight, primaryColor, headingSize, bodySize, headingLetterSpacing]);
 
   return (
     <div

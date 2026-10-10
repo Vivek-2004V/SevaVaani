@@ -218,30 +218,55 @@ export interface HelpRequestResponse {
   external_notification_channel: string;
 }
 
-export interface FinalSubmissionResponse {
-  success: boolean;
-  application_id: string | null;
-  submission_time: string | null;
-  status: 'saved_in_backend' | 'submitted_to_government_portal' | 'local_draft_saved' | 'submission_failed' | 'blocked' | 'incomplete';
-  message: string;
-  persistence_scope: 'saved_in_backend' | 'government_portal' | 'local_draft_only' | 'none';
-  government_portal_submitted: boolean;
-  government_portal_status?: string;
-  is_duplicate?: boolean;
+export interface HelpTicketItem {
+  ticket_id: string;
+  session_id: string | null;
+  user_id: string | null;
+  field_name: string | null;
+  category: string;
+  reason: string;
+  description: string | null;
+  status: string;
+  notification_status: string;
+  notification_channel: string;
+  created_at: string;
+  updated_at: string | null;
 }
 
-export async function requestHumanHelp(
-  sessionId: string,
-  reason: string
-): Promise<HelpRequestResponse> {
+export interface HelplineConfig {
+  phone: string | null;
+  whatsapp: string | null;
+  whatsapp_digits: string | null;
+  hours: string;
+  is_configured: boolean;
+  message: string;
+}
+
+export async function createHelpTicket(params: {
+  sessionId?: string;
+  category: string;
+  description?: string;
+  fieldName?: string;
+  reason?: string;
+  language?: SupportedLanguage;
+}): Promise<HelpRequestResponse> {
+  const token = getAuthToken();
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   try {
-    const res = await privacyFetch(`${API_BASE}/api/help/request`, {
+    const res = await privacyFetch(`${API_BASE}/api/help/tickets`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
-        session_id: sessionId,
-        field_name: 'current_field',
-        reason
+        session_id: params.sessionId || undefined,
+        category: params.category || 'other',
+        description: params.description || undefined,
+        field_name: params.fieldName || undefined,
+        reason: params.reason || 'citizen_request',
+        language: params.language || 'hi'
       })
     });
     if (!res.ok) {
@@ -253,23 +278,92 @@ export async function requestHumanHelp(
       success: true,
       ticket_id: data.ticket_id || null,
       status: data.status || 'ticket_created',
-      message: data.message || 'सहायता अनुरोध आंतरिक रूप से दर्ज कर लिया गया है।',
+      message: data.message || 'आपकी सहायता अनुरोध दर्ज हो गई है।',
       persistence_scope: 'saved_in_backend',
       external_notification_sent: Boolean(data.external_notification_sent),
       external_notification_channel: data.external_notification_channel || 'none_configured'
     };
   } catch (err: any) {
-    // Never generate random ticket ID on error
     return {
       success: false,
       ticket_id: null,
       status: 'failed',
-      message: 'सहायता अनुरोध सर्वर पर दर्ज नहीं हो सका (सर्वर अनुपलब्ध है)। कोई टिकट नहीं बना।',
+      message: err.message || 'सहायता अनुरोध सर्वर पर दर्ज नहीं हो सका। कोई टिकट नहीं बना।',
       persistence_scope: 'none',
       external_notification_sent: false,
       external_notification_channel: 'none'
     };
   }
+}
+
+export async function fetchUserHelpTickets(): Promise<HelpTicketItem[]> {
+  const token = getAuthToken();
+  if (!token) return [];
+
+  try {
+    const res = await privacyFetch(`${API_BASE}/api/help/tickets`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    console.warn('Failed to fetch user tickets:', err);
+    return [];
+  }
+}
+
+export async function fetchHelpTicketStatus(ticketId: string): Promise<HelpTicketItem | null> {
+  const token = getAuthToken();
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  try {
+    const res = await privacyFetch(`${API_BASE}/api/help/tickets/${encodeURIComponent(ticketId)}`, {
+      method: 'GET',
+      headers
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchHelplineConfig(): Promise<HelplineConfig> {
+  try {
+    const res = await privacyFetch(`${API_BASE}/api/help/helpline`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch {
+    return {
+      phone: null,
+      whatsapp: null,
+      whatsapp_digits: null,
+      hours: 'Mon-Sat 9:00 AM - 6:00 PM IST',
+      is_configured: false,
+      message: 'आधिकारिक हेल्पलाइन नंबर अभी कॉन्फ़िगर नहीं है। कृपया टिकट सहायता का उपयोग करें।'
+    };
+  }
+}
+
+export async function requestHumanHelp(
+  sessionId: string,
+  reason: string
+): Promise<HelpRequestResponse> {
+  return createHelpTicket({
+    sessionId,
+    category: 'other',
+    reason
+  });
 }
 
 export async function submitFinalApplication(

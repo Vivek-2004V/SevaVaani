@@ -42,18 +42,19 @@ export const LegalModal: React.FC<LegalModalProps> = ({
     >
       <div
         style={{
-          maxWidth: 680,
+          maxWidth: 'min(680px, calc(100vw - 20px))',
           width: '100%',
           background: 'linear-gradient(180deg, rgba(16, 28, 18, 0.98) 0%, rgba(8, 16, 10, 0.99) 100%)',
           border: '1px solid rgba(52, 211, 153, 0.35)',
           borderRadius: 24,
           boxShadow: '0 24px 60px -12px rgba(0, 0, 0, 0.8), 0 0 35px rgba(16, 185, 129, 0.2)',
-          padding: '24px 22px',
+          padding: 'clamp(14px, 3.5vw, 24px)',
           color: '#ffffff',
           position: 'relative',
-          maxHeight: '88vh',
+          maxHeight: 'calc(100dvh - 32px)',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          boxSizing: 'border-box'
         }}
       >
         {/* Modal Header */}

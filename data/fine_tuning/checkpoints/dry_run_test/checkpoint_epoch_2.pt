@@ -1,0 +1,2 @@
+# Checkpoint metadata for epoch 2
+{"epoch": 2, "train_loss": 1.95, "val_loss": 2.15, "val_wer": 12.9, "val_cer": 7.0, "step": 34, "timestamp": 1791557175.246203}

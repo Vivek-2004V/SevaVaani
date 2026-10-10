@@ -22,9 +22,15 @@ def assist_turn(payload: TurnRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/api/voice/transcribe")
-async def voice_transcribe(audio: UploadFile = File(...), language: str = "hi"):
+async def voice_transcribe(audio: UploadFile = File(...), language: str = "hi", field_hint: str = None):
     try:
         content = await audio.read()
-        return stt_provider.transcribe(content, language)
+        ctx_prompt = None
+        hotwords = None
+        if field_hint:
+            from app.services.contextual_vocabulary import ContextualVocabularyService
+            ctx_prompt = ContextualVocabularyService.get_context_prompt_for_field(field_hint, language)
+            hotwords = ContextualVocabularyService.get_hotwords_for_field(field_hint)
+        return stt_provider.transcribe(content, language, initial_prompt=ctx_prompt, hotwords=hotwords)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

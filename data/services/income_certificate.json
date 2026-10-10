@@ -1,0 +1,60 @@
+{
+  "service_id": "income_certificate",
+  "name": "Income Certificate Application",
+  "name_en": "Income Certificate Application",
+  "name_hi": "आय प्रमाण पत्र आवेदन",
+  "name_mr": "उत्पन्नाचा दाखला अर्ज",
+  "description_en": "Official government issuance of annual family income certificate.",
+  "description_hi": "सक्षम प्राधिकारी द्वारा वार्षिक पारिवारिक आय प्रमाण पत्र जारी करना।",
+  "description_mr": "सक्षम प्राधिकाऱ्याकडून अधिकृत वार्षिक कौटुंबिक उत्पन्नाचा दाखला देणे.",
+  "fields": [
+    {
+      "name": "full_name",
+      "type": "string",
+      "required": true,
+      "label_en": "Applicant Full Name",
+      "label_hi": "आवेदक का पूरा नाम",
+      "label_mr": "अर्जदाराचे पूर्ण नाव",
+      "prompt_en": "Please state your full name.",
+      "prompt_hi": "कृपया अपना पूरा नाम बताएं।",
+      "prompt_mr": "कृपया आपले संपूर्ण नाव सांगा.",
+      "confirm_template_en": "Your name is {value}. Is this correct?",
+      "confirm_template_hi": "आपका नाम {value} है। क्या यह सही है?",
+      "confirm_template_mr": "आपले नाव {value} आहे. हे बरोबर आहे का?",
+      "validation_rules": {"min_len": 2, "max_len": 80},
+      "example": "Ramesh Kumar"
+    },
+    {
+      "name": "mobile",
+      "type": "string",
+      "required": true,
+      "label_en": "Mobile Number",
+      "label_hi": "मोबाइल नंबर",
+      "label_mr": "मोबाईल नंबर",
+      "prompt_en": "Please state your 10-digit mobile number.",
+      "prompt_hi": "कृपया अपना 10 अंकों का मोबाइल नंबर बताएं।",
+      "prompt_mr": "कृपया आपला 10 अंकी मोबाईल नंबर सांगा.",
+      "confirm_template_en": "Your mobile number is {value}. Is this correct?",
+      "confirm_template_hi": "आपका मोबाइल नंबर {value} है। क्या यह सही है?",
+      "confirm_template_mr": "आपला मोबाईल नंबर {value} आहे. हे बरोबर आहे का?",
+      "validation_rules": {"min_len": 10, "max_len": 10},
+      "example": "9876543210"
+    },
+    {
+      "name": "annual_income",
+      "type": "number",
+      "required": true,
+      "label_en": "Annual Family Income (INR)",
+      "label_hi": "वार्षिक पारिवारिक आय (रुपये में)",
+      "label_mr": "वार्षिक कौटुंबिक उत्पन्न (रुपयांमध्ये)",
+      "prompt_en": "What is your total annual family income in rupees? For example, 2 lakh rupees.",
+      "prompt_hi": "आपके परिवार की कुल वार्षिक आय कितनी है? जैसे दो लाख रुपये।",
+      "prompt_mr": "आपल्या कुटुंबाचे एकूण वार्षिक उत्पन्न किती आहे? जसे दोन लाख रुपये.",
+      "confirm_template_en": "Your annual income is {value} rupees. Is this correct?",
+      "confirm_template_hi": "आपकी वार्षिक आय {value} रुपये है। क्या यह सही है?",
+      "confirm_template_mr": "आपले वार्षिक उत्पन्न {value} रुपये आहे. हे बरोबर आहे का?",
+      "validation_rules": {"min": 0},
+      "example": "200000"
+    }
+  ]
+}

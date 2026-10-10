@@ -194,7 +194,7 @@ class HelpTicketRepository:
         cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO help_tickets (id, session_id, field_name, reason, status, created_at)
+            INSERT INTO help_tickets (ticket_id, session_id, field_name, reason, status, created_at)
             VALUES (?, ?, ?, ?, 'open', ?)
             """,
             (ticket_id, session_id, field_name, reason, now)

@@ -277,6 +277,30 @@ body {
   font-size: 14px;
 }
 
+/* In-Page Fill Status Toast */
+.fill-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: #f0fdf4;
+  border-bottom: 1px solid #bbf7d0;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 500;
+  animation: fadeIn 0.2s ease;
+}
+.fill-toast.info {
+  background: #eff6ff;
+  border-bottom-color: #bfdbfe;
+  color: #1e40af;
+}
+.fill-toast.error {
+  background: #fef2f2;
+  border-bottom-color: #fecaca;
+  color: #991b1b;
+}
+
 /* Progress Section */
 .progress-section {
   padding: 8px 14px 4px 14px;
@@ -309,11 +333,12 @@ body {
 /* Main Body */
 .main-body {
   flex: 1;
-  padding: 12px 14px;
+  padding: 10px 14px 24px 14px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  scroll-behavior: smooth;
 }
 
 /* Prompt Card */
@@ -460,7 +485,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 4px 0;
+  margin: 6px 0 10px 0;
+  flex-shrink: 0;
 }
 
 .mic-button-wrapper {
@@ -501,6 +527,14 @@ body {
 .mic-button.speaking {
   background: #10b981;
   box-shadow: 0 8px 18px rgba(16, 185, 129, 0.35);
+}
+.mic-button.confirmation {
+  background: #d97706;
+  box-shadow: 0 8px 18px rgba(217, 119, 6, 0.35);
+}
+.mic-button.error {
+  background: #dc2626;
+  box-shadow: 0 8px 18px rgba(220, 38, 38, 0.35);
 }
 
 .mic-icon {
@@ -698,9 +732,464 @@ body {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
   border-radius: 8px;
-  padding: 8px 12px;
-  margin-bottom: 10px;
-  font-size: 11px;
-  line-height: 1.4;
+  padding: 6px 10px;
+  margin-bottom: 2px;
+  font-size: 10.5px;
+  line-height: 1.35;
   color: #166534;
 }
+
+/* Context-Aware Guidance Card (Comprehension & Low-Literacy Support) */
+.guidance-card {
+  background: #fefce8;
+  border: 1px solid #fef08a;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.2s ease-out;
+}
+.guidance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #fef9c3;
+  padding-bottom: 4px;
+}
+.guidance-title-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.guidance-icon {
+  font-size: 14px;
+}
+.guidance-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #854d0e;
+}
+.guidance-explanation {
+  font-size: 11.5px;
+  color: #713f12;
+  line-height: 1.45;
+  margin: 0 0 6px 0;
+}
+.guidance-example-box {
+  background: rgba(254, 240, 138, 0.4);
+  border-left: 3px solid #eab308;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  color: #78350f;
+  margin-bottom: 6px;
+}
+.guidance-spelling-box {
+  background: #fff7ed;
+  border: 1px dashed #fdba74;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  color: #9a3412;
+  margin-bottom: 6px;
+}
+.guidance-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Voice Command Quick Hints Strip */
+.voice-cmd-hints {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-top: 6px;
+}
+.hint-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #475569;
+}
+.hint-pill {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 2px 7px;
+  font-size: 10px;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.hint-pill:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+/* Document-Agnostic Verification Card */
+.doc-verify-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.doc-verify-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  user-select: none;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+.doc-badge-privacy {
+  font-size: 9.5px;
+  font-weight: 700;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+.doc-verify-content {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.doc-verify-desc {
+  font-size: 10.5px;
+  color: #64748b;
+  line-height: 1.4;
+}
+.doc-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.doc-input-group label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #334155;
+}
+.doc-select, .doc-textarea, .doc-file {
+  width: 100%;
+  font-size: 11px;
+  padding: 5px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #0f172a;
+}
+.doc-textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+.doc-actions-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.doc-results-box {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.doc-results-header {
+  font-size: 11px;
+  font-weight: 700;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.doc-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.doc-result-item {
+  font-size: 10.5px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  line-height: 1.4;
+}
+.doc-result-item.exact-match {
+  background: #ecfdf5;
+  border-left: 3px solid #10b981;
+  color: #065f46;
+}
+.doc-result-item.phonetic-match {
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
+  color: #92400e;
+}
+.doc-result-item.mismatch {
+  background: #fef2f2;
+  border-left: 3px solid #ef4444;
+  color: #991b1b;
+}
+.doc-result-item.ineligible {
+  background: #fdf2f8;
+  border-left: 3px solid #ec4899;
+  color: #9d174d;
+}
+.doc-results-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* FSM State Badge & Name Confirmation Layout */
+.confirm-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fsm-state-badge {
+  font-size: 8.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #fef08a;
+  color: #854d0e;
+  border: 1px solid #eab308;
+}
+
+.fsm-state-badge.state-listening {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #ef4444;
+}
+
+.fsm-state-badge.state-review {
+  background: #e0e7ff;
+  color: #3730a3;
+  border-color: #6366f1;
+}
+
+.fsm-state-badge.state-confirmed {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #22c55e;
+}
+
+.fsm-state-badge.state-correction {
+  background: #ffedd5;
+  color: #9a3412;
+  border-color: #f97316;
+}
+
+.fsm-state-badge.state-error {
+  background: #fecdd3;
+  color: #9f1239;
+  border-color: #f43f5e;
+}
+
+.confirm-spelling-container {
+  background: #ffffff;
+  border: 1px solid #fef08a;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+.spelling-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10.5px;
+  color: #854d0e;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.confirm-spaced-text {
+  font-family: monospace;
+  font-size: 11px;
+  color: #1e293b;
+  font-weight: 700;
+  background: #fef9c3;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.spelling-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.spelling-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 24px;
+  padding: 0 5px;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.spelling-chip.space-chip {
+  background: #f1f5f9;
+  border-style: dashed;
+  min-width: 14px;
+  color: #94a3b8;
+}
+
+.confirm-ambiguity-warning {
+  font-size: 10px;
+  line-height: 1.4;
+  color: #b45309;
+  background: #fffbeb;
+  padding: 5px 8px;
+  border-radius: 5px;
+  border-left: 3px solid #f59e0b;
+  margin-top: 4px;
+}
+
+/* Spelling Drawer */
+.spelling-editor-drawer {
+  background: #ffffff;
+  border: 1.5px solid #38bdf8;
+  border-radius: 8px;
+  padding: 9px;
+  margin-bottom: 10px;
+  animation: fadeIn 0.2s ease;
+}
+
+.spelling-drawer-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0369a1;
+  margin-bottom: 6px;
+}
+
+.spelling-input-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.spelling-input {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 11.5px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  outline: none;
+}
+.spelling-input:focus {
+  border-color: #0284c7;
+}
+
+.spelling-variants-container {
+  margin-top: 4px;
+}
+
+.variants-label {
+  font-size: 9.5px;
+  color: #64748b;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.variants-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.variant-pill {
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.variant-pill:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+/* Actions Grid (5 Controls) */
+.confirm-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.confirm-actions-grid #confirm-yes-btn {
+  grid-column: 1 / 2;
+}
+.confirm-actions-grid #confirm-no-btn {
+  grid-column: 2 / 3;
+}
+.confirm-actions-grid #confirm-slow-btn {
+  grid-column: 1 / 2;
+}
+.confirm-actions-grid #confirm-edit-spelling-btn {
+  grid-column: 2 / 3;
+}
+.confirm-actions-grid #confirm-help-btn {
+  grid-column: 1 / -1;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+}
+.confirm-actions-grid #confirm-help-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Informed Consent Card */
+.doc-consent-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+}
+
+.doc-consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.doc-consent-text {
+  font-size: 9.5px;
+  line-height: 1.35;
+  color: #475569;
+}
+
+

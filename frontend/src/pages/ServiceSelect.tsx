@@ -17,70 +17,36 @@ export const ServiceSelect: React.FC<ServiceSelectProps> = ({
     {
       id: 'scholarship_post_matric',
       name: {
-        hi: 'पोस्ट-मैट्रिक छात्रवृत्ति योजना (Scholarship)',
-        mr: 'पोस्ट-मॅट्रिक शिष्यवृत्ती योजना (Scholarship)',
-        en: 'Post-Matric Scholarship Scheme'
+        hi: 'पोस्ट-मैट्रिक छात्रवृत्ति योजना (इन-ऐप फॉर्म)',
+        mr: 'पोस्ट-मॅट्रिक शिष्यवृत्ती योजना (इन-अ‍ॅप फॉर्म)',
+        en: 'Post-Matric Scholarship Scheme (In-App Mode)'
       },
       desc: {
-        hi: 'उच्च शिक्षा हेतु सरकारी छात्रवृत्ति सहायता (पूर्णतः सक्रिय)',
-        mr: 'उच्च शिक्षणासाठी शासकीय शिष्यवृत्ती सहाय्य (सक्रिय)',
-        en: 'Financial assistance for college & higher education students'
+        hi: 'सेवा वाणी वेब ऐप के अंदर सीधे आवाज से बोलकर छात्रवृत्ति फॉर्म भरें।',
+        mr: 'सेवा वाणी वेब अ‍ॅपमध्ये थेट आवाजाने शिष्यवृत्ती अर्ज भरा.',
+        en: 'Interactive voice-guided scholarship application within SevaVaani.'
       },
-      badge: 'Active P0 Service',
+      badge: 'Active P0 (In-App)',
       badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
       active: true,
       icon: '🎓'
     },
     {
-      id: 'income_certificate',
+      id: 'official_portals_extension',
       name: {
-        hi: 'आय प्रमाण पत्र (Income Certificate)',
-        mr: 'उत्पन्नाचा दाखला (Income Certificate)',
-        en: 'Income Certificate'
+        hi: 'आधिकारिक सरकारी पोर्टल मोड (एक्सटेंशन से भरें)',
+        mr: 'अधिकृत शासकीय पोर्टल मोड (एक्स्टेंशन वापरून)',
+        en: 'Official Government Portals (Extension Mode)'
       },
       desc: {
-        hi: 'तहसीलदार द्वारा जारी वार्षिक पारिवारिक आय प्रमाण पत्र',
-        mr: 'तहसीलदारांकडून कौटुंबिक उत्पन्नाचा दाखला',
-        en: 'Official certificate for annual family income'
+        hi: 'MahaDBT, NSP (scholarships.gov.in), व आपले सरकार पर सीधे बोलकर फॉर्म भरें।',
+        mr: 'MahaDBT, NSP आणि आपले सरकार पोर्टलवर थेट बोलून फॉर्म भरा.',
+        en: 'Fills forms directly on official government websites via Chrome extension.'
       },
-      badge: 'Coming Soon (जल्द आ रहा है)',
-      badgeColor: 'bg-slate-100 text-slate-600 border-slate-200',
-      active: false,
-      icon: '📄'
-    },
-    {
-      id: 'caste_certificate',
-      name: {
-        hi: 'जाति प्रमाण पत्र (Caste Certificate)',
-        mr: 'जातीचे प्रमाणपत्र (Caste Certificate)',
-        en: 'Caste Certificate'
-      },
-      desc: {
-        hi: 'ओबीसी, एससी, एसटी श्रेणी सत्यापन प्रमाण पत्र',
-        mr: 'मागासवर्गीय प्रवर्ग पडताळणी प्रमाणपत्र',
-        en: 'Community & caste verification certificate'
-      },
-      badge: 'Coming Soon (जल्द आ रहा है)',
-      badgeColor: 'bg-slate-100 text-slate-600 border-slate-200',
-      active: false,
-      icon: '🏛️'
-    },
-    {
-      id: 'domicile_certificate',
-      name: {
-        hi: 'मूल निवास प्रमाण पत्र (Domicile)',
-        mr: 'अधिवास प्रमाणपत्र (Domicile)',
-        en: 'Domicile / Residence Certificate'
-      },
-      desc: {
-        hi: 'राज्य में स्थायी निवास का आधिकारिक प्रमाण पत्र',
-        mr: 'राज्यातील वास्तव्याचा अधिकृत दाखला',
-        en: 'Proof of permanent residency in the state'
-      },
-      badge: 'Coming Soon (जल्द आ रहा है)',
-      badgeColor: 'bg-slate-100 text-slate-600 border-slate-200',
-      active: false,
-      icon: '📍'
+      badge: 'Live Extension Bridge',
+      badgeColor: 'bg-cyan-900/60 text-cyan-200 border-cyan-400/40',
+      active: true,
+      icon: '🌐'
     }
   ];
 
@@ -92,12 +58,12 @@ export const ServiceSelect: React.FC<ServiceSelectProps> = ({
           onClick={onBack}
           className="text-xs font-semibold text-emerald-100 hover:text-white flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 backdrop-blur-lg shadow-sm transition-all active:scale-95 shrink-0"
         >
-          ← भाषा बदलें (Back)
+          {language === 'en' ? '← Change Language' : '← भाषा बदलें (Back)'}
         </button>
         <div className="flex items-center gap-2">
           <SevaVaaniLogo size={28} showWordmark={false} />
           <span className="text-[11px] sm:text-xs font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-500/30 px-3 py-1 rounded-full backdrop-blur-md shadow-sm">
-            Step 2 of 4: सेवा चयन (Select Service)
+            {language === 'en' ? 'Step 2 of 4: Select Service' : 'Step 2 of 4: सेवा चयन (Select Service)'}
           </span>
         </div>
       </header>
@@ -105,10 +71,12 @@ export const ServiceSelect: React.FC<ServiceSelectProps> = ({
       <main className="max-w-4xl mx-auto w-full py-8 my-auto">
         <div className="text-center mb-8">
           <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            सेवा का चयन करें (Choose Public Service)
+            {language === 'en' ? 'Choose Public Service' : 'सेवा का चयन करें (Choose Public Service)'}
           </h2>
           <p className="text-xs md:text-sm text-emerald-200/80 mt-1">
-            जिस योजना या प्रमाण पत्र के लिए आवेदन करना है, उसे चुनें:
+            {language === 'en'
+              ? 'Select the scheme or certificate you wish to apply for:'
+              : 'जिस योजना या प्रमाण पत्र के लिए आवेदन करना है, उसे चुनें:'}
           </p>
         </div>
 
@@ -116,8 +84,17 @@ export const ServiceSelect: React.FC<ServiceSelectProps> = ({
           {services.map((svc) => (
             <div
               key={svc.id}
+              id={`btn-service-${svc.id}`}
+              role={svc.active ? 'button' : undefined}
+              tabIndex={svc.active ? 0 : -1}
               onClick={() => svc.active && onSelectService(svc.id)}
-              className={`p-5 rounded-3xl border transition-all duration-200 relative flex flex-col justify-between backdrop-blur-2xl shadow-xl ${
+              onKeyDown={(e) => {
+                if (svc.active && (e.key === 'Enter' || e.key === ' ')) {
+                  e.preventDefault();
+                  onSelectService(svc.id);
+                }
+              }}
+              className={`p-4 sm:p-5 rounded-2xl sm:rounded-3xl border transition-all duration-200 relative flex flex-col justify-between backdrop-blur-2xl shadow-xl lang-devanagari ${
                 svc.active
                   ? 'bg-[#142317]/85 border-emerald-400/50 hover:border-emerald-300 hover:shadow-2xl hover:shadow-emerald-950/80 cursor-pointer ring-2 ring-emerald-400/30 transform hover:-translate-y-1'
                   : 'bg-white/5 border-white/10 opacity-60 cursor-not-allowed'
@@ -145,11 +122,11 @@ export const ServiceSelect: React.FC<ServiceSelectProps> = ({
               <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between">
                 {svc.active ? (
                   <span className="text-xs font-bold text-emerald-300 flex items-center gap-1">
-                    आवेदन शुरू करें (Start Application) →
+                    {language === 'en' ? 'Start Application →' : 'आवेदन शुरू करें (Start Application) →'}
                   </span>
                 ) : (
                   <span className="text-xs text-slate-400">
-                    आगामी अद्यतन में उपलब्ध
+                    {language === 'en' ? 'Available in upcoming update' : 'आगामी अद्यतन में उपलब्ध'}
                   </span>
                 )}
               </div>

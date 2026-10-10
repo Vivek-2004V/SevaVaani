@@ -24,21 +24,23 @@ export const LanguageSelect: React.FC<LanguageSelectProps> = ({
           onClick={onBack}
           className="text-xs font-semibold text-emerald-100 hover:text-white flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 backdrop-blur-lg shadow-sm transition-all active:scale-95 shrink-0"
         >
-          ← वापस (Back)
+          {selected === 'en' ? '← Back to Dashboard' : '← वापस (Back)'}
         </button>
         <div className="flex items-center gap-2">
           <SevaVaaniLogo size={28} showWordmark={false} />
           <span className="text-[11px] sm:text-xs font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-500/30 px-3 py-1 rounded-full backdrop-blur-md shadow-sm">
-            Step 1 of 4: भाषा चयन (Select Language)
+            {selected === 'en' ? 'Step 1 of 4: Select Language' : 'Step 1 of 4: भाषा चयन (Select Language)'}
           </span>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto w-full text-center my-auto py-6 sm:py-8 bg-[#121f15]/80 border border-white/15 rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60">
         <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-2">
-          अपनी भाषा चुनें <br />
+          {selected === 'en' ? 'Choose Your Language' : 'अपनी भाषा चुनें'} <br />
           <span className="text-base md:text-lg font-normal text-emerald-200/80">
-            आप किस भाषा में बातचीत करना पसंद करेंगे?
+            {selected === 'en'
+              ? 'Which language would you prefer to speak in?'
+              : 'आप किस भाषा में बातचीत करना पसंद करेंगे?'}
           </span>
         </h2>
         <p className="text-xs text-slate-300 mb-6">
@@ -53,10 +55,15 @@ export const LanguageSelect: React.FC<LanguageSelectProps> = ({
         <div className="mt-8 flex justify-center">
           <button
             type="button"
+            id="btn-confirm-language"
             onClick={() => onConfirmLanguage(selected)}
-            className="w-full max-w-sm px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-900/50 border border-emerald-300/30 transition-all active:scale-95"
+            className="w-full max-w-sm px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-900/50 border border-emerald-300/30 transition-all active:scale-95 cursor-pointer"
           >
-            आगे बढ़ें (Continue with {selected === 'hi' ? 'हिन्दी' : selected === 'mr' ? 'मराठी' : 'English'}) →
+            {selected === 'en'
+              ? 'Continue with English →'
+              : selected === 'mr'
+              ? 'मराठीत पुढे जा (Continue) →'
+              : 'आगे बढ़ें (Continue with हिन्दी) →'}
           </button>
         </div>
       </main>

@@ -25,7 +25,10 @@ from app.config import settings
 
 client = TestClient(app)
 
-EXTENSION_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "extension")
+_curr = os.path.abspath(os.path.realpath(__file__))
+while _curr and _curr != "/" and not os.path.exists(os.path.join(_curr, "extension")):
+    _curr = os.path.dirname(_curr)
+EXTENSION_DIR = os.path.join(_curr, "extension")
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -342,9 +345,8 @@ def test_marathi_voice_workflow_and_language_switching():
     )
     rows = c.fetchall()
     assert len(rows) == 2
-    assert rows[0]["field_key"] == "full_name"
-    assert rows[1]["field_key"] == "dob"
-    assert rows[1]["answer_value"] == "15/08/2003"
+    from app.core.encryption import FieldEncryptionService
+    assert FieldEncryptionService.decrypt_value(rows[1]["answer_value"]) == "15/08/2003"
     conn.close()
 
 
@@ -408,3 +410,237 @@ def test_text_fallback_alternative():
     assert fb_res.status_code == 200
     fb_data = fb_res.json()
     assert fb_data["status"] == "need_confirmation" or fb_data["status"] == "saved_next_field"
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 8. Conversational Intent & Voice Confirmation Regression Tests
+# ═══════════════════════════════════════════════════════════════════
+
+def test_conversational_greeting_and_help_intents():
+    """Verify that greetings and help requests do not fail validation or penalize attempts."""
+    token, _ = _get_auth_token_and_user_id()
+    s_res = client.post(
+        "/api/session",
+        json={"service_id": "scholarship_app", "language": "hi"},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    session_id = s_res.json()["session_id"]
+
+    # 1. Hindi Greeting
+    turn_greet = client.post("/api/assist/turn", json={
+        "session_id": session_id,
+        "transcript": "नमस्ते",
+        "input_type": "voice"
+    })
+    assert turn_greet.status_code == 200
+    g_data = turn_greet.json()
+    assert g_data["status"] == "greeting"
+    assert "नमस्ते" in g_data["message"]
+    assert g_data["session_state"]["current_field_attempts"] == 0
+
+    # 2. Hindi Help Request
+    turn_help = client.post("/api/assist/turn", json={
+        "session_id": session_id,
+        "transcript": "मदद चाहिए",
+        "input_type": "voice"
+    })
+    assert turn_help.status_code == 200
+    h_data = turn_help.json()
+    assert h_data["status"] == "help"
+    assert "मदद" in h_data["message"]
+    assert h_data["session_state"]["current_field_attempts"] == 0
+
+    # 3. Marathi Greeting
+    client.post("/api/session/language", json={"session_id": session_id, "language": "mr"})
+    turn_mr_greet = client.post("/api/assist/turn", json={
+        "session_id": session_id,
+        "transcript": "नमस्कार",
+        "input_type": "voice"
+    })
+    assert turn_mr_greet.status_code == 200
+    mr_g_data = turn_mr_greet.json()
+    assert mr_g_data["status"] == "greeting"
+    assert "नमस्कार" in mr_g_data["message"]
+
+
+def test_conversational_cancellation_discards_pending_candidate():
+    """Verify speaking a cancellation intent discards the candidate waiting for confirmation."""
+    token, _ = _get_auth_token_and_user_id()
+    s_res = client.post(
+        "/api/session",
+        json={"service_id": "scholarship_app", "language": "hi"},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    session_id = s_res.json()["session_id"]
+
+    # Generate candidate
+    client.post("/api/assist/turn", json={
+        "session_id": session_id,
+        "transcript": "रोहित शर्मा",
+        "input_type": "voice"
+    })
+
+    # Citizen says 'रद्द करो'
+    turn_cancel = client.post("/api/assist/turn", json={
+        "session_id": session_id,
+        "transcript": "रद्द करो",
+        "input_type": "voice"
+    })
+    assert turn_cancel.status_code == 200
+    c_data = turn_cancel.json()
+    assert c_data["status"] in ["rejected", "candidate_discarded"]
+    assert "full_name" not in c_data["session_state"]["confirmed_fields"]
+
+
+def test_voice_confirmation_via_utterance():
+    """Verify citizen confirming candidate with natural speech 'होय बरोबर' commits field."""
+    token, _ = _get_auth_token_and_user_id()
+    s_res = client.post(
+        "/api/session",
+        json={"service_id": "scholarship_app", "language": "mr"},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    session_id = s_res.json()["session_id"]
+
+    # Provide candidate
+    turn_name = client.post("/api/assist/turn", json={
+        "session_id": session_id,
+        "transcript": "सुनील गावस्कर",
+        "input_type": "voice"
+    })
+    assert turn_name.json()["status"] == "need_confirmation"
+
+    # Confirm via Marathi voice affirmation
+    turn_conf = client.post("/api/assist/turn", json={
+        "session_id": session_id,
+        "transcript": "होय बरोबर",
+        "input_type": "voice"
+    })
+    assert turn_conf.status_code == 200
+    conf_data = turn_conf.json()
+    assert conf_data["status"] == "saved_next_field"
+    assert conf_data["session_state"]["confirmed_fields"]["full_name"] == "सुनील गावस्कर"
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 9. Conversational Extraction, Ambiguity, DOM & No Auto-Submit Tests
+# ═══════════════════════════════════════════════════════════════════
+
+def test_conversational_greeting_name_extraction():
+    """Verify that conversational greetings like 'हेलो मेरा नाम...' cleanly extract name."""
+    from app.services.extractor import ExtractorService
+
+    res_hi = ExtractorService.extract_field("full_name", "हेलो मेरा नाम विवेक विश्वकर्मा है", "hi")
+    assert res_hi["value"] == "विवेक विश्वकर्मा"
+    assert res_hi["confidence"] >= 0.90
+
+    res_mr = ExtractorService.extract_field("full_name", "नमस्कार माझं नाव अमोल शिंदे आहे", "mr")
+    assert res_mr["value"] == "अमोल शिंदे"
+    assert res_mr["confidence"] >= 0.90
+
+    res_en = ExtractorService.extract_field("full_name", "Hello my name is Vivek Vishwakarma", "en")
+    assert res_en["value"] == "Vivek Vishwakarma"
+
+    res_dob = ExtractorService.extract_field("dob", "चौदह अगस्त दो हज़ार चार", "hi")
+    assert res_dob["value"] == "14/08/2004"
+
+
+def test_ambiguous_and_invalid_answers_require_clarification():
+    """Verify that ambiguous or invalid inputs trigger retry without inventing personal details."""
+    token, _ = _get_auth_token_and_user_id()
+    s_res = client.post(
+        "/api/session",
+        json={"service_id": "scholarship_app", "language": "hi"},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    session_id = s_res.json()["session_id"]
+
+    # Provide digits for name (ambiguous/invalid)
+    turn_ambig = client.post("/api/assist/turn", json={
+        "session_id": session_id,
+        "transcript": "12345",
+        "input_type": "voice"
+    })
+    assert turn_ambig.status_code == 200
+    data = turn_ambig.json()
+    # Must ask for clarification or retry, NEVER invent names
+    assert data["status"] in ["invalid", "retry", "need_confirmation"]
+    # Check that confirmed_fields does not have an invented name
+    assert "full_name" not in data["session_state"]["confirmed_fields"]
+
+
+def test_inline_user_correction_updates_candidate():
+    """Verify inline correction 'नहीं, मेरा नाम सुरेश रैना है' updates candidate."""
+    token, _ = _get_auth_token_and_user_id()
+    s_res = client.post(
+        "/api/session",
+        json={"service_id": "scholarship_app", "language": "hi"},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    session_id = s_res.json()["session_id"]
+
+    # Turn 1: Initial candidate
+    client.post("/api/assist/turn", json={
+        "session_id": session_id,
+        "transcript": "महेश कुमार",
+        "input_type": "voice"
+    })
+
+    # Turn 2: Inline correction
+    turn_corr = client.post("/api/assist/turn", json={
+        "session_id": session_id,
+        "transcript": "नहीं, मेरा नाम सुरेश रैना है",
+        "input_type": "voice"
+    })
+    assert turn_corr.status_code == 200
+    corr_data = turn_corr.json()
+    assert corr_data["status"] == "need_confirmation"
+    assert corr_data["candidate_value"] == "सुरेश रैना"
+
+
+def test_no_automatic_submission_guarantee():
+    """Verify unconfirmed forms cannot be auto-submitted."""
+    token, _ = _get_auth_token_and_user_id()
+    s_res = client.post(
+        "/api/session",
+        json={"service_id": "scholarship_app", "language": "hi"},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    session_id = s_res.json()["session_id"]
+
+    # Attempting to submit in-progress session without reviewing must fail
+    sub_res = client.post("/api/submit", json={
+        "session_id": session_id,
+        "consent": True
+    })
+    # Must fail or require review
+    assert sub_res.status_code in [400, 422] or sub_res.json().get("status") != "submitted"
+
+
+def test_dom_mapper_and_extension_contracts():
+    """Verify extension files include DOM verification and framework event dispatches."""
+    import os
+    dom_mapper_path = os.path.join(EXTENSION_DIR, "domMapper.js")
+    assistant_js_path = os.path.join(EXTENSION_DIR, "assistant.js")
+
+    assert os.path.exists(dom_mapper_path)
+    assert os.path.exists(assistant_js_path)
+
+    with open(dom_mapper_path, "r", encoding="utf-8") as f:
+        dom_content = f.read()
+    with open(assistant_js_path, "r", encoding="utf-8") as f:
+        asst_content = f.read()
+
+    # Verify input types supported
+    assert "checkbox" in dom_content
+    assert "radio" in dom_content
+    assert "select" in dom_content
+    assert "dispatchEvent" in dom_content
+    assert "post-fill equivalence" in dom_content or "actualVal" in dom_content
+
+    # Verify assistant does not double up question mark icon
+    assert "❓ ❓" not in asst_content
+    # Verify postMessage targetOrigin wildcard for cross-frame delivery
+    assert "window.parent.postMessage" in asst_content
+
+

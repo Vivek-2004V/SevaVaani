@@ -3,10 +3,25 @@ import { SupportedLanguage } from '../types';
 export class BrowserTTSAdapter {
   private isSpeaking: boolean = false;
   private currentUtterance: SpeechSynthesisUtterance | null = null;
+  private speechRate: number = 0.92; // Calmer rate for clear public service communication
+  private lastSpokenText: string = '';
+  private lastSpokenLang: SupportedLanguage = 'hi';
 
   public isSupported(): boolean {
     if (typeof window === 'undefined') return false;
     return 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  }
+
+  public setRate(rate: number) {
+    this.speechRate = Math.max(0.5, Math.min(2.0, rate));
+  }
+
+  public getRate(): number {
+    return this.speechRate;
+  }
+
+  public getLastSpokenText(): string {
+    return this.lastSpokenText;
   }
 
   private getLangCode(lang: SupportedLanguage): string {
@@ -35,11 +50,12 @@ export class BrowserTTSAdapter {
     const exact = voices.find(v => v.lang.toLowerCase() === langCode.toLowerCase());
     if (exact) return exact;
 
-    // 2. Prefix match (e.g. "hi", "mr", "en")
+    // 2. Strict Prefix match (e.g. "hi", "mr", "en") - NEVER cross into unrelated languages!
     const prefix = langCode.split('-')[0].toLowerCase();
     const matchedPrefix = voices.find(v => v.lang.toLowerCase().startsWith(prefix));
     if (matchedPrefix) return matchedPrefix;
 
+    // Requirement 2: Avoid switching to an unrelated language voice unexpectedly
     return null;
   }
 
@@ -58,11 +74,13 @@ export class BrowserTTSAdapter {
     if (!text || text.trim().length === 0) return;
 
     this.stop();
+    this.lastSpokenText = text;
+    this.lastSpokenLang = language;
 
     const langCode = this.getLangCode(language);
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = langCode;
-    utterance.rate = 0.92; // Calmer rate for clear public service communication
+    utterance.rate = this.speechRate;
     utterance.pitch = 1.0;
 
     const voice = this.getBestVoice(langCode);
@@ -89,6 +107,12 @@ export class BrowserTTSAdapter {
 
     this.currentUtterance = utterance;
     window.speechSynthesis.speak(utterance);
+  }
+
+  public replay(onStart?: () => void, onEnd?: () => void, onError?: (err: any) => void) {
+    if (this.lastSpokenText) {
+      this.speak(this.lastSpokenText, this.lastSpokenLang, onStart, onEnd, onError);
+    }
   }
 
   public stop() {

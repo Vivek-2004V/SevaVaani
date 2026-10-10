@@ -1,8 +1,11 @@
 # ─── Virtual environments ───────────────────────────────────────────────────
 backend/venv/
 venv/
+venv
 ENV/
+.venv
 .venv/
+backend/.venv
 
 # ─── Python cache & test artefacts ──────────────────────────────────────────
 __pycache__/
@@ -39,6 +42,9 @@ data/archive/
 .env.local
 .env.production
 .env.*.local
+data/security/
+*.key
+
 
 # ─── Logs ────────────────────────────────────────────────────────────────────
 *.log
@@ -49,3 +55,10 @@ logs/
 .idea/
 .vscode/
 Thumbs.db
+app
+tests
+tsc
+vite
+frontend/dev-dist/
+dev-dist/
+

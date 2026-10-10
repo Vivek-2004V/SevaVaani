@@ -28,7 +28,10 @@
     '/api/auth/me',
     '/api/auth/logout',
     '/api/session/language',
-    '/api/application/submit'
+    '/api/application/submit',
+    '/api/guidance',
+    '/api/service-sessions',
+    '/api/verify'
   ];
 
   class PrivacyFirewallError extends Error {
@@ -113,10 +116,23 @@
     return fetch(url, options);
   }
 
+  function registerApprovedOrigin(origin) {
+    if (!origin || typeof origin !== 'string') return false;
+    try {
+      const u = new URL(origin);
+      if (u.protocol === 'https:' || u.hostname === '127.0.0.1' || u.hostname === 'localhost') {
+        APPROVED_ORIGINS.add(u.origin);
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
   window.SEVA_VAANI_PRIVACY_FIREWALL = {
     validateUrl,
     inspectPayload,
     secureFetch,
+    registerApprovedOrigin,
     APPROVED_ORIGINS: Array.from(APPROVED_ORIGINS),
     APPROVED_PATHS
   };

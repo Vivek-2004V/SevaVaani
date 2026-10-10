@@ -5,13 +5,16 @@ import { VoiceButton } from '../components/VoiceButton';
 import { TranscriptCard } from '../components/TranscriptCard';
 import { ConfirmationCard } from '../components/ConfirmationCard';
 import { FallbackPanel } from '../components/FallbackPanel';
+import { FieldGuidanceModal } from '../components/FieldGuidanceModal';
 import { ConnectionBanner } from '../components/ConnectionBanner';
 import { processVoiceTurn, confirmField, submitFallbackText, requestHumanHelp } from '../services/api';
+import { ttsAdapter } from '../services/ttsAdapter';
 import { INDIAN_LANGUAGES } from '../components/LanguageSelector';
 import { SevaVaaniLogo } from '../components/SevaVaaniLogo';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { useOfflineStore } from '../hooks/useOfflineStore';
 import { useOfflineSyncRunner } from '../hooks/useOfflineSyncRunner';
+import { HumanHelpModal } from '../components/HumanHelpModal';
 
 export interface ServiceFormProps {
   sessionId: string;
@@ -32,18 +35,20 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   onCompleteForm,
   onBack
 }) => {
-  const [fields, setFields] = useState<FormField[]>(initialFields);
-  const [currentIdx, setCurrentIdx] = useState(initialIndex);
+  const safeInitialIndex = typeof initialIndex === 'number' && initialIndex >= 0 ? initialIndex : 0;
+  const [fields, setFields] = useState<FormField[]>(initialFields || []);
+  const [currentIdx, setCurrentIdx] = useState<number>(safeInitialIndex);
 
   useEffect(() => {
-    if (initialIndex !== undefined && initialIndex >= 0 && initialIndex < fields.length) {
+    if (typeof initialIndex === 'number' && initialIndex >= 0 && initialIndex < fields.length) {
       setCurrentIdx(initialIndex);
     }
-  }, [initialIndex]);
+  }, [initialIndex, fields.length]);
 
   // Voice Interaction state
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [voiceError, setVoiceError] = useState<string | null>(null);
 
@@ -56,6 +61,8 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   const [showFallback, setShowFallback] = useState(false);
   const [helpTicketId, setHelpTicketId] = useState<string | null>(null);
   const [helpError, setHelpError] = useState<string | null>(null);
+  const [showGuidance, setShowGuidance] = useState(false);
+  const [showHumanHelpModal, setShowHumanHelpModal] = useState(false);
 
   // ── Offline / Network ─────────────────────────────────────────────────────
   const networkStatus = useNetworkStatus();
@@ -79,7 +86,15 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
   const recognitionRef = useRef<any>(null);
 
-  const currentField = fields[currentIdx];
+  const currentField = fields[currentIdx] || fields[0] || {
+    id: 'full_name',
+    label: { hi: 'पूरा नाम', mr: 'पूर्ण नाव', en: 'Full Name' },
+    prompt: { hi: 'कृपया अपना पूरा नाम बताएं।', mr: 'कृपया आपले संपूर्ण नाव सांगा.', en: 'Please tell me your full name.' },
+    confirmPrompt: { hi: 'आपका नाम {val} है?', mr: 'आपले नाव {val} आहे?', en: 'Your name is {val}?' },
+    type: 'text',
+    required: true,
+    confirmed: false
+  };
 
   // Helper suggested answers for quick demo across all languages
   const demoSamples: Record<string, Record<string, string[]>> = {
@@ -217,6 +232,10 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
   // Browser Web Speech API setup
   const startListening = () => {
+    // Prevent mic and audio playback conflict
+    ttsAdapter.stop();
+    setIsSpeaking(false);
+
     // Block voice when offline — STT uses cloud APIs (webkitSpeechRecognition → Google)
     if (networkStatus.isOffline) {
       setVoiceError(
@@ -309,6 +328,38 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     }
     setIsListening(false);
   };
+
+  // Replay question audio at normal (0.92x) or slow (0.70x) speed
+  const handleRepeatAudio = (slow: boolean = false) => {
+    stopListening();
+    const promptText = currentField.prompt[language] || currentField.prompt.hi || currentField.prompt.en;
+    if (!promptText) return;
+
+    ttsAdapter.setRate(slow ? 0.70 : 0.92);
+    setIsSpeaking(true);
+    ttsAdapter.speak(
+      promptText,
+      language,
+      () => setIsSpeaking(true),
+      () => {
+        setIsSpeaking(false);
+        ttsAdapter.setRate(0.92);
+      },
+      () => {
+        setIsSpeaking(false);
+        ttsAdapter.setRate(0.92);
+      }
+    );
+  };
+
+  // Automatically halt speech on step progression or unmount
+  useEffect(() => {
+    ttsAdapter.stop();
+    setIsSpeaking(false);
+    return () => {
+      ttsAdapter.stop();
+    };
+  }, [currentIdx]);
 
   // Send speech utterance to backend NLU / Extractor
   const handleUtterance = async (utteranceText: string) => {
@@ -412,17 +463,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   };
 
   const handleRequestHelp = async () => {
-    setHelpError(null);
-    const res = await requestHumanHelp(
-      sessionId,
-      `Difficulty on field ${currentField.id}: ${currentField.label.en}`
-    );
-    if (res.success && res.ticket_id) {
-      setHelpTicketId(res.ticket_id);
-    } else {
-      setHelpTicketId(null);
-      setHelpError(res.message || 'सहायता अनुरोध सर्वर पर दर्ज नहीं हो सका (सर्वर अनुपलब्ध है)।');
-    }
+    setShowHumanHelpModal(true);
   };
 
   const currentLangObj = INDIAN_LANGUAGES.find(l => l.id === language) || INDIAN_LANGUAGES[0];
@@ -445,7 +486,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
             onClick={onBack}
             className="text-xs font-semibold text-emerald-100 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 backdrop-blur-lg shadow-sm transition-all shrink-0 active:scale-95"
           >
-            ← बाहर निकलें (Exit)
+            {language === 'mr' ? '← बाहेर पडा (Exit)' : language === 'en' ? '← Exit' : '← बाहर निकलें (Exit)'}
           </button>
           <div className="hidden sm:flex items-center gap-2 pl-1">
             <SevaVaaniLogo size={30} showWordmark={false} />
@@ -453,8 +494,20 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
           </div>
         </div>
 
-        {/* Language switch & Live Network Status pill */}
+        {/* Language switch, Help trigger & Live Network Status pill */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* Quick Human Help Access */}
+          <button
+            type="button"
+            id="btn-form-human-help"
+            onClick={() => setShowHumanHelpModal(true)}
+            className="touch-target-44 min-h-[32px] flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-emerald-900/90 to-teal-900/90 hover:from-emerald-800 hover:to-teal-800 border border-emerald-400/50 rounded-full shadow-sm text-xs font-bold text-emerald-100 backdrop-blur-md transition-all active:scale-95"
+            title="इंसानी सहायता / Human Help"
+          >
+            <span>🆘</span>
+            <span>{language === 'mr' ? 'मदत' : language === 'en' ? 'Help' : 'सहायता'}</span>
+          </button>
+
           {/* Live read-only network pill */}
           <span
             className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors backdrop-blur-md ${
@@ -507,18 +560,44 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
         <ProgressBar fields={fields} currentIndex={currentIdx} />
 
         {/* Active Question Card */}
-        <div className="bg-[#121f15]/85 backdrop-blur-2xl rounded-3xl p-5 md:p-6 border border-white/15 shadow-2xl text-center relative overflow-hidden mt-3">
-          <div className="inline-block px-3.5 py-1 bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-bold mb-3 shadow-inner">
-            प्रश्न {currentIdx + 1} / {fields.length}: {currentField.label[language] || currentField.label.hi || currentField.label.en}
+        <div className="bg-[#121f15]/85 backdrop-blur-2xl rounded-3xl p-4 sm:p-5 md:p-6 border border-white/15 shadow-2xl text-center relative overflow-hidden mt-3 lang-devanagari">
+          <div className="inline-block px-3 py-1 bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-bold mb-2.5 shadow-inner">
+            {language === 'mr'
+              ? `प्रश्न ${currentIdx + 1} / ${fields.length}: ${currentField.label.mr || currentField.label.en}`
+              : language === 'en'
+              ? `Question ${currentIdx + 1} of ${fields.length}: ${currentField.label.en || currentField.label.hi}`
+              : `प्रश्न ${currentIdx + 1} / ${fields.length}: ${currentField.label.hi || currentField.label.en}`}
           </div>
 
-          <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white leading-normal">
             {currentField.prompt[language] || currentField.prompt.hi || currentField.prompt.en}
           </h3>
 
           <p className="text-xs text-emerald-200/70 mt-2 font-medium">
-            माइक दबाकर बोलें। आपके उत्तर की तुरंत पुष्टि की जाएगी।
+            {language === 'mr'
+              ? 'माइक दाबून बोला. आपल्या उत्तराची लगेच पुष्टी केली जाईल.'
+              : language === 'en'
+              ? 'Tap microphone and speak. Your answer will be verified instantly.'
+              : 'माइक दबाकर बोलें। आपके उत्तर की तुरंत पुष्टि की जाएगी।'}
           </p>
+
+          {/* Explain This Field Context Guidance Trigger */}
+          <div className="mt-2.5">
+            <button
+              type="button"
+              onClick={() => setShowGuidance(true)}
+              className="px-3.5 py-1.5 rounded-full bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-400/40 text-emerald-200 hover:text-white text-xs font-bold inline-flex items-center gap-1.5 transition-all shadow-sm group"
+            >
+              <span className="text-sm group-hover:scale-110 transition-transform">💡</span>
+              <span>
+                {language === 'mr'
+                  ? 'हा रकाना समजून घ्या (Explain This Field)'
+                  : language === 'en'
+                  ? 'Explain This Field'
+                  : 'इस फ़ील्ड को समझें (Explain This Field)'}
+              </span>
+            </button>
+          </div>
 
           {/* Assistant Voice Accent wave */}
           <div className="flex items-center justify-center gap-1.5 my-3 h-5">
@@ -570,9 +649,13 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
           <VoiceButton
             isListening={isListening}
             isProcessing={isProcessing}
+            isSpeaking={isSpeaking}
             error={voiceError}
             onStartListening={startListening}
             onStopListening={stopListening}
+            onRepeatAudio={() => handleRepeatAudio(false)}
+            onSlowRepeatAudio={() => handleRepeatAudio(true)}
+            onToggleFallbackText={() => setShowFallback(!showFallback)}
             language={language}
           />
         )}
@@ -580,7 +663,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
         {/* Clickable Quick Sample Utterances (Hackathon Demo Helpers) */}
         <div className="mt-4 pt-3 border-t border-white/10 text-center">
           <span className="text-[11px] font-semibold text-emerald-300/80 block mb-1.5 uppercase tracking-wider">
-            त्वरित उदाहरण (Quick Samples):
+            {language === 'mr' ? 'त्वरित उदाहरणे (Quick Samples):' : language === 'en' ? 'Quick Sample Answers:' : 'त्वरित उदाहरण (Quick Samples):'}
           </span>
           <div className="flex flex-wrap justify-center gap-1.5">
             {(demoSamples[currentField.id]?.[language] || demoSamples[currentField.id]?.hi || demoSamples[currentField.id]?.en || []).map((sample, i) => (
@@ -603,6 +686,25 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
       <footer className="text-center text-xs text-slate-400 py-1">
         🔒 बिना सहमति और पुष्टि के कोई भी डेटा जमा नहीं किया जाता है (Zero Unconfirmed Submissions)
       </footer>
+
+      {/* Context-Aware Field Guidance Modal */}
+      <FieldGuidanceModal
+        fieldName={currentField.id}
+        fieldLabel={currentField.label[language] || currentField.label.hi || currentField.label.en}
+        language={language}
+        isOpen={showGuidance}
+        onClose={() => setShowGuidance(false)}
+      />
+
+      {/* Citizen-Facing Human Help Modal */}
+      <HumanHelpModal
+        isOpen={showHumanHelpModal}
+        onClose={() => setShowHumanHelpModal(false)}
+        language={language}
+        sessionId={sessionId}
+        currentFieldName={currentField.id}
+        initialCategory={showFallback ? 'voice_not_understood' : 'other'}
+      />
     </div>
   );
 };

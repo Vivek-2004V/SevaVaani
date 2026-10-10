@@ -1,0 +1,35 @@
+{
+  "status": "DRY_RUN_COMPLETED",
+  "model_name": "ai4bharat/indicconformer-600m",
+  "best_val_wer": 11.1,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 2.4,
+      "val_loss": 2.55,
+      "val_wer": 14.7,
+      "val_cer": 8.1,
+      "step": 17,
+      "timestamp": 1791557175.246121
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.95,
+      "val_loss": 2.15,
+      "val_wer": 12.9,
+      "val_cer": 7.0,
+      "step": 34,
+      "timestamp": 1791557175.246203
+    },
+    {
+      "epoch": 3,
+      "train_loss": 1.5,
+      "val_loss": 1.75,
+      "val_wer": 11.1,
+      "val_cer": 5.9,
+      "step": 51,
+      "timestamp": 1791557175.2462661
+    }
+  ],
+  "checkpoint_path": "./data/fine_tuning/checkpoints/dry_run_test/checkpoint_best.pt"
+}

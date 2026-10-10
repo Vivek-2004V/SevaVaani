@@ -7,8 +7,17 @@ import os
 from typing import List
 
 
+def _find_base_dir() -> str:
+    """Finds canonical workspace root directory by resolving symlinks."""
+    real_file = os.path.realpath(__file__)
+    cur = real_file
+    for _ in range(4):
+        cur = os.path.dirname(cur)
+    return cur
+
+
 def _load_dotenv():
-    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    base_dir = _find_base_dir()
     env_path = os.path.join(base_dir, ".env")
     if os.path.isfile(env_path):
         with open(env_path, "r", encoding="utf-8") as f:
@@ -31,7 +40,7 @@ class Settings:
     APP_ENV: str = os.getenv("APP_ENV", "development")
 
     # Base directory: points to root workspace (/Users/vivek/Desktop/SevaVaani)
-    BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    BASE_DIR: str = _find_base_dir()
     DATA_DIR: str = os.path.join(BASE_DIR, "data")
     SERVICES_DIR: str = os.path.join(DATA_DIR, "services")
     DEFAULT_SERVICE_PATH: str = os.path.join(SERVICES_DIR, "scholarship.json")
@@ -83,6 +92,26 @@ class Settings:
 
     BHASHINI_API_KEY: str = os.getenv("BHASHINI_API_KEY", "")
     BHASHINI_USER_ID: str = os.getenv("BHASHINI_USER_ID", "")
+
+    # Scalability & Connection Pooling (PostgreSQL / MySQL)
+    DB_POOL_SIZE: int = int(os.getenv("DB_POOL_SIZE", "20"))
+    DB_MAX_OVERFLOW: int = int(os.getenv("DB_MAX_OVERFLOW", "40"))
+    DB_POOL_TIMEOUT: int = int(os.getenv("DB_POOL_TIMEOUT", "30"))
+    DB_POOL_RECYCLE: int = int(os.getenv("DB_POOL_RECYCLE", "1800"))
+
+    # Distributed Caching & Task Queues (Redis)
+    REDIS_URL: str = os.getenv("REDIS_URL", "")
+    CACHE_TTL_SECONDS: int = int(os.getenv("CACHE_TTL_SECONDS", "3600"))
+
+    # Human Helpline & Support Configuration
+    HELPLINE_PHONE: str = os.getenv("HELPLINE_PHONE", "")
+    HELPLINE_WHATSAPP: str = os.getenv("HELPLINE_WHATSAPP", "")
+    HELPLINE_HOURS: str = os.getenv("HELPLINE_HOURS", "Mon-Sat 9:00 AM - 6:00 PM IST")
+
+    # Human Support Notification Configuration
+    NOTIFICATION_ENABLED: bool = os.getenv("NOTIFICATION_ENABLED", "false").lower() in ("true", "1")
+    NOTIFICATION_WEBHOOK_URL: str = os.getenv("NOTIFICATION_WEBHOOK_URL", "")
+    NOTIFICATION_CHANNEL: str = os.getenv("NOTIFICATION_CHANNEL", "none_configured")
 
 
 settings = Settings()

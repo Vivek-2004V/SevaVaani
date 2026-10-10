@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { SupportedLanguage } from '../types';
 import { SylvaHero } from '../effects/sylva-living-world/SylvaLivingWorldScene';
 import logoImg from '../assets/seva-vaani-logo.png';
 import { loginUser, registerUser, setAuthToken, AuthUser } from '../services/api';
 import { LegalModal, LegalModalTab } from '../components/LegalModal';
+import { HumanHelpModal } from '../components/HumanHelpModal';
 
 export interface WelcomeProps {
   currentUser?: AuthUser | null;
+  language?: SupportedLanguage;
+  onLanguageChange?: (lang: SupportedLanguage) => void;
   onLoginSuccess: (user: AuthUser, token: string) => void;
   onLogout: () => void;
   onStartVoice: () => void;
@@ -17,6 +21,8 @@ export type WelcomeTab = 'home' | 'how-it-works' | 'services' | 'stories' | 'hel
 
 export const Welcome: React.FC<WelcomeProps> = ({
   currentUser = null,
+  language = 'hi',
+  onLanguageChange,
   onLoginSuccess,
   onLogout,
   onStartVoice,
@@ -26,6 +32,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
   const [activeTab, setActiveTab] = useState<WelcomeTab>('home');
   const [showOverlay, setShowOverlay] = useState(false);
   const [showExtensionModal, setShowExtensionModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   // Authentication Dialog & Session State
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -128,7 +135,19 @@ export const Welcome: React.FC<WelcomeProps> = ({
     return () => window.removeEventListener('message', handleMessage);
   }, [currentUser, onGoToDashboard, onStartVoice]);
 
-  const navTabs: { id: WelcomeTab; label: string }[] = [
+  const navTabs: { id: WelcomeTab; label: string }[] = language === 'en' ? [
+    { id: 'home', label: 'Home' },
+    { id: 'how-it-works', label: 'How It Works' },
+    { id: 'services', label: 'Public Services' },
+    { id: 'stories', label: 'Citizen Stories' },
+    { id: 'help', label: 'Help Center' }
+  ] : language === 'mr' ? [
+    { id: 'home', label: 'मुख्य पृष्ठ' },
+    { id: 'how-it-works', label: 'कसे काम करते?' },
+    { id: 'services', label: 'शासकीय योजना' },
+    { id: 'stories', label: 'नागरिकांचा आवाज' },
+    { id: 'help', label: 'मदत केंद्र' }
+  ] : [
     { id: 'home', label: 'मुख्य पृष्ठ' },
     { id: 'how-it-works', label: 'काम कैसे करता है?' },
     { id: 'services', label: 'सरकारी योजनाएँ' },
@@ -136,7 +155,59 @@ export const Welcome: React.FC<WelcomeProps> = ({
     { id: 'help', label: 'सहायता केंद्र' }
   ];
 
-  const trustCards = [
+  const trustCards = language === 'en' ? [
+    {
+      title: 'Comfort in 11 Mother Tongues',
+      desc: 'Speak naturally in Hindi, Marathi, Bengali, Tamil, Telugu and more — zero English compulsion.',
+      icon: '🗣️'
+    },
+    {
+      title: 'One Simple Question at a Time',
+      desc: 'No confusing forms, no eye strain. Only one straightforward question is asked per step.',
+      icon: '📋'
+    },
+    {
+      title: 'Proceeds Only on Your "Yes"',
+      desc: 'What you say is read back clearly. Nothing is saved until you explicitly verify and confirm.',
+      icon: '🛡️'
+    },
+    {
+      title: 'Real Support When Stuck',
+      desc: 'Facing voice issues? Type your answer or connect directly with local Seva operators.',
+      icon: '🤝'
+    },
+    {
+      title: 'Reliable on 2G/3G Networks',
+      desc: 'Works offline & on weak internet. Your entered application data stays 100% safe.',
+      icon: '⚡'
+    }
+  ] : language === 'mr' ? [
+    {
+      title: '११ मातृभाषांमध्ये संवाद',
+      desc: 'मराठी, हिंदी, बंगाली, तमिळ, तेलगू यासह आपल्या स्वतःच्या भाषेत बोला — कोणतीही सक्ती नाही.',
+      icon: '🗣️'
+    },
+    {
+      title: 'एका वेळी एक सोपा प्रश्न',
+      desc: 'कोणताही गुंतागुंतीचा अर्ज नाही. एका वेळी फक्त एकच साधा आणि स्पष्ट प्रश्न विचारला जातो.',
+      icon: '📋'
+    },
+    {
+      title: 'तुमच्या संमतीनेच पुढे',
+      desc: 'तुम्ही जे बोललात ते पुन्हा वाचून दाखवले जाते. तुम्ही हो म्हणेपर्यंत काहीही नोंदवले जात नाही.',
+      icon: '🛡️'
+    },
+    {
+      title: 'अडचण आल्यास पूर्ण मदत',
+      desc: 'आवाजात अडचण असल्यास टाईप करा किंवा स्थानिक सेवा ऑपरेटरकडून त्वरित मदत मिळवा.',
+      icon: '🤝'
+    },
+    {
+      title: 'कमकुवत २G/३G नेटवर्कवरही सुरक्षित',
+      desc: 'धीम्या इंटरनेटमध्येही तुमची माहिती नष्ट होणार नाही. सर्व नोंद पूर्ण सुरक्षित राहते.',
+      icon: '⚡'
+    }
+  ] : [
     {
       title: '11 मातृभाषाओं में अपनापन',
       desc: 'हिन्दी, मराठी, বাংলা, தமிழ், తెలుగు सहित अपनी बोली में बात करें — कोई अंग्रेजी की मजबूरी नहीं।',
@@ -164,7 +235,29 @@ export const Welcome: React.FC<WelcomeProps> = ({
     }
   ];
 
-  const citizenStories = [
+  const citizenStories = language === 'en' ? [
+    {
+      name: 'Anjali Patil',
+      location: 'Kolhapur, Maharashtra',
+      role: '1st Year B.Sc Student',
+      quote: 'First person in our family to attend college. Cyber cafes asked for ₹300 per form. On Seva Vaani, I completed the entire application simply by speaking — without spending a single rupee!',
+      service: 'Post-Matric Scholarship Scheme'
+    },
+    {
+      name: 'Ramesh Vishwakarma',
+      location: 'Satna, Madhya Pradesh',
+      role: 'Artisan & Parent',
+      quote: 'I cannot read or write English fluently. On Seva Vaani, when the mic was pressed and it asked me "What is the son\'s name?", it felt like an empathetic neighborhood friend helping me fill the form.',
+      service: 'Family Income & Welfare Aid'
+    },
+    {
+      name: 'Sunil Murmu',
+      location: 'Bankura, West Bengal',
+      role: 'Polytechnic Student',
+      quote: 'Village mobile network is slow. Earlier, online forms used to crash mid-way. Here, nothing progresses until I hear it and confirm "Yes, correct". Zero fear of any errors.',
+      service: 'Technical Education Scholarship'
+    }
+  ] : [
     {
       name: 'अंजलि पाटिल',
       location: 'कोल्हापुर, महाराष्ट्र',
@@ -188,7 +281,49 @@ export const Welcome: React.FC<WelcomeProps> = ({
     }
   ];
 
-  const howItWorksSteps = [
+  const howItWorksSteps = language === 'en' ? [
+    {
+      step: '01',
+      title: 'Choose Your Preferred Language',
+      desc: 'Hindi, Marathi, Bengali, Tamil, Telugu, English or your regional language — speak freely in your own voice.'
+    },
+    {
+      step: '02',
+      title: 'Tap the Mic & Speak Naturally',
+      desc: 'Just like speaking with an assistant at a citizen service center. Provide your name, college, year, or phone.'
+    },
+    {
+      step: '03',
+      title: 'Listen and Confirm with Confidence',
+      desc: 'The assistant reads back your answer. Say "Yes, correct" or speak again to correct it instantly.'
+    },
+    {
+      step: '04',
+      title: 'Final Consent & Official Receipt',
+      desc: 'Review your complete form at a glance, give final consent, and get your Application ID immediately.'
+    }
+  ] : language === 'mr' ? [
+    {
+      step: '01',
+      title: 'आपली पसंतीची भाषा निवडा',
+      desc: 'मराठी, हिंदी, बंगाली किंवा इतर कोणतीही भाषा — स्वतःच्या भाषेत सहज बोला.'
+    },
+    {
+      step: '02',
+      title: 'माइक दाबून सहज बोला',
+      desc: 'सेवा केंद्रातील साहाय्यकाशी बोलल्याप्रमाणे नाव, कॉलेज, वर्ग किंवा मोबाइल नंबर सांगा.'
+    },
+    {
+      step: '03',
+      title: 'ऐका आणि तपासून खात्री करा',
+      desc: 'साहाय्यक आपले उत्तर पुन्हा उच्चारेल. बरोबर असल्यास "होय" म्हणा किंवा त्वरित दुरुस्त करा.'
+    },
+    {
+      step: '04',
+      title: 'अंतिम संमती आणि अधिकृत पावती',
+      desc: 'पूर्ण अर्ज एका दृष्टीक्षेपात तपासा, संमती द्या आणि त्वरित अर्ज क्रमांक मिळवा.'
+    }
+  ] : [
     {
       step: '01',
       title: 'अपनी पसंदीदा भाषा चुनें',
@@ -211,34 +346,63 @@ export const Welcome: React.FC<WelcomeProps> = ({
     }
   ];
 
-  const publicServices = [
+  const publicServices = language === 'en' ? [
+    {
+      title: 'Post-Matric Scholarship Scheme',
+      dept: 'Higher Education & Social Justice Dept.',
+      desc: 'Tuition reimbursement and maintenance allowance for 11th, 12th, ITI, Diploma, BE/BTech and Medical students.',
+      status: 'Live (In-App Mode)',
+      highlight: true
+    },
+    {
+      title: 'National Scholarship Portal (NSP)',
+      dept: 'Ministry of Electronics & IT / Central Portals',
+      desc: 'Central scholarship schemes on scholarships.gov.in filled directly through SevaVaani voice extension.',
+      status: 'Extension Live',
+      highlight: true
+    },
+    {
+      title: 'MahaDBT State Welfare Schemes',
+      dept: 'Maharashtra State Government',
+      desc: 'Direct voice assistance and auto-mapping on mahadbt.maharashtra.gov.in with zero unconfirmed commits.',
+      status: 'Extension Live',
+      highlight: true
+    },
+    {
+      title: 'Aaple Sarkar / e-District Public Services',
+      dept: 'Revenue & General Administration Dept.',
+      desc: 'Income, Caste, and Domicile certificates on state portals filled through conversational voice guidance.',
+      status: 'Extension Live',
+      highlight: true
+    }
+  ] : [
     {
       title: 'पोस्ट-मैट्रिक छात्रवृत्ति (Scholarship)',
       dept: 'उच्च शिक्षा व सामाजिक न्याय विभाग',
       desc: '11वीं, 12वीं, आईटीआई, पॉलिटेक्निक, बीए, बीएससी, बीटेक और मेडिकल विद्यार्थियों के लिए शुल्क प्रतिपूर्ति व भत्ता।',
-      status: 'सक्रिय (Live)',
+      status: 'सक्रिय (इन-ऐप मोड)',
       highlight: true
     },
     {
-      title: 'वार्षिक आय प्रमाण पत्र (Income Certificate)',
-      dept: 'राजस्व विभाग (तहसीलदार कार्यालय)',
-      desc: 'सरकारी योजनाओं, शुल्क छूट और छात्रवृत्ति के लिए आवश्यक पारिवारिक आय का आधिकारिक प्रमाण पत्र।',
-      status: 'आगामी सेवा',
-      highlight: false
+      title: 'राष्ट्रीय छात्रवृत्ति पोर्टल (NSP — scholarships.gov.in)',
+      dept: 'इलेक्ट्रॉनिक्स व आईटी मंत्रालय / केंद्र सरकार',
+      desc: 'केंद्र सरकार के आधिकारिक छात्रवृत्ति पोर्टल पर सेवा वाणी एक्सटेंशन के जरिए सीधे बोलकर फॉर्म भरें।',
+      status: 'एक्सटेंशन सक्रिय (Live)',
+      highlight: true
     },
     {
-      title: 'जाति व सामाजिक वर्ग प्रमाण पत्र (Caste Certificate)',
-      dept: 'सामाजिक कल्याण विभाग',
-      desc: 'आरक्षण, छात्रावास और विशेष योजनाओं का लाभ लेने हेतु वैध जाति प्रमाण पत्र।',
-      status: 'आगामी सेवा',
-      highlight: false
+      title: 'महाडीबीटी (MahaDBT — mahadbt.maharashtra.gov.in)',
+      dept: 'महाराष्ट्र राज्य शासन',
+      desc: 'महाराष्ट्र सरकार की आधिकारिक छात्रवृत्ति व कल्याणकारी योजनाओं के फॉर्म पर वॉइस ऑटो-डिटेक्ट।',
+      status: 'एक्सटेंशन सक्रिय (Live)',
+      highlight: true
     },
     {
-      title: 'मूल निवास प्रमाण पत्र (Domicile Certificate)',
-      dept: 'सामान्य प्रशासन विभाग',
-      desc: 'राज्य में स्थायी नागरिकता और राज्य-स्तरीय भर्ती/प्रवेश के लिए जरूरी प्रमाण पत्र।',
-      status: 'आगामी सेवा',
-      highlight: false
+      title: 'आपले सरकार / ई-डिस्ट्रिक्ट (e-District Portals)',
+      dept: 'राजस्व व सामाजिक कल्याण विभाग',
+      desc: 'आय, जाति व मूल निवास प्रमाण पत्र के सरकारी फॉर्म पर एक्सटेंशन द्वारा सुरक्षित फील्ड मैपिंग।',
+      status: 'एक्सटेंशन सक्रिय (Live)',
+      highlight: true
     }
   ];
 
@@ -258,6 +422,48 @@ export const Welcome: React.FC<WelcomeProps> = ({
       <div className="seva-desktop-layout">
         {/* Top-Right Authentication Area (Outside Navbar) */}
         <div className="seva-auth-desktop-wrapper">
+          {/* Language Switcher Pill */}
+          {onLanguageChange && (
+            <div
+              className="seva-lang-pill"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 2,
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.14)',
+                borderRadius: 9999,
+                padding: '2px 4px',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)'
+              }}
+            >
+              {([
+                { id: 'hi', label: 'हिन्दी' },
+                { id: 'mr', label: 'मराठी' },
+                { id: 'en', label: 'English' }
+              ] as const).map((l) => (
+                <button
+                  key={l.id}
+                  id={`btn-lang-desktop-${l.id}`}
+                  type="button"
+                  onClick={() => onLanguageChange(l.id as SupportedLanguage)}
+                  style={{
+                    padding: '3px 8px',
+                    borderRadius: 9999,
+                    border: 'none',
+                    background: language === l.id ? '#10b981' : 'transparent',
+                    color: language === l.id ? '#052e16' : 'rgba(255, 255, 255, 0.85)',
+                    fontWeight: language === l.id ? 700 : 500,
+                    fontSize: 11.5,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           {currentUser ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {onGoToDashboard && (
@@ -268,7 +474,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
                   className="seva-btn-register"
                   style={{ padding: '6px 14px', fontSize: 12, cursor: 'pointer' }}
                 >
-                  डैशबोर्ड (Dashboard) →
+                  {language === 'en' ? 'Dashboard →' : language === 'mr' ? 'डॅशबोर्ड →' : 'डैशबोर्ड (Dashboard) →'}
                 </button>
               )}
               <div className="seva-user-badge" id="auth-user-badge">
@@ -284,9 +490,9 @@ export const Welcome: React.FC<WelcomeProps> = ({
                     background: 'none', border: 'none', color: '#f87171',
                     cursor: 'pointer', fontSize: 11.5, fontWeight: 600, padding: '2px 4px'
                   }}
-                  title="लॉगआउट करें"
+                  title={language === 'en' ? 'Logout' : 'लॉगआउट करें'}
                 >
-                  लॉगआउट
+                  {language === 'en' ? 'Logout' : 'लॉगआउट'}
                 </button>
               </div>
             </div>
@@ -303,9 +509,9 @@ export const Welcome: React.FC<WelcomeProps> = ({
                   setAuthSuccessMsg('');
                   setAuthModalOpen(true);
                 }}
-                title="नागरिक लॉगिन (Login)"
+                title={language === 'en' ? 'Citizen Login' : 'नागरिक लॉगिन (Login)'}
               >
-                लॉगिन
+                {language === 'en' ? 'Login' : 'लॉगिन'}
               </button>
 
               {/* Create Account — Prominent primary emerald button */}
@@ -319,9 +525,9 @@ export const Welcome: React.FC<WelcomeProps> = ({
                   setAuthSuccessMsg('');
                   setAuthModalOpen(true);
                 }}
-                title="नया खाता बनाएं (Create Account)"
+                title={language === 'en' ? 'Create New Account' : 'नया खाता बनाएं (Create Account)'}
               >
-                खाता बनाएं
+                {language === 'en' ? 'Create Account' : 'खाता बनाएं'}
               </button>
             </div>
           )}
@@ -503,8 +709,45 @@ export const Welcome: React.FC<WelcomeProps> = ({
             </span>
           </button>
 
-          {/* Right Area: Auth Actions + Hamburger */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {/* Right Area: Language Switcher + Auth Actions + Hamburger */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            {onLanguageChange && (
+              <div
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 1,
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.14)',
+                  borderRadius: 9999,
+                  padding: '1px 2px'
+                }}
+              >
+                {([
+                  { id: 'hi', label: 'हि' },
+                  { id: 'mr', label: 'म' },
+                  { id: 'en', label: 'EN' }
+                ] as const).map((l) => (
+                  <button
+                    key={l.id}
+                    id={`btn-lang-mobile-${l.id}`}
+                    type="button"
+                    onClick={() => onLanguageChange(l.id as SupportedLanguage)}
+                    style={{
+                      padding: '2px 5px',
+                      borderRadius: 9999,
+                      border: 'none',
+                      background: language === l.id ? '#10b981' : 'transparent',
+                      color: language === l.id ? '#052e16' : 'rgba(255, 255, 255, 0.85)',
+                      fontWeight: language === l.id ? 700 : 500,
+                      fontSize: 10.5,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {currentUser ? (
               <div className="seva-user-badge" style={{ padding: '3px 8px', fontSize: 11 }}>
                 <span>👤</span>
@@ -512,7 +755,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
                   onClick={handleLogout}
                   style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: 11, padding: 0 }}
                 >
-                  लॉगआउट
+                  {language === 'en' ? 'Logout' : 'लॉगआउट'}
                 </button>
               </div>
             ) : (
@@ -527,9 +770,9 @@ export const Welcome: React.FC<WelcomeProps> = ({
                     setAuthSuccessMsg('');
                     setAuthModalOpen(true);
                   }}
-                  style={{ padding: '5px 10px', fontSize: 12 }}
+                  style={{ padding: '4px 8px', fontSize: 11.5 }}
                 >
-                  लॉगिन
+                  {language === 'en' ? 'Login' : 'लॉगिन'}
                 </button>
                 <button
                   id="btn-auth-register-mobile"
@@ -541,9 +784,9 @@ export const Welcome: React.FC<WelcomeProps> = ({
                     setAuthSuccessMsg('');
                     setAuthModalOpen(true);
                   }}
-                  style={{ padding: '5px 12px', fontSize: 12 }}
+                  style={{ padding: '4px 9px', fontSize: 11.5 }}
                 >
-                  खाता बनाएं
+                  {language === 'en' ? 'Sign Up' : 'खाता बनाएं'}
                 </button>
               </>
             )}
@@ -553,14 +796,16 @@ export const Welcome: React.FC<WelcomeProps> = ({
               id="btn-mobile-menu-toggle"
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="touch-target-44 focus-visible:ring-2 focus-visible:ring-emerald-400"
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: 34, height: 34, borderRadius: 9,
+                width: 36, height: 36, borderRadius: 10,
                 background: 'rgba(255, 255, 255, 0.08)',
                 border: '1px solid rgba(255, 255, 255, 0.16)',
-                color: '#ffffff', fontSize: 16, cursor: 'pointer'
+                color: '#ffffff', fontSize: 17, cursor: 'pointer'
               }}
               aria-label="Toggle navigation"
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? '✕' : '☰'}
             </button>
@@ -571,7 +816,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
         {mobileMenuOpen && (
           <div
             style={{
-              position: 'fixed', top: 54, left: 10, right: 10, zIndex: 49,
+              position: 'fixed', top: 56, left: 10, right: 10, zIndex: 49,
               background: 'linear-gradient(180deg, rgba(16, 28, 18, 0.98) 0%, rgba(10, 18, 12, 0.98) 100%)',
               border: '1px solid rgba(52, 211, 153, 0.35)',
               borderRadius: 18,
@@ -583,6 +828,44 @@ export const Welcome: React.FC<WelcomeProps> = ({
               boxSizing: 'border-box'
             }}
           >
+            {/* Language Bar inside drawer */}
+            {onLanguageChange && (
+              <div style={{ padding: '4px 2px 8px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+                <span style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  {language === 'en' ? 'Select Language' : 'भाषा निवडा / भाषा चुनें'}
+                </span>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {[
+                    { id: 'hi', label: 'हिन्दी' },
+                    { id: 'mr', label: 'मराठी' },
+                    { id: 'en', label: 'English' }
+                  ].map((l) => (
+                    <button
+                      key={l.id}
+                      type="button"
+                      onClick={() => onLanguageChange(l.id as SupportedLanguage)}
+                      style={{
+                        flex: 1,
+                        padding: '6px 8px',
+                        borderRadius: 10,
+                        border: '1px solid',
+                        borderColor: language === l.id ? '#34d399' : 'rgba(255,255,255,0.12)',
+                        background: language === l.id ? 'rgba(52,211,153,0.2)' : 'rgba(255,255,255,0.05)',
+                        color: language === l.id ? '#6ee7b7' : '#e2e8f0',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {l.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ height: 1, background: 'rgba(255, 255, 255, 0.1)', margin: '2px 0' }} />
+
             {navTabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -595,14 +878,16 @@ export const Welcome: React.FC<WelcomeProps> = ({
                     setShowOverlay(tab.id !== 'home');
                     setMobileMenuOpen(false);
                   }}
+                  className="touch-target-44"
                   style={{
-                    padding: '10px 14px',
+                    padding: '12px 14px',
+                    minHeight: 44,
                     textAlign: 'left',
                     borderRadius: 12,
                     background: isActive ? 'rgba(52, 211, 153, 0.18)' : 'rgba(255, 255, 255, 0.04)',
                     border: isActive ? '1px solid rgba(52, 211, 153, 0.35)' : '1px solid transparent',
                     color: isActive ? '#6ee7b7' : '#e2e8f0',
-                    fontSize: 13.5,
+                    fontSize: 14,
                     fontWeight: isActive ? 600 : 400,
                     cursor: 'pointer'
                   }}
@@ -679,7 +964,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
                   backdropFilter: 'blur(8px)'
                 }}
               >
-                ✕ बंद करें / मुख्य पृष्ठ (Close)
+                {language === 'en' ? '✕ Close / Back to Home' : '✕ बंद करें / मुख्य पृष्ठ (Close)'}
               </button>
             </div>
 
@@ -694,13 +979,15 @@ export const Welcome: React.FC<WelcomeProps> = ({
                     border: '1px solid rgba(96,165,250,0.32)',
                     textTransform: 'uppercase', letterSpacing: '0.06em'
                   }}>
-                    सरल 4 चरणों की यात्रा
+                    {language === 'en' ? 'Simple 4-Step Journey' : 'सरल 4 चरणों की यात्रा'}
                   </span>
                   <h2 style={{ fontSize: 28, fontWeight: 800, marginTop: 16, color: '#fff' }}>
-                    जैसे किसी अपने मददगार से बात कर रहे हों
+                    {language === 'en' ? 'Like Talking to a Friendly Neighbor' : 'जैसे किसी अपने मददगार से बात कर रहे हों'}
                   </h2>
                   <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', marginTop: 8 }}>
-                    सेवा वाणी में कोई रोबोटिक उलझन नहीं है। यह प्रक्रिया पूरी तरह पारदर्शी और आपके नियंत्रण में है।
+                    {language === 'en'
+                      ? 'No robotic confusion. The entire process is transparent, secure, and under your control.'
+                      : 'सेवा वाणी में कोई रोबोटिक उलझन नहीं है। यह प्रक्रिया पूरी तरह पारदर्शी और आपके नियंत्रण में है।'}
                   </p>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
@@ -727,7 +1014,9 @@ export const Welcome: React.FC<WelcomeProps> = ({
                   <button onClick={handleHeroStart} style={{
                     padding: '12px 30px', borderRadius: 999, background: '#fff', color: '#000',
                     border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer'
-                  }}>अभी बोलकर आज़माएँ →</button>
+                  }}>
+                    {language === 'en' ? 'Try Voice Now →' : 'अभी बोलकर आज़माएँ →'}
+                  </button>
                 </div>
               </div>
             )}
@@ -743,10 +1032,10 @@ export const Welcome: React.FC<WelcomeProps> = ({
                     border: '1px solid rgba(96,165,250,0.32)',
                     textTransform: 'uppercase', letterSpacing: '0.06em'
                   }}>
-                    नागरिक कल्याण सेवाएं
+                    {language === 'en' ? 'Citizen Welfare Services' : 'नागरिक कल्याण सेवाएं'}
                   </span>
                   <h2 style={{ fontSize: 28, fontWeight: 800, marginTop: 16, color: '#fff' }}>
-                    हर छात्र और परिवार तक सरकारी मदद
+                    {language === 'en' ? 'Government Assistance for Every Citizen' : 'हर छात्र और परिवार तक सरकारी मदद'}
                   </h2>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
@@ -770,7 +1059,9 @@ export const Welcome: React.FC<WelcomeProps> = ({
                         <button onClick={handleHeroStart} style={{
                           marginTop: 8, padding: '8px 18px', borderRadius: 999, background: '#fff', color: '#000',
                           border: 'none', fontSize: 12, fontWeight: 700, cursor: 'pointer', alignSelf: 'flex-start'
-                        }}>अभी आवेदन करें →</button>
+                        }}>
+                          {language === 'en' ? 'Apply Now →' : 'अभी आवेदन करें →'}
+                        </button>
                       )}
                     </div>
                   ))}
@@ -789,10 +1080,10 @@ export const Welcome: React.FC<WelcomeProps> = ({
                     border: '1px solid rgba(96,165,250,0.32)',
                     textTransform: 'uppercase', letterSpacing: '0.06em'
                   }}>
-                    सच्चे अनुभव
+                    {language === 'en' ? 'Real Citizen Stories' : 'सच्चे अनुभव'}
                   </span>
                   <h2 style={{ fontSize: 28, fontWeight: 800, marginTop: 16, color: '#fff' }}>
-                    "अब मुझे किसी के आगे हाथ जोड़ने की जरूरत नहीं"
+                    {language === 'en' ? '"No More Depending on Middlemen"' : '"अब मुझे किसी के आगे हाथ जोड़ने की जरूरत नहीं"'}
                   </h2>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
@@ -827,18 +1118,22 @@ export const Welcome: React.FC<WelcomeProps> = ({
                     border: '1px solid rgba(251,191,36,0.3)',
                     textTransform: 'uppercase', letterSpacing: '0.06em'
                   }}>
-                    हमेशा आपका साथ
+                    {language === 'en' ? 'Always With You' : 'हमेशा आपका साथ'}
                   </span>
                   <h2 style={{ fontSize: 28, fontWeight: 800, marginTop: 16, color: '#fff' }}>
-                    तकनीक जहाँ रुकेगी, इंसान वहाँ हाथ थामेगा
+                    {language === 'en' ? 'When Tech Falters, Human Help Steps In' : 'तकनीक जहाँ रुकेगी, इंसान वहाँ हाथ थामेगा'}
                   </h2>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
-                  {[
+                  {(language === 'en' ? [
+                    { icon: '✍️', title: 'Text Fallback Mode', desc: 'If there is background noise or microphone issues, simply type your answer.' },
+                    { icon: '🎫', title: 'Instant Support Tickets', desc: 'One click submits a help request. All your entered data remains safely preserved.' },
+                    { icon: '🧑‍💼', title: 'CSC / VLE Operator Connect', desc: 'Direct alerts sent to local village service operators for human assistance.' }
+                  ] : [
                     { icon: '✍️', title: 'लिखकर बताने की सुविधा', desc: 'यदि माइक में कोई शोर हो या आवाज़ पकड़ में न आए, तो आप कीबोर्ड से भी उत्तर टाइप कर सकते हैं।' },
                     { icon: '🎫', title: 'तत्काल सहायता टिकट', desc: 'एक क्लिक में सहायता अनुरोध दर्ज होता है। आपका भरा हुआ डेटा पूरी तरह सुरक्षित रहता है।' },
                     { icon: '🧑‍💼', title: 'सीएससी / वीएलई ऑपरेटर', desc: 'गाँव के डिजिटल सेवा केंद्र के ऑपरेटर को आपकी समस्या की सूचना तुरंत भेजी जाती है।' }
-                  ].map((item, i) => (
+                  ]).map((item, i) => (
                     <div key={i} style={{
                       padding: 20, borderRadius: 20,
                       background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.13)'
@@ -849,11 +1144,21 @@ export const Welcome: React.FC<WelcomeProps> = ({
                     </div>
                   ))}
                 </div>
-                <div style={{ textAlign: 'center', marginTop: 32 }}>
+                <div style={{ textAlign: 'center', marginTop: 32, display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+                  <button onClick={() => setShowHelpModal(true)} style={{
+                    padding: '12px 24px', borderRadius: 999,
+                    background: 'linear-gradient(135deg, #059669, #0d9488)', color: '#fff',
+                    border: '1px solid rgba(52,211,153,0.4)', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(5,150,105,0.3)'
+                  }}>
+                    🆘 {language === 'mr' ? 'इन्सानी मदत केंद्र उघडा' : language === 'en' ? 'Open Human Helpdesk' : 'इंसानी सहायता केंद्र खोलें'}
+                  </button>
                   <button onClick={handleHeroStart} style={{
-                    padding: '12px 30px', borderRadius: 999, background: '#fff', color: '#000',
-                    border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer'
-                  }}>विश्वास के साथ आवेदन शुरू करें →</button>
+                    padding: '12px 24px', borderRadius: 999, background: '#fff', color: '#000',
+                    border: 'none', fontSize: 13, fontWeight: 700, cursor: 'pointer'
+                  }}>
+                    {language === 'en' ? 'Start Application with Confidence →' : 'विश्वास के साथ आवेदन शुरू करें →'}
+                  </button>
                 </div>
               </div>
             )}
@@ -1347,6 +1652,13 @@ export const Welcome: React.FC<WelcomeProps> = ({
         activeTab={legalTab}
         onClose={() => setLegalModalOpen(false)}
         onTabChange={(tab) => setLegalTab(tab)}
+      />
+
+      {/* Human Help Modal Dialog */}
+      <HumanHelpModal
+        isOpen={showHelpModal}
+        onClose={() => setShowHelpModal(false)}
+        language={language || 'hi'}
       />
     </div>
 

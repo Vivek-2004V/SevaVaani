@@ -1,0 +1,73 @@
+{
+  "decision": "APPROVED",
+  "status": "PASSED_REGRESSION_GATE",
+  "baseline_model": "ai4bharat/indicconformer-600m",
+  "adapted_checkpoint": "./data/fine_tuning/checkpoints/dry_run_test/checkpoint_best.pt",
+  "evaluation_timestamp": 1791557238.1777,
+  "overall_baseline_wer": 0.0,
+  "overall_adapted_wer": 0.0,
+  "overall_wer_delta": 0.0,
+  "native_speaker_results": {
+    "hindi_native": {
+      "group_name": "Hindi Native Speakers",
+      "sample_count": 2,
+      "baseline_wer": 0.0,
+      "adapted_wer": 0.0,
+      "wer_delta": 0.0,
+      "baseline_cer": 0.0,
+      "adapted_cer": 0.0,
+      "cer_delta": 0.0,
+      "verdict": "NEUTRAL"
+    },
+    "marathi_native": {
+      "group_name": "Marathi Native Speakers",
+      "sample_count": 0,
+      "baseline_wer": 0.0,
+      "adapted_wer": 0.0,
+      "wer_delta": 0.0,
+      "baseline_cer": 0.0,
+      "adapted_cer": 0.0,
+      "cer_delta": 0.0,
+      "verdict": "NO_SAMPLES"
+    },
+    "english_native": {
+      "group_name": "English Native Speakers",
+      "sample_count": 1,
+      "baseline_wer": 0.0,
+      "adapted_wer": 0.0,
+      "wer_delta": 0.0,
+      "baseline_cer": 0.0,
+      "adapted_cer": 0.0,
+      "cer_delta": 0.0,
+      "verdict": "NEUTRAL"
+    }
+  },
+  "code_switching_results": {
+    "hinglish_code_switching": {
+      "group_name": "Hinglish Code-Switching",
+      "sample_count": 0,
+      "baseline_wer": 0.0,
+      "adapted_wer": 0.0,
+      "wer_delta": 0.0,
+      "baseline_cer": 0.0,
+      "adapted_cer": 0.0,
+      "cer_delta": 0.0,
+      "verdict": "NO_SAMPLES"
+    },
+    "marathi_english_code_switching": {
+      "group_name": "Marathi-English Code-Switching",
+      "sample_count": 0,
+      "baseline_wer": 0.0,
+      "adapted_wer": 0.0,
+      "wer_delta": 0.0,
+      "baseline_cer": 0.0,
+      "adapted_cer": 0.0,
+      "cer_delta": 0.0,
+      "verdict": "NO_SAMPLES"
+    }
+  },
+  "regression_violations": [],
+  "rollback_triggered": false,
+  "quarantine_path": null,
+  "audit_notes": "VALIDATION SUCCESS: Checkpoint './data/fine_tuning/checkpoints/dry_run_test/checkpoint_best.pt' met all safety constraints. Overall WER delta: 0.0%. Promoted to candidate status."
+}

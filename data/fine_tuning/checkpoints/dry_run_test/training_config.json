@@ -1,0 +1,20 @@
+{
+  "model_name": "ai4bharat/indicconformer-600m",
+  "architecture": "conformer",
+  "train_manifest": "./data/fine_tuning/manifests/manifest_train.jsonl",
+  "val_manifest": "./data/fine_tuning/manifests/manifest_val.jsonl",
+  "output_dir": "./data/fine_tuning/checkpoints/dry_run_test",
+  "learning_rate": 5e-05,
+  "batch_size": 8,
+  "gradient_accumulation_steps": 4,
+  "mixed_precision": "bf16",
+  "max_epochs": 10,
+  "warmup_steps": 500,
+  "early_stopping_patience": 3,
+  "lora_rank": 16,
+  "lora_alpha": 32,
+  "dry_run": false,
+  "timestamp": 1791557185.5957608,
+  "total_train_samples": 17,
+  "total_val_samples": 4
+}

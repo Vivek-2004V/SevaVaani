@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: seva_vaani_ingress
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - seva_network
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: always
+    environment:
+      - APP_ENV=production
+      - DATABASE_URL=postgresql://seva_vaani:seva_prod_secret_2026@postgres:5432/seva_vaani_db
+      - REDIS_URL=redis://redis:6379/0
+      - DB_POOL_SIZE=25
+      - DB_MAX_OVERFLOW=50
+      - DB_POOL_TIMEOUT=30
+      - DB_POOL_RECYCLE=1800
+      - TRUST_PROXY_HEADERS=true
+      - RATE_LIMIT_ENABLED=true
+      - FRONTEND_ORIGIN=http://localhost
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health/live')\" || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - seva_network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: seva_vaani_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=seva_vaani
+      - POSTGRES_PASSWORD=seva_prod_secret_2026
+      - POSTGRES_DB=seva_vaani_db
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=768MB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seva_vaani -d seva_vaani_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - seva_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: seva_vaani_redis
+    restart: always
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_prod_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - seva_network
+
+volumes:
+  postgres_prod_data:
+  redis_prod_data:
+
+networks:
+  seva_network:
+    driver: bridge

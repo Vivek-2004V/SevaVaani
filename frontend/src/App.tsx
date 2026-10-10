@@ -22,6 +22,8 @@ import NotFound from './pages/NotFound';
 import ExtensionModal from './components/ExtensionModal';
 import { SessionRecoveryBanner } from './components/SessionRecoveryBanner';
 import { useOfflineStore, PersistedSession } from './hooks/useOfflineStore';
+import OfflineIndicator from './components/OfflineIndicator';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 export type ScreenState =
   | 'welcome'
@@ -262,6 +264,7 @@ export const App: React.FC = () => {
       ══════════════════════════════════════════════════════════════════ */}
       <SylvaHero
         variant="living-green"
+        language={language}
         headingFont="lexend"
         bodyFont="lexend"
         headingWeight="300"
@@ -284,6 +287,8 @@ export const App: React.FC = () => {
         {screen === 'welcome' && (
           <Welcome
             currentUser={currentUser}
+            language={language}
+            onLanguageChange={(newLang) => setLanguage(newLang)}
             onLoginSuccess={handleLoginSuccess}
             onLogout={handleLogout}
             onStartVoice={handleStartVoiceFromLanding}
@@ -327,7 +332,7 @@ export const App: React.FC = () => {
             sessionId={sessionId || `sv-${Date.now()}`}
             fields={fields}
             language={language}
-            initialIndex={editIndex}
+            initialIndex={editIndex ?? 0}
             onLanguageChange={(newLang) => setLanguage(newLang)}
             onCompleteForm={handleCompleteForm}
             onBack={() => setScreen('service')}
@@ -390,6 +395,10 @@ export const App: React.FC = () => {
           />
         )}
       </div>
+
+      {/* Global PWA components — rendered outside the main scroll container */}
+      <OfflineIndicator />
+      <PWAInstallPrompt />
     </div>
   );
 };

@@ -1,0 +1,3 @@
+{"audio_filepath": "./data/speech_corpus/audio/TEST_HI_01.wav", "duration": 3.0, "text": "मेरा नाम रमेश कुमार है और मेरा गृह जिला भोपाल है", "language": "hi", "speaker_id_pseudonymous": "spk_eval_hi_01", "recording_environment": "quiet_room", "is_code_switched": false}
+{"audio_filepath": "./data/speech_corpus/audio/TEST_HI_04.wav", "duration": 3.0, "text": "मेरे को आय प्रमाण पत्र चाहिए", "language": "hi", "speaker_id_pseudonymous": "spk_eval_hi_04", "recording_environment": "quiet_room", "is_code_switched": false}
+{"audio_filepath": "./data/speech_corpus/audio/TEST_EN_05.wav", "duration": 3.0, "text": "my mobile number is 9876543210", "language": "en", "speaker_id_pseudonymous": "spk_eval_en_05", "recording_environment": "quiet_room", "is_code_switched": false}

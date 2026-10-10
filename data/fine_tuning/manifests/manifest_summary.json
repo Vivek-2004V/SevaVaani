@@ -1,0 +1,36 @@
+{
+  "status": "MANIFESTS_GENERATED",
+  "output_directory": "./data/fine_tuning/manifests",
+  "manifest_files": {
+    "train": "./data/fine_tuning/manifests/manifest_train.jsonl",
+    "validation": "./data/fine_tuning/manifests/manifest_validation.jsonl",
+    "val": "./data/fine_tuning/manifests/manifest_val.jsonl",
+    "test": "./data/fine_tuning/manifests/manifest_test.jsonl"
+  },
+  "total_admitted": 24,
+  "rejected_empty_transcripts": 0,
+  "splits": {
+    "train": {
+      "count": 17,
+      "duration_seconds": 51.0,
+      "duration_hours": 0.0142,
+      "unique_speakers": 17,
+      "code_switched_count": 6
+    },
+    "validation": {
+      "count": 4,
+      "duration_seconds": 12.0,
+      "duration_hours": 0.0033,
+      "unique_speakers": 4,
+      "code_switched_count": 0
+    },
+    "test": {
+      "count": 3,
+      "duration_seconds": 9.0,
+      "duration_hours": 0.0025,
+      "unique_speakers": 3,
+      "code_switched_count": 0
+    }
+  },
+  "speaker_leakage_detected": false
+}

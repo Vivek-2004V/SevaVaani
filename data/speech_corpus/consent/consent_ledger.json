@@ -1,0 +1,44 @@
+{
+  "spk_d802c45fdb407446": {
+    "consent_id": "018b42be-99e2-4c43-9585-7ae58216a2d7",
+    "speaker_id_pseudonymous": "spk_d802c45fdb407446",
+    "consent_timestamp": 1791590023.315907,
+    "consent_status": "withdrawn",
+    "permitted_purposes": [
+      "speech_recognition_training",
+      "accent_evaluation",
+      "public_service_accessibility"
+    ],
+    "terms_version": "v1.0",
+    "expiry_timestamp": 1823126023.315907,
+    "withdrawal_timestamp": 1791590023.328083
+  },
+  "spk_88aa034ff9ed058a": {
+    "consent_id": "57cd2c5b-f35d-4f88-89e2-fad574606d71",
+    "speaker_id_pseudonymous": "spk_88aa034ff9ed058a",
+    "consent_timestamp": 1791571013.729865,
+    "consent_status": "active",
+    "permitted_purposes": [
+      "speech_recognition_training",
+      "accent_evaluation",
+      "public_service_accessibility"
+    ],
+    "terms_version": "v1.0",
+    "expiry_timestamp": 1823107013.729865,
+    "withdrawal_timestamp": null
+  },
+  "spk_c20910306e58f336": {
+    "consent_id": "7559a84f-c8d6-4f72-af2b-4c21bde8d4a3",
+    "speaker_id_pseudonymous": "spk_c20910306e58f336",
+    "consent_timestamp": 1791571013.7351308,
+    "consent_status": "withdrawn",
+    "permitted_purposes": [
+      "speech_recognition_training",
+      "accent_evaluation",
+      "public_service_accessibility"
+    ],
+    "terms_version": "v1.0",
+    "expiry_timestamp": 1823107013.7351308,
+    "withdrawal_timestamp": 1791571013.7419672
+  }
+}

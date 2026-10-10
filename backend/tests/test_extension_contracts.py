@@ -3,7 +3,10 @@ import os
 import re
 import pytest
 
-EXTENSION_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "extension")
+_curr = os.path.abspath(os.path.realpath(__file__))
+while _curr and _curr != "/" and not os.path.exists(os.path.join(_curr, "extension")):
+    _curr = os.path.dirname(_curr)
+EXTENSION_DIR = os.path.join(_curr, "extension")
 MANIFEST_PATH = os.path.join(EXTENSION_DIR, "manifest.json")
 DOM_MAPPER_PATH = os.path.join(EXTENSION_DIR, "domMapper.js")
 

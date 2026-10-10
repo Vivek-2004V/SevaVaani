@@ -16,6 +16,15 @@ from app.api.sessions import router as sessions_router
 from app.api.submission import router as submission_router
 from app.api.metrics import router as metrics_router
 from app.api.languages import router as languages_router
+from app.api.document_verification import router as doc_verify_router
+from app.api.speech import router as speech_router
+from app.api.dataset import router as dataset_router
+from app.api.benchmark import router as benchmark_router
+from app.api.fine_tuning import router as fine_tuning_router
+from app.api.feedback import router as feedback_router
+from app.api.guidance import router as guidance_router
+from app.api.audio_chunks import router as audio_chunks_router
+from app.api.help import router as help_router
 
 import logging
 from app.services.privacy_firewall import SensitiveDataLoggingFilter
@@ -73,6 +82,15 @@ app.include_router(sessions_router)
 app.include_router(submission_router)
 app.include_router(metrics_router)
 app.include_router(languages_router)
+app.include_router(doc_verify_router)
+app.include_router(speech_router)
+app.include_router(dataset_router)
+app.include_router(benchmark_router)
+app.include_router(fine_tuning_router)
+app.include_router(feedback_router)
+app.include_router(guidance_router)
+app.include_router(audio_chunks_router)
+app.include_router(help_router)
 
 # Mount frontend directory for production or unified serving
 FRONTEND_DIST = os.path.join(settings.BASE_DIR, "frontend", "dist")

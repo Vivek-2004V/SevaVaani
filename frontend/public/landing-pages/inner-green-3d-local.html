@@ -4343,6 +4343,68 @@ window.__seek   = v => { clock = v; drawn = null; };
         dispatchAction('how_it_works');
       });
     });
+
+    function applyLanguage(lang) {
+      var headline = document.querySelector('.headline');
+      var lede = document.querySelector('.lede');
+      var btnExplore = document.querySelector('.liquid-button--explore .lbl');
+      var statA = document.querySelector('.stat--a div');
+      var statB = document.querySelector('.stat--b div');
+      var card1Title = document.querySelector('.card--stove h2');
+      var card1Label = document.querySelector('.card--stove .label');
+      var card2Title = document.querySelector('.card--about h2');
+      var card2Label = document.querySelector('.card--about .label');
+
+      if (lang === 'en') {
+        if (headline) {
+          headline.innerHTML = '<span><i style="--d:260ms">Your Voice,</i></span><span><i style="--d:360ms">Your Right.</i></span>';
+        }
+        if (lede) {
+          lede.textContent = 'Digital public services and scholarships in your own language. Zero cyber café fees, zero silent submissions — just speak naturally.';
+        }
+        if (btnExplore) btnExplore.textContent = 'Start by Voice';
+        if (statA) statA.innerHTML = '<dt>States Covered</dt><dd>22+ States</dd>';
+        if (statB) statB.innerHTML = '<dt>Indian Languages</dt><dd>11 Languages</dd>';
+        if (card1Title) card1Title.textContent = 'Scholarship Portal';
+        if (card1Label) card1Label.textContent = 'SERVICE 01';
+        if (card2Title) card2Title.textContent = 'Humzie';
+        if (card2Label) card2Label.textContent = 'PRIVACY FIRST';
+      } else if (lang === 'mr') {
+        if (headline) {
+          headline.innerHTML = '<span><i style="--d:260ms">आवाज तुमचा,</i></span><span><i style="--d:360ms">हक्क तुमचा.</i></span>';
+        }
+        if (lede) {
+          lede.textContent = 'शासकीय योजना आणि शिष्यवृत्तीसाठी सायबर कॅफेमध्ये जाण्याची गरज नाही. आपल्या मातृभाषेत बोला आणि अर्ज पूर्ण करा.';
+        }
+        if (btnExplore) btnExplore.textContent = 'बोलून सुरू करा';
+        if (statA) statA.innerHTML = '<dt>राज्यांमध्ये सेवा</dt><dd>22+ राज्ये</dd>';
+        if (statB) statB.innerHTML = '<dt>भारतीय भाषा</dt><dd>11 भाषा</dd>';
+        if (card1Title) card1Title.textContent = 'शिष्यवृत्ती अर्ज';
+        if (card1Label) card1Label.textContent = 'सेवा 01';
+        if (card2Title) card2Title.textContent = 'Humzie';
+        if (card2Label) card2Label.textContent = 'गोपनीयता प्रथम';
+      } else {
+        if (headline) {
+          headline.innerHTML = '<span><i style="--d:260ms">आवाज़ आपकी,</i></span><span><i style="--d:360ms">अधिकार आपका।</i></span>';
+        }
+        if (lede) {
+          lede.textContent = 'अब हर सरकारी दस्तावेज़, प्रमाण पत्र और योजना के लिए साइबर कैफ़े नहीं — बस अपनी मातृभाषा में बोलें और आवेदन पूरा करें।';
+        }
+        if (btnExplore) btnExplore.textContent = 'बोलकर शुरू करें';
+        if (statA) statA.innerHTML = '<dt>राज्यों में सेवा</dt><dd>22+ राज्य</dd>';
+        if (statB) statB.innerHTML = '<dt>भारतीय भाषाएं</dt><dd>11 भाषाएं</dd>';
+        if (card1Title) card1Title.textContent = 'छात्रवृत्ति आवेदन';
+        if (card1Label) card1Label.textContent = 'सेवा 01';
+        if (card2Title) card2Title.textContent = 'सुरक्षित डिजिटल भारत';
+        if (card2Label) card2Label.textContent = 'मिशन 2026';
+      }
+    }
+
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'SET_LANGUAGE') {
+        applyLanguage(e.data.language);
+      }
+    });
   });
 })();
 </script>

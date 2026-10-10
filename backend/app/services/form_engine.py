@@ -3,7 +3,7 @@ import json
 import uuid
 import time
 from datetime import datetime
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
 
 from app.models.database import get_connection
 from app.services.validator import FieldValidator
@@ -155,12 +155,20 @@ class FormEngine:
             f_name = row["field_name"]
             attempts_map[f_name] = row["attempts"]
             if row["confirmed_value"] is not None:
-                confirmed_fields[f_name] = row["confirmed_value"]
+                from app.core.encryption import FieldEncryptionService
+                confirmed_fields[f_name] = FieldEncryptionService.decrypt_value(row["confirmed_value"])
             if f_name == current_field_name and row["candidate_value"] is not None:
+                from app.services.name_pronunciation import NamePronunciationService
+                name_info = None
+                if f_name in ["full_name", "applicant_name", "father_name", "guardian_name"]:
+                    name_info = NamePronunciationService.format_name_confirmation_dialogue(
+                        str(row["candidate_value"]), language=lang
+                    )
                 candidate_field = {
                     "field_name": f_name,
                     "candidate_value": row["candidate_value"],
-                    "confidence": row["confidence"]
+                    "confidence": row["confidence"],
+                    "name_pronunciation": name_info
                 }
 
         total_fields = len(self.fields)
@@ -191,6 +199,108 @@ class FormEngine:
             }
         }
 
+    def format_field_confirmation(
+        self,
+        field_name: str,
+        field_def_or_val: Any,
+        candidate_value: Any = None,
+        language: str = "hi"
+    ) -> Tuple[str, str, str]:
+        """
+        Formats user-facing display value, assistant message prompt, and spoken audio text
+        with localized field-aware phrasing according to Prompt 7 requirements.
+        Flexible signature handles:
+        - format_field_confirmation(field_name, field_def, candidate_val, language)
+        - format_field_confirmation(field_name, candidate_val, language)
+        Returns: (display_val, message, audio_text)
+        """
+        from app.services.contextual_vocabulary import ContextualVocabularyService
+
+        if candidate_value is None or (isinstance(candidate_value, str) and candidate_value in ["hi", "mr", "en"] and not isinstance(field_def_or_val, dict)):
+            val = field_def_or_val
+            lang = candidate_value if (isinstance(candidate_value, str) and candidate_value in ["hi", "mr", "en"]) else language
+            field_def = None
+        else:
+            val = candidate_value
+            lang = language
+            field_def = field_def_or_val
+
+        raw_str = str(val) if val is not None else ""
+        display_val = raw_str
+        audio_text = None
+
+        if field_name in ["annual_income", "income"]:
+            formatted_cur = ContextualVocabularyService.format_indian_currency(val)
+            display_val = formatted_cur
+            # Assistant: “Aapki annual income ₹2,00,000 hai. Kya ye sahi hai?”
+            if lang == "hi":
+                message = f"Aapki annual income {formatted_cur} hai. Kya ye sahi hai?"
+                audio_text = f"आपकी वार्षिक आय {formatted_cur} है। क्या यह सही है?"
+            elif lang == "mr":
+                message = f"तुमचे वार्षिक उत्पन्न {formatted_cur} आहे. हे बरोबर आहे का?"
+                audio_text = message
+            else:
+                message = f"Your annual income is {formatted_cur}. Is this correct?"
+                audio_text = message
+
+        elif field_name in ["mobile", "phone_number"]:
+            formatted_phone = ContextualVocabularyService.format_phone_display(val)
+            spaced_digits = ContextualVocabularyService.format_spaced_digits(val)
+            display_val = formatted_phone
+            if lang == "hi":
+                message = f"आपका मोबाइल नंबर {formatted_phone} है। क्या यह सही है?"
+                audio_text = f"आपका मोबाइल नंबर {spaced_digits} है। क्या यह सही है?"
+            elif lang == "mr":
+                message = f"आपला मोबाईल नंबर {formatted_phone} आहे. हे बरोबर आहे का?"
+                audio_text = f"आपला मोबाईल नंबर {spaced_digits} आहे. हे बरोबर आहे का?"
+            else:
+                message = f"Your mobile number is {formatted_phone}. Is this correct?"
+                audio_text = f"Your mobile number is {spaced_digits}. Is this correct?"
+
+        elif field_name in ["father_name", "guardian_name"]:
+            if lang == "hi":
+                message = f"आपके पिता का नाम {display_val} है। क्या यह सही है?"
+            elif lang == "mr":
+                message = f"आपल्या वडिलांचे नाव {display_val} आहे. हे बरोबर आहे का?"
+            else:
+                message = f"Your father's name is {display_val}. Is this correct?"
+            audio_text = message
+
+        elif field_name in ["village", "village_name"]:
+            if lang == "hi":
+                message = f"आपका गांव {display_val} है। क्या यह सही है?"
+            elif lang == "mr":
+                message = f"आपले गाव {display_val} आहे. हे बरोबर आहे का?"
+            else:
+                message = f"Your village is {display_val}. Is this correct?"
+            audio_text = message
+
+        elif field_name in ["district", "district_name"]:
+            if lang == "hi":
+                message = f"आपका जिला {display_val} है। क्या यह सही है?"
+            elif lang == "mr":
+                message = f"आपला जिल्हा {display_val} आहे. हे बरोबर आहे का?"
+            else:
+                message = f"Your district is {display_val}. Is this correct?"
+            audio_text = message
+
+        elif field_name in ["full_name", "applicant_name"]:
+            from app.services.name_pronunciation import NamePronunciationService
+            name_dialogue = NamePronunciationService.format_name_confirmation_dialogue(display_val, language=lang)
+            message = name_dialogue["display_prompt"]
+            if name_dialogue["is_ambiguous"] and name_dialogue["ambiguity_warning"]:
+                message += f" {name_dialogue['ambiguity_warning']}"
+            audio_text = name_dialogue["audio_text"]
+
+        else:
+            template = self.get_localized_field_text(field_def, "confirm_template", lang) if field_def else None
+            if not template:
+                template = "Is this correct: {value}?" if lang == "en" else "क्या यह सही है: {value}?"
+            message = template.replace("{value}", display_val)
+            audio_text = message
+
+        return display_val, message, audio_text or message
+
     def process_turn(
         self,
         session_id: str,
@@ -201,9 +311,11 @@ class FormEngine:
         """
         Executes a turn:
         1. Reads session state
-        2. If in confirmation state and user spoke a confirmation ("yes"/"no"), dispatches to confirm_candidate
+        2. If in confirmation state:
+           a. Checks for inline correction (e.g. 'Nahi, 9876543211 hai')
+           b. If 'yes'/'no', dispatches to confirm_candidate
         3. Otherwise extracts value for active field
-        4. Validates value
+        4. Validates value deterministically
         5. Computes confidence and next action
         6. Logs turn
         """
@@ -233,13 +345,220 @@ class FormEngine:
             conn.close()
             raise ValueError(f"Field {current_field} not defined in schema")
 
-        # CASE A: If we already have a candidate waiting for confirmation,
-        # and user says Haan/Nahi/Yes/No/Ho/Nahi
+        # CASE A: If we already have a candidate waiting for confirmation:
         if candidate_val is not None:
+            # 1. Check for inline correction (e.g. "Nahi, mera number 9876543211 hai" or "No, it is two lakh")
+            correction = ExtractorService.extract_inline_correction(current_field, transcript, lang)
+            if correction:
+                new_cand = correction["corrected_value"]
+                is_valid, val_err = FieldValidator.validate(current_field, new_cand, lang)
+                if is_valid:
+                    attempts += 1
+                    display_val, message, audio_text = self.format_field_confirmation(
+                        current_field, field_def, new_cand, lang
+                    )
+                    cursor.execute(
+                        """
+                        UPDATE field_values
+                        SET candidate_value = ?, confidence = 0.96, attempts = ?
+                        WHERE session_id = ? AND field_name = ?
+                        """,
+                        (str(new_cand), attempts, session_id, current_field)
+                    )
+                    turn_id = f"trn-{uuid.uuid4().hex[:8]}"
+                    measured_latency = latency_ms if latency_ms > 0 else int((time.time() - start_time) * 1000)
+                    cursor.execute(
+                        """
+                        INSERT INTO turns (turn_id, session_id, field_name, input_type, transcript, result, latency_ms, created_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (turn_id, session_id, current_field, input_type, transcript, "need_confirmation", measured_latency, datetime.utcnow().isoformat())
+                    )
+                    cursor.execute("UPDATE sessions SET updated_at = ? WHERE session_id = ?", (datetime.utcnow().isoformat(), session_id))
+                    conn.commit()
+                    conn.close()
+                    return {
+                        "session_id": session_id,
+                        "field_name": current_field,
+                        "status": "need_confirmation",
+                        "action": "CONFIRM",
+                        "candidate_value": new_cand,
+                        "value": new_cand,
+                        "confidence": 0.96,
+                        "message": message,
+                        "prompt": message,
+                        "audio_text": audio_text,
+                        "attempts": attempts,
+                        "allowed_actions": ["confirm", "reject", "re-ask"],
+                        "session_state": self.get_session_state(session_id)
+                    }
+                else:
+                    # Invalid correction - DO NOT SAVE
+                    conn.close()
+                    return {
+                        "session_id": session_id,
+                        "field_name": current_field,
+                        "status": "invalid",
+                        "action": "RETRY",
+                        "candidate_value": candidate_val,
+                        "value": None,
+                        "confidence": 0.5,
+                        "message": val_err,
+                        "prompt": val_err,
+                        "audio_text": val_err,
+                        "attempts": attempts + 1,
+                        "allowed_actions": ["retry", "type"],
+                        "session_state": self.get_session_state(session_id)
+                    }
+
+            # 2. Check intentional voice control commands (replay, slower, change_answer)
+            voice_cmd = ExtractorService.extract_voice_control_command(transcript)
+            if voice_cmd == "replay":
+                disp_val, conf_msg, audio_msg = self.format_field_confirmation(
+                    current_field, field_def, candidate_val, lang
+                )
+                conn.close()
+                return {
+                    "session_id": session_id,
+                    "field_name": current_field,
+                    "status": "need_confirmation",
+                    "action": "CONFIRM",
+                    "candidate_value": candidate_val,
+                    "value": candidate_val,
+                    "confidence": 0.95,
+                    "message": conf_msg,
+                    "prompt": conf_msg,
+                    "audio_text": audio_msg,
+                    "attempts": attempts,
+                    "allowed_actions": ["confirm", "reject", "type"],
+                    "session_state": self.get_session_state(session_id)
+                }
+            elif voice_cmd == "slower":
+                disp_val, conf_msg, audio_msg = self.format_field_confirmation(
+                    current_field, field_def, candidate_val, lang
+                )
+                slow_prefix = "हळू आवाजात पुन्हा सांगतो: " if lang == "mr" else "धीमी आवाज़ में दोबारा दोहरा रहा हूँ: "
+                conn.close()
+                return {
+                    "session_id": session_id,
+                    "field_name": current_field,
+                    "status": "need_confirmation",
+                    "action": "CONFIRM",
+                    "speech_rate": 0.75,
+                    "candidate_value": candidate_val,
+                    "value": candidate_val,
+                    "confidence": 0.95,
+                    "message": slow_prefix + conf_msg,
+                    "prompt": slow_prefix + conf_msg,
+                    "audio_text": slow_prefix + audio_msg,
+                    "attempts": attempts,
+                    "allowed_actions": ["confirm", "reject", "type"],
+                    "session_state": self.get_session_state(session_id)
+                }
+            elif voice_cmd == "change_answer":
+                conn.close()
+                return self.confirm_candidate(session_id, current_field, "reject")
+
+            # 3. Check pure confirm / reject intent
             confirm_intent = ExtractorService.extract_confirmation_intent(transcript)
             if confirm_intent in ["confirm", "reject"]:
                 conn.close()
                 return self.confirm_candidate(session_id, current_field, confirm_intent)
+            conv_intent = ExtractorService.extract_conversational_intent(transcript)
+            if conv_intent == "cancel":
+                conn.close()
+                return self.confirm_candidate(session_id, current_field, "reject")
+
+        # Check intentional voice control commands when no candidate is pending (replay prompt, slower prompt)
+        if candidate_val is None:
+            voice_cmd = ExtractorService.extract_voice_control_command(transcript)
+            if voice_cmd in ["replay", "slower"]:
+                active_prompt = self.get_localized_field_text(field_def, "prompt", lang)
+                if voice_cmd == "slower":
+                    slow_prefix = "हळू आवाजात पुन्हा सांगतो: " if lang == "mr" else "धीमी आवाज़ में दोबारा दोहरा रहा हूँ: "
+                    msg = slow_prefix + active_prompt
+                    rate = 0.75
+                else:
+                    msg = active_prompt
+                    rate = 0.92
+                conn.close()
+                return {
+                    "session_id": session_id,
+                    "field_name": current_field,
+                    "status": "in_progress",
+                    "action": "PROMPT",
+                    "speech_rate": rate,
+                    "candidate_value": None,
+                    "value": None,
+                    "confidence": 1.0,
+                    "message": msg,
+                    "prompt": msg,
+                    "audio_text": msg,
+                    "attempts": attempts,
+                    "allowed_actions": ["retry", "type"],
+                    "session_state": self.get_session_state(session_id)
+                }
+
+        # Conversational intent check (greetings, help, service selection, address update) when not confirming
+        conv_intent = ExtractorService.extract_conversational_intent(transcript)
+        if candidate_val is None and conv_intent in ["greeting", "help", "apply_income_certificate", "update_address"]:
+            active_prompt = self.get_localized_field_text(field_def, "prompt", lang)
+            if conv_intent == "greeting":
+                msg = (
+                    f"नमस्ते! मैं सेवा वाणी सहायक हूँ। {active_prompt}"
+                    if lang == "hi"
+                    else (
+                        f"नमस्कार! मी सेवा वाणी सहाय्यक आहे. {active_prompt}"
+                        if lang == "mr"
+                        else f"Hello! I am SEVA VAANI assistant. {active_prompt}"
+                    )
+                )
+            elif conv_intent == "apply_income_certificate":
+                msg = (
+                    f"मैंने समझा कि आप आय प्रमाण पत्र (Income Certificate) के लिए आवेदन करना चाहते हैं। {active_prompt}"
+                    if lang == "hi"
+                    else (
+                        f"मी समजलो की आपल्याला उत्पन्नाचा दाखला (Income Certificate) काढायचा आहे. {active_prompt}"
+                        if lang == "mr"
+                        else f"I understood you want to apply for an Income Certificate. {active_prompt}"
+                    )
+                )
+            elif conv_intent == "update_address":
+                msg = (
+                    "मैंने समझा कि आप अपना पता अपडेट करना चाहते हैं। कृपया अपना नया पता बताएं।"
+                    if lang == "hi"
+                    else (
+                        "मी समजलो की आपल्याला आपला पत्ता बदलायचा आहे. कृपया आपला नवीन पत्ता सांगा."
+                        if lang == "mr"
+                        else "I understood you want to update your address. Please provide your new address."
+                    )
+                )
+            else:
+                msg = (
+                    f"मैं इस फ़ॉर्म को भरने में आपकी मदद करूँगा। आप बोलकर या नीचे टाइप करके उत्तर दे सकते हैं। {active_prompt}"
+                    if lang == "hi"
+                    else (
+                        f"मी हा फॉर्म भरण्यासाठी आपली मदत करेन. आपण बोलू शकता किंवा खाली टाइप करू शकता. {active_prompt}"
+                        if lang == "mr"
+                        else f"I will help you fill this form. You can speak or type your answer below. {active_prompt}"
+                    )
+                )
+            conn.close()
+            return {
+                "session_id": session_id,
+                "field_name": current_field,
+                "status": conv_intent,
+                "action": "RETRY",
+                "candidate_value": None,
+                "value": None,
+                "confidence": 1.0,
+                "message": msg,
+                "prompt": msg,
+                "audio_text": msg,
+                "attempts": attempts,
+                "allowed_actions": ["retry", "type"],
+                "session_state": self.get_session_state(session_id)
+            }
 
         # CASE B: Normal field extraction
         attempts += 1
@@ -280,13 +599,9 @@ class FormEngine:
 
         # Format message & audio text
         if action == "need_confirmation":
-            template = self.get_localized_field_text(field_def, "confirm_template", lang)
-            if not template:
-                template = "Is this correct: {value}?" if lang == "en" else "क्या यह सही है?"
-            # Format value for user-friendly display
-            display_val = str(final_candidate)
-            message = template.replace("{value}", display_val)
-            audio_text = message
+            display_val, message, audio_text = self.format_field_confirmation(
+                current_field, field_def, final_candidate, lang
+            )
             allowed_actions = ["confirm", "reject", "re-ask"]
             
             # Save candidate value into DB
@@ -369,11 +684,21 @@ class FormEngine:
             "session_state": self.get_session_state(session_id)
         }
 
-    def confirm_candidate(self, session_id: str, field_name: str, action: str) -> Dict[str, Any]:
+    def confirm_candidate(
+        self,
+        session_id: str,
+        field_name: str,
+        action: str,
+        updated_value: Optional[str] = None,
+        source: str = "voice_recognition",
+        verification_status: str = "unverified",
+        document_type: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
-        Processes confirmation or rejection of candidate value.
+        Processes confirmation, rejection, or explicit spelling update of candidate value.
         - action == 'confirm': Commits field, transitions to next field (FR-007)
         - action == 'reject': Discards candidate, never silently overwrites, re-prompts (FR-008, TC03)
+        - action == 'edit_spelling': Updates candidate spelling and re-requests explicit confirmation
         """
         conn = get_connection()
         cursor = conn.cursor()
@@ -384,6 +709,47 @@ class FormEngine:
             raise ValueError("Session not found")
 
         lang = session["language"]
+
+        # If updated_value was supplied (e.g. from spelling editor or OCR choice)
+        if updated_value is not None:
+            is_valid, val_err = FieldValidator.validate(field_name, updated_value, lang)
+            if not is_valid:
+                conn.close()
+                return {
+                    "session_id": session_id,
+                    "field_name": field_name,
+                    "status": "invalid",
+                    "action": "RETRY",
+                    "candidate_value": updated_value,
+                    "message": val_err,
+                    "prompt": val_err,
+                    "audio_text": val_err,
+                    "session_state": self.get_session_state(session_id)
+                }
+            cursor.execute(
+                "UPDATE field_values SET candidate_value = ?, confidence = 1.0 WHERE session_id = ? AND field_name = ?",
+                (str(updated_value), session_id, field_name)
+            )
+            conn.commit()
+
+            if action in ["edit_spelling", "update_candidate"]:
+                disp_val, conf_msg, audio_msg = self.format_field_confirmation(
+                    field_name, self.get_field_def(field_name), updated_value, lang
+                )
+                conn.close()
+                return {
+                    "session_id": session_id,
+                    "field_name": field_name,
+                    "status": "need_confirmation",
+                    "action": "CONFIRM",
+                    "candidate_value": updated_value,
+                    "value": updated_value,
+                    "confidence": 1.0,
+                    "message": conf_msg,
+                    "prompt": conf_msg,
+                    "audio_text": audio_msg,
+                    "session_state": self.get_session_state(session_id)
+                }
 
         cursor.execute(
             "SELECT * FROM field_values WHERE session_id = ? AND field_name = ?",
@@ -405,27 +771,39 @@ class FormEngine:
         now = datetime.utcnow().isoformat()
 
         if action == "confirm":
+            from app.core.encryption import FieldEncryptionService
+            is_sensitive = FieldEncryptionService.is_sensitive_field(field_name)
+            persisted_val = FieldEncryptionService.encrypt_value(str(candidate_val)) if is_sensitive else str(candidate_val)
+            is_enc = 1 if is_sensitive and str(persisted_val).startswith("enc:") else 0
+
             # Commit field
             cursor.execute(
                 """
                 UPDATE field_values
-                SET confirmed_value = ?, confirmed_at = ?, candidate_value = NULL, attempts = 0
+                SET confirmed_value = ?, confirmed_at = ?, candidate_value = NULL, attempts = 0,
+                    source = ?, verification_status = ?, is_encrypted = ?
                 WHERE session_id = ? AND field_name = ?
                 """,
-                (candidate_val, now, session_id, field_name)
+                (persisted_val, now, source, verification_status, is_enc, session_id, field_name)
             )
+            # Ensure no orphan candidates remain on any other fields
+            cursor.execute("UPDATE field_values SET candidate_value = NULL WHERE session_id = ?", (session_id,))
 
             # Synchronize to form_answers table
             cursor.execute(
                 """
-                INSERT INTO form_answers (service_session_id, field_key, answer_value, is_confirmed, created_at, updated_at)
-                VALUES (?, ?, ?, 1, ?, ?)
+                INSERT INTO form_answers (service_session_id, field_key, answer_value, is_confirmed, created_at, updated_at, source, verification_status, document_type, is_encrypted)
+                VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(service_session_id, field_key) DO UPDATE SET
                     answer_value = excluded.answer_value,
                     is_confirmed = 1,
-                    updated_at = excluded.updated_at
+                    updated_at = excluded.updated_at,
+                    source = excluded.source,
+                    verification_status = excluded.verification_status,
+                    document_type = excluded.document_type,
+                    is_encrypted = excluded.is_encrypted
                 """,
-                (session_id, field_name, candidate_val, now, now)
+                (session_id, field_name, persisted_val, now, now, source, verification_status, document_type, is_enc)
             )
 
             # Move to next field or complete
@@ -500,6 +878,7 @@ class FormEngine:
                 "session_id": session_id,
                 "field_name": field_name,
                 "status": "candidate_discarded",
+                "action": "RETRY",
                 "message": msg,
                 "audio_text": msg,
                 "session_state": self.get_session_state(session_id)
@@ -532,13 +911,35 @@ class FormEngine:
         conn = get_connection()
         cursor = conn.cursor()
         now = datetime.utcnow().isoformat()
+
+        from app.core.encryption import FieldEncryptionService
+        is_sensitive = FieldEncryptionService.is_sensitive_field(field_name)
+        persisted_val = FieldEncryptionService.encrypt_value(str(val_to_check)) if is_sensitive else str(val_to_check)
+        is_enc = 1 if is_sensitive and str(persisted_val).startswith("enc:") else 0
+
         cursor.execute(
             """
             UPDATE field_values
-            SET confirmed_value = ?, confirmed_at = ?, candidate_value = NULL, attempts = 0
+            SET confirmed_value = ?, confirmed_at = ?, candidate_value = NULL, attempts = 0,
+                source = 'manual_entry', verification_status = 'unverified', is_encrypted = ?
             WHERE session_id = ? AND field_name = ?
             """,
-            (str(val_to_check), now, session_id, field_name)
+            (persisted_val, now, is_enc, session_id, field_name)
+        )
+
+        cursor.execute(
+            """
+            INSERT INTO form_answers (service_session_id, field_key, answer_value, is_confirmed, created_at, updated_at, source, verification_status, document_type, is_encrypted)
+            VALUES (?, ?, ?, 1, ?, ?, 'manual_entry', 'unverified', NULL, ?)
+            ON CONFLICT(service_session_id, field_key) DO UPDATE SET
+                answer_value = excluded.answer_value,
+                is_confirmed = 1,
+                updated_at = excluded.updated_at,
+                source = 'manual_entry',
+                verification_status = 'unverified',
+                is_encrypted = excluded.is_encrypted
+            """,
+            (session_id, field_name, persisted_val, now, now, is_enc)
         )
 
         next_field = self.get_next_field_name(field_name)
@@ -582,45 +983,36 @@ class FormEngine:
             "session_state": self.get_session_state(session_id)
         }
 
-    def create_help_ticket(self, session_id: str, field_name: Optional[str], reason: str = "user_request") -> Dict[str, Any]:
+    def create_help_ticket(
+        self,
+        session_id: str,
+        field_name: Optional[str],
+        reason: str = "user_request",
+        category: str = "other",
+        description: Optional[str] = None,
+        user_id: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Creates human-help ticket (FR-011, TC09).
         Persists record genuinely in SQLite before returning ticket ID.
-        Explicitly indicates that external notification has not been sent.
+        Discloses truthful notification status.
         """
-        # Validate that session exists first
+        from app.services.help_service import HelpService
         state = self.get_session_state(session_id)
         lang = state.get("language", "hi")
 
-        ticket_id = f"TKT-{uuid.uuid4().hex[:6].upper()}"
-        now = datetime.utcnow().isoformat()
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            INSERT INTO help_tickets (ticket_id, session_id, field_name, reason, status, created_at)
-            VALUES (?, ?, ?, ?, 'open', ?)
-            """,
-            (ticket_id, session_id, field_name, reason, now)
+        res = HelpService.create_ticket(
+            session_id=session_id,
+            user_id=user_id,
+            category=category,
+            description=description,
+            field_name=field_name,
+            reason=reason,
+            language=lang
         )
-        conn.commit()
-        conn.close()
-
-        msg = (f"सहायता अनुरोध आंतरिक रूप से दर्ज किया गया (टिकट: {ticket_id})। बाह्य हेल्पडेस्क/ईमेल सेवा कॉन्फ़िगर नहीं है; बाह्य सूचना प्रेषित नहीं हुई है।"
-               if lang == "hi" else
-               f"मदत विनंती अंतर्गत नोंदवली गेली (तिकीट: {ticket_id}). बाह्य हेल्पडेस्क/ईमेल सेवा कॉन्फिगर केलेली नाही; बाह्य सूचना पाठवली नाही.")
-
-        return {
-            "ticket_id": ticket_id,
-            "session_id": session_id,
-            "status": "ticket_created",
-            "persistence_scope": "saved_in_backend",
-            "external_notification_sent": False,
-            "external_notification_channel": "none_configured",
-            "message": msg,
-            "audio_text": msg,
-            "session_state": state
-        }
+        res["audio_text"] = res["message"]
+        res["session_state"] = state
+        return res
 
     def submit_application(self, session_id: str, consent: bool) -> Dict[str, Any]:
         """

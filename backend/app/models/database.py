@@ -10,7 +10,6 @@ from typing import Optional
 
 from app.config import settings
 from app.db.engine import get_raw_connection
-from app.db.init_db import init_database
 
 DB_PATH = (
     settings.DATABASE_URL.replace("sqlite:///", "")
@@ -26,4 +25,6 @@ def get_connection(db_path: Optional[str] = None) -> sqlite3.Connection:
 
 def init_db(db_path: Optional[str] = None) -> str:
     """Initializes all database tables, indexes, and applies security permissions."""
+    from app.db.init_db import init_database
     return init_database(db_path or DB_PATH)
+

@@ -65,14 +65,29 @@ export const FieldSummary: React.FC<FieldSummaryProps> = ({
           <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
             {f.confirmed && (
               <span className="text-xs font-semibold text-emerald-300 bg-emerald-950/70 px-2.5 py-1 rounded-full border border-emerald-500/40 flex items-center gap-1 shadow-sm">
-                <span>✓</span> {getConfirmedLabel()}
+                <span>✓</span> {language === 'mr' ? 'आवाज पुष्टी (Voice Confirmed)' : language === 'en' ? 'Voice Confirmed' : 'आवाज़ पुष्टि (Voice Confirmed)'}
+              </span>
+            )}
+            {(f.id === 'full_name' || f.id === 'father_name') && (
+              <span
+                className="text-[11px] font-medium text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-500/30 flex items-center gap-1"
+                title={
+                  language === 'mr'
+                    ? 'शासकीय प्रमाणपत्रात स्पेलिंग अत्यंत महत्त्वाची असते. आधार कार्डाप्रमाणे तपासा.'
+                    : language === 'en'
+                    ? 'Official IDs require exact spelling verification character by character.'
+                    : 'सरकारी प्रमाण पत्र में नाम की स्पेलिंग आधार कार्ड से मेल खानी चाहिए।'
+                }
+              >
+                <span>🔤</span> {language === 'mr' ? 'स्पेलिंग तपासा' : language === 'en' ? 'Verify Spelling' : 'वर्तनी जांचें'}
               </span>
             )}
             {onEditField && (
               <button
                 type="button"
+                id={`btn-edit-field-${f.id}`}
                 onClick={() => onEditField(idx)}
-                className="px-2.5 py-1 text-xs font-semibold text-emerald-200 hover:text-white hover:bg-emerald-600/30 rounded-lg transition-all border border-emerald-400/30 active:scale-95"
+                className="touch-target-44 min-h-[40px] px-3 py-1.5 text-xs font-bold text-emerald-200 hover:text-white bg-white/5 hover:bg-emerald-600/30 rounded-xl transition-all border border-emerald-400/40 active:scale-95 focus-visible:ring-2 focus-visible:ring-emerald-400"
               >
                 {getEditLabel()}
               </button>

@@ -26,16 +26,17 @@ export const ExtensionModal: React.FC<ExtensionModalProps> = ({
     >
       <div
         style={{
-          maxWidth: 620, width: '100%',
+          maxWidth: 'min(620px, calc(100vw - 20px))', width: '100%',
           background: 'linear-gradient(180deg, rgba(16, 28, 18, 0.95) 0%, rgba(8, 16, 10, 0.98) 100%)',
           border: '1px solid rgba(52, 211, 153, 0.35)',
           borderRadius: 24,
           boxShadow: '0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.2)',
-          padding: '24px 18px',
+          padding: 'clamp(14px, 3.5vw, 24px)',
           color: '#ffffff',
           position: 'relative',
-          maxHeight: '92vh',
-          overflowY: 'auto'
+          maxHeight: 'calc(100dvh - 32px)',
+          overflowY: 'auto',
+          boxSizing: 'border-box'
         }}
       >
         {/* Header */}

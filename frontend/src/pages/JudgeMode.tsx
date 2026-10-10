@@ -127,13 +127,13 @@ export const JudgeMode: React.FC<JudgeModeProps> = ({
             {testCases.map((tc) => (
               <div
                 key={tc.id}
-                className="flex items-center justify-between p-2.5 bg-slate-800/40 rounded-xl border border-slate-800 text-xs"
+                className="flex items-center justify-between gap-2 p-2.5 bg-slate-800/40 rounded-xl border border-slate-800 text-xs"
               >
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-slate-400">{tc.id}</span>
-                  <span className="text-slate-200">{tc.title}</span>
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <span className="font-mono text-slate-400 shrink-0">{tc.id}</span>
+                  <span className="text-slate-200 truncate sm:whitespace-normal">{tc.title}</span>
                 </div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800 shrink-0">
                   {tc.status}
                 </span>
               </div>
@@ -150,7 +150,7 @@ export const JudgeMode: React.FC<JudgeModeProps> = ({
                 onClose();
                 onLaunchDemoFlow('hi');
               }}
-              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold"
+              className="touch-target-44 min-h-[40px] px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-blue-400"
             >
               हिन्दी (Hindi)
             </button>
@@ -160,7 +160,7 @@ export const JudgeMode: React.FC<JudgeModeProps> = ({
                 onClose();
                 onLaunchDemoFlow('mr');
               }}
-              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold"
+              className="touch-target-44 min-h-[40px] px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-emerald-400"
             >
               मराठी (Marathi)
             </button>
@@ -170,7 +170,7 @@ export const JudgeMode: React.FC<JudgeModeProps> = ({
                 onClose();
                 onLaunchDemoFlow('bn');
               }}
-              className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold"
+              className="touch-target-44 min-h-[40px] px-3.5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-cyan-400"
             >
               বাংলা (Bengali)
             </button>

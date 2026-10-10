@@ -132,8 +132,12 @@ export const Review: React.FC<ReviewProps> = ({
           <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
             {getReviewHeading()}
           </h2>
-          <p className="text-xs md:text-sm text-emerald-200/80 mt-1">
-            कृपया अपने सभी उत्तरों की जांच करें। आवश्यकतानुसार 'बदलें' बटन दबाकर सुधार कर सकते हैं।
+          <p className="text-xs md:text-sm text-emerald-200/90 mt-1 max-w-lg mx-auto">
+            {language === 'mr'
+              ? 'सर्व रकाने आवाजाने ऐकून पुष्टी केलेले आहेत. नावांची अचूक स्पेलिंग आधार किंवा अधिकृत ओळखपत्राशी जुळवून घ्या.'
+              : language === 'en'
+              ? 'All fields verified through conversational voice. Please double-check character spelling for names against official IDs.'
+              : 'सभी फ़ील्ड्स आवाज़ से सुने और पुष्टि किए गए हैं। नाम की सटीक वर्तनी (Spelling) अपने आधार कार्ड से अवश्य मिला लें।'}
           </p>
         </div>
 
@@ -145,38 +149,44 @@ export const Review: React.FC<ReviewProps> = ({
         />
 
         {/* Consent Section (Section 9.J) */}
-        <div className="mt-6 p-5 bg-[#121f15]/90 backdrop-blur-2xl rounded-3xl border border-emerald-500/40 shadow-2xl">
+        <div className="mt-5 sm:mt-6 p-4 sm:p-5 bg-[#121f15]/90 backdrop-blur-2xl rounded-3xl border border-emerald-500/40 shadow-2xl lang-devanagari">
           <label className="flex items-start gap-3 cursor-pointer select-none">
             <input
+              id="checkbox-final-consent"
               type="checkbox"
               checked={consentGiven}
               onChange={(e) => {
                 setConsentGiven(e.target.checked);
                 if (e.target.checked) setSubmitError(null);
               }}
-              className="w-5 h-5 mt-1 rounded text-emerald-500 focus:ring-emerald-400 bg-black/40 border-white/20 accent-emerald-500"
+              className="w-5 h-5 sm:w-6 sm:h-6 mt-0.5 rounded text-emerald-500 focus-visible:ring-4 focus-visible:ring-emerald-400/60 bg-black/40 border-white/20 accent-emerald-500 shrink-0 cursor-pointer"
             />
-            <span className="text-xs md:text-sm text-emerald-100 leading-relaxed font-medium">
+            <span className="text-xs sm:text-sm text-emerald-100 leading-relaxed font-medium">
               {getConsentText()}
             </span>
           </label>
         </div>
 
         {submitError && (
-          <div className="mt-3 p-3 bg-red-950/70 text-red-200 text-xs md:text-sm rounded-xl border border-red-500/40 text-center font-medium backdrop-blur-md">
+          <div
+            role="alert"
+            aria-live="assertive"
+            className="mt-3 p-3 bg-red-950/80 text-red-200 text-xs sm:text-sm rounded-2xl border border-red-500/40 text-center font-medium backdrop-blur-md"
+          >
             {submitError}
           </div>
         )}
 
         {/* Final Submit Button */}
-        <div className="mt-6 flex justify-center">
+        <div className="mt-5 sm:mt-6 flex justify-center">
           <button
             type="button"
+            id="btn-final-submit"
             onClick={handleSubmit}
             disabled={!consentGiven || isSubmitting || networkStatus.isOffline}
-            className={`w-full max-w-md px-8 py-4 rounded-2xl font-bold text-base md:text-lg shadow-2xl transition-all duration-200 flex items-center justify-center gap-2 border ${
+            className={`w-full max-w-md min-h-[48px] px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-bold text-sm sm:text-base md:text-lg shadow-2xl transition-all duration-200 flex items-center justify-center gap-2 border touch-target-44 ${
               consentGiven && !isSubmitting && !networkStatus.isOffline
-                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white border-emerald-300/40 shadow-emerald-950/80 active:scale-95 cursor-pointer'
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white border-emerald-300/40 shadow-emerald-950/80 active:scale-95 cursor-pointer focus-visible:ring-4 focus-visible:ring-emerald-400/60'
                 : 'bg-white/10 text-slate-400 border-white/10 cursor-not-allowed shadow-none'
             }`}
           >
@@ -184,7 +194,7 @@ export const Review: React.FC<ReviewProps> = ({
               <span>आवेदन भेजा जा रहा है... (Submitting...)</span>
             ) : (
               <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>आवेदन अंतिम रूप से जमा करें (Submit Application)</span>

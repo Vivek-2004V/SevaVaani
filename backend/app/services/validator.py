@@ -174,7 +174,70 @@ class FieldValidator:
                 return False, msg
             return True, None
 
-        elif field_name == "district":
+        elif field_name in ["father_name", "guardian_name"]:
+            if len(str_val) < 2 or len(str_val) > 80:
+                if language == "en":
+                    msg = "Father/Guardian name must be between 2 and 80 characters."
+                elif language == "mr":
+                    msg = "वडिलांचे/पालकाचे नाव 2 ते 80 अक्षरांच्या दरम्यान असावे."
+                else:
+                    msg = "पिता/अभिभावक का नाम 2 से 80 अक्षरों के बीच होना चाहिए।"
+                return False, msg
+            if re.match(r"^\d+$", str_val):
+                if language == "en":
+                    msg = "Name must contain letters, not numbers."
+                elif language == "mr":
+                    msg = "नावात अक्षरे असावीत, फक्त अंक नाहीत."
+                else:
+                    msg = "नाम में अक्षर होने चाहिए, केवल अंक नहीं।"
+                return False, msg
+            return True, None
+
+        elif field_name in ["village", "village_name"]:
+            if len(str_val) < 2:
+                if language == "en":
+                    msg = "Village name must be at least 2 characters."
+                elif language == "mr":
+                    msg = "गावाचे नाव किमान २ अक्षरांचे असावे."
+                else:
+                    msg = "गांव का नाम कम से कम 2 अक्षर का होना चाहिए।"
+                return False, msg
+            return True, None
+
+        elif field_name in ["state", "state_name"]:
+            if len(str_val) < 2:
+                if language == "en":
+                    msg = "State name must be at least 2 characters."
+                elif language == "mr":
+                    msg = "राज्याचे नाव किमान २ अक्षरांचे असावे."
+                else:
+                    msg = "राज्य का नाम कम से कम 2 अक्षर का होना चाहिए।"
+                return False, msg
+            return True, None
+
+        elif field_name in ["address", "residential_address"]:
+            if len(str_val) < 5:
+                if language == "en":
+                    msg = "Full address must be at least 5 characters."
+                elif language == "mr":
+                    msg = "पूर्ण पत्ता किमान ५ अक्षरांचा असावा."
+                else:
+                    msg = "पूरा पता कम से कम 5 अक्षर का होना चाहिए।"
+                return False, msg
+            return True, None
+
+        elif field_name in ["service_name", "certificate_name", "certificate_type"]:
+            if len(str_val) < 3:
+                if language == "en":
+                    msg = "Please select or state a valid public service."
+                elif language == "mr":
+                    msg = "कृपया वैध सरकारी सेवा किंवा दाखला निवडा."
+                else:
+                    msg = "कृपया एक मान्य सार्वजनिक सेवा या प्रमाण पत्र चुनें।"
+                return False, msg
+            return True, None
+
+        elif field_name in ["district", "district_name"]:
             if len(str_val) < 2:
                 if language == "en":
                     msg = "District name must be at least 2 characters."

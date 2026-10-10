@@ -178,7 +178,9 @@ class OllamaLLMAdapter(BaseLLMAdapter):
             "1. NEVER extract or guess a different field.\n"
             "2. If the utterance does not contain the requested field, return value null.\n"
             "3. Do not assume confirmation; flag must be 'needs_confirmation'.\n"
-            "4. Return valid JSON only. No markdown formatting."
+            "4. Return valid JSON only. No markdown formatting.\n"
+            "5. NEVER hallucinate or guess missing digits in phone numbers or numbers. Extract only verbatim digits.\n"
+            "6. NEVER modify, alter, or overwrite the original spoken transcript."
         )
 
         user_content = f"Active Field: {request.field_name}\nUtterance: {request.transcript}"
@@ -320,7 +322,9 @@ class OpenAICompatibleLLMAdapter(BaseLLMAdapter):
             "1. NEVER extract or guess a different field.\n"
             "2. If the user utterance does not contain the requested field, return value null.\n"
             "3. Do not assume confirmation; flag must be 'needs_confirmation'.\n"
-            "4. Return valid JSON only. No markdown formatting."
+            "4. Return valid JSON only. No markdown formatting.\n"
+            "5. NEVER hallucinate or guess missing digits in phone numbers or numbers. Extract only verbatim digits.\n"
+            "6. NEVER modify, alter, or overwrite the original spoken transcript."
         )
 
         user_content = f"Active Field: {request.field_name}\nUtterance: {request.transcript}"
