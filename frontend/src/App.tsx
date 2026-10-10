@@ -40,8 +40,8 @@ export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [authInitialized, setAuthInitialized] = useState<boolean>(false);
 
-  // Application Flow State — default to 'form' so the actual voice assistant opens immediately!
-  const [screen, setScreen] = useState<ScreenState>('form');
+  // Application Flow State — default to 'welcome' homepage
+  const [screen, setScreen] = useState<ScreenState>('welcome');
   const [language, setLanguage] = useState<SupportedLanguage>('hi');
   const [serviceId, setServiceId] = useState<string>('scholarship_post_matric');
   const [sessionId, setSessionId] = useState<string>(() => `sv-${Date.now()}`);

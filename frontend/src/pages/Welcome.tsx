@@ -731,6 +731,309 @@ export const Welcome: React.FC<WelcomeProps> = ({
         )}
       </header>
 
+      {/* ══════════════════════════════════════════════════════════════════
+          HOME PAGE CONTENT (Rendered when activeTab === 'home' and no overlay)
+          ══════════════════════════════════════════════════════════════════ */}
+      {!showPanel && (
+        <main className="relative z-10 w-full min-h-screen pt-24 pb-24 px-4 sm:px-6 max-w-7xl mx-auto flex flex-col items-center">
+          {/* Hero Section */}
+          <section className="w-full text-center max-w-4xl mx-auto pt-6 pb-12 flex flex-col items-center">
+            {/* National Initiative Pill */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold backdrop-blur-md mb-6 shadow-md">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>🇮🇳 डिजिटल भारत • MeitY समर्थित जनसेवा नवाचार (Digital Public Good)</span>
+            </div>
+
+            {/* Main Headline */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-[1.18] mb-6">
+              {language === 'mr' ? (
+                <>
+                  बोलून शासकीय योजनांचे <br />
+                  <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+                    अर्ज सहज पूर्ण करा
+                  </span>
+                </>
+              ) : language === 'en' ? (
+                <>
+                  Complete Digital Public Services <br />
+                  <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+                    Simply by Speaking
+                  </span>
+                </>
+              ) : (
+                <>
+                  बोलकर सरकारी योजनाओं के <br />
+                  <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+                    आवेदन आसानी से भरें
+                  </span>
+                </>
+              )}
+            </h1>
+
+            {/* Sub-headline */}
+            <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-2xl leading-relaxed mb-8">
+              {language === 'mr'
+                ? '११ भारतीय भाषांमध्ये संवादात्मक ध्वनी सहाय्य. एक वेळी एक साधा प्रश्न, १००% आपली संमती आणि शून्य चुकांची हमी.'
+                : language === 'en'
+                ? 'Conversational voice guidance in 11 Indian languages. One simple question at a time, verified strictly with your verbal consent.'
+                : '11 भारतीय भाषाओं में संवादात्मक आवाज़ सहायता। एक बार में एक सरल सवाल, 100% आपकी मौखिक सहमति और साइबर कैफ़े के चक्करों से मुक्ति।'}
+            </p>
+
+            {/* Primary Action Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-3.5 mb-10">
+              <button
+                type="button"
+                id="btn-hero-start-voice"
+                onClick={handleHeroStart}
+                className="px-8 py-3.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-base shadow-xl shadow-emerald-500/30 flex items-center gap-2.5 transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+              >
+                <span>🎙️</span>
+                <span>
+                  {language === 'mr'
+                    ? 'आत्ताच अर्ज सुरू करा (Start Application)'
+                    : language === 'en'
+                    ? 'Start Voice Application Now'
+                    : 'अभी बोलकर आवेदन शुरू करें'}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                id="btn-hero-open-extension"
+                onClick={() => setShowExtensionModal(true)}
+                className="px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-emerald-200 border border-emerald-400/40 font-bold text-sm backdrop-blur-md flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+              >
+                <span>🧩</span>
+                <span>
+                  {language === 'mr'
+                    ? 'Chrome एक्सटेंशन जोडा'
+                    : language === 'en'
+                    ? 'Get Chrome Extension'
+                    : 'Chrome एक्सटेंशन जोड़ें'}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onOpenJudgeMode}
+                className="px-5 py-3.5 rounded-full bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border border-amber-400/40 font-bold text-sm backdrop-blur-md flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+              >
+                <span>⚖️</span>
+                <span>Judge & Evaluation</span>
+              </button>
+            </div>
+
+            {/* Interactive Live Voice Assistant Preview Box */}
+            <div className="w-full max-w-2xl bg-gradient-to-b from-white/12 to-white/5 border border-white/20 rounded-3xl p-5 sm:p-6 backdrop-blur-2xl shadow-2xl text-left relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-9 h-9 rounded-2xl bg-emerald-500 flex items-center justify-center text-slate-950 font-black text-lg shadow-md">
+                    स
+                  </span>
+                  <div>
+                    <h2 className="text-sm font-bold text-white leading-tight">सेवा वाणी लाइव सहायक (Live Voice Assistant)</h2>
+                    <span className="text-[11px] text-emerald-300">सक्रिय सत्र • पोस्ट-मैट्रिक छात्रवृत्ति</span>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full bg-emerald-950/90 text-emerald-300 border border-emerald-500/40 text-[11px] font-semibold flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span>लाइव आवाज़ चालू</span>
+                </span>
+              </div>
+
+              {/* Sample Speech Bubble */}
+              <div className="space-y-3 mb-5">
+                <div className="p-3.5 bg-emerald-950/60 border border-emerald-500/30 rounded-2xl text-sm text-emerald-100 flex items-start gap-2.5">
+                  <span className="text-base mt-0.5">🔊</span>
+                  <div>
+                    <p className="font-semibold text-emerald-300 text-xs mb-0.5">सहायक ने पूछा (Assistant Prompt):</p>
+                    <p className="text-sm font-medium">
+                      {language === 'mr'
+                        ? '"कृपया आपले संपूर्ण नाव सांगा, जसे आधार कार्डावर आहे."'
+                        : language === 'en'
+                        ? '"Please tell your full name as printed on your Aadhaar card."'
+                        : '"कृपया अपना पूरा नाम बताएं, जैसा आपके आधार कार्ड पर लिखा है।"'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-white/5 border border-white/10 rounded-2xl text-xs text-slate-200 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">🎙️</span>
+                    <span>
+                      {language === 'mr' ? 'नागरिक उत्तर (उदा.): "माझे नाव विवेक विश्वकर्मा आहे"' : 'नागरिक उत्तर (उदा.): "मेरा नाम विवेक विश्वकर्मा है"'}
+                    </span>
+                  </div>
+                  <span className="text-emerald-400 text-[11px] font-bold">जांचें ✓</span>
+                </div>
+              </div>
+
+              {/* Action trigger button */}
+              <button
+                type="button"
+                onClick={handleHeroStart}
+                className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <span>बोलकर पूरा फॉर्म भरें (Start Voice Form)</span>
+                <span>→</span>
+              </button>
+            </div>
+          </section>
+
+          {/* 4 Pillars of Trust Section */}
+          <section className="w-full max-w-6xl mx-auto py-10 border-t border-white/10">
+            <div className="text-center mb-8">
+              <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block mb-2">
+                सार्वजनिक विश्वास के आधार • Pillars of Public Trust
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-white">
+                हर नागरिक के लिए सुरक्षित, पारदर्शी और सहज
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {trustCards.map((card, i) => (
+                <div
+                  key={i}
+                  className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-emerald-500/40 transition-all text-left backdrop-blur-md shadow-md"
+                >
+                  <div className="text-3xl mb-3">{card.icon}</div>
+                  <h3 className="font-bold text-base text-emerald-300 mb-2 leading-snug">
+                    {card.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    {card.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Core Government Schemes Available */}
+          <section className="w-full max-w-6xl mx-auto py-10 border-t border-white/10">
+            <div className="text-center mb-8">
+              <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block mb-2">
+                सरकारी योजनाएं • Active Schemes & Services
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-white">
+                इन सेवाओं के लिए सीधे बोलकर आवेदन करें
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {publicServices.map((svc, i) => (
+                <div
+                  key={i}
+                  className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-400/50 transition-all backdrop-blur-md flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
+                        {svc.status}
+                      </span>
+                      <span className="text-xs text-slate-400">{svc.dept}</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">{svc.title}</h3>
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">{svc.desc}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleHeroStart}
+                    className="self-start px-4 py-1.5 rounded-full bg-emerald-600/40 hover:bg-emerald-500 hover:text-slate-950 text-emerald-200 border border-emerald-400/50 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>आवेदन शुरू करें (Apply via Voice)</span>
+                    <span>→</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* How It Works (4 Steps) */}
+          <section className="w-full max-w-6xl mx-auto py-10 border-t border-white/10">
+            <div className="text-center mb-8">
+              <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block mb-2">
+                सरल प्रक्रिया • 4 Simple Steps
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-white">
+                बिना साइबर कैफ़े के 3 मिनट में आवेदन पूरा
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {howItWorksSteps.map((step, i) => (
+                <div
+                  key={i}
+                  className="p-5 rounded-2xl bg-slate-900/70 border border-white/10 text-left relative overflow-hidden backdrop-blur-md"
+                >
+                  <span className="text-4xl font-black text-emerald-500/20 absolute top-2 right-3">
+                    {step.step}
+                  </span>
+                  <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-extrabold mb-3">
+                    चरण {step.step}
+                  </span>
+                  <h3 className="font-bold text-sm sm:text-base text-white mb-2 leading-snug">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    {step.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Citizen Stories */}
+          <section className="w-full max-w-6xl mx-auto py-10 border-t border-white/10">
+            <div className="text-center mb-8">
+              <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block mb-2">
+                नागरिकों का अनुभव • Real Citizen Stories
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-white">
+                दूरदराज के गाँवों से सफलता की आवाज़ें
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {citizenStories.map((story, i) => (
+                <div
+                  key={i}
+                  className="p-5 rounded-2xl bg-white/5 border border-white/10 text-left flex flex-col justify-between backdrop-blur-md"
+                >
+                  <p className="text-xs sm:text-sm text-slate-200 italic leading-relaxed mb-4">
+                    "{story.quote}"
+                  </p>
+                  <div className="border-t border-white/10 pt-3">
+                    <p className="text-sm font-bold text-white">{story.name}</p>
+                    <p className="text-xs text-emerald-400">{story.role} • {story.location}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{story.service}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Final Call to Action Banner */}
+          <section className="w-full max-w-4xl mx-auto mt-6 p-8 rounded-3xl bg-gradient-to-r from-emerald-900/60 via-teal-900/60 to-slate-900/80 border border-emerald-500/40 text-center backdrop-blur-xl shadow-2xl">
+            <h2 className="text-2xl sm:text-3xl font-black text-white mb-3">
+              अपनी भाषा में बेझिझक आवेदन करें
+            </h2>
+            <p className="text-sm text-emerald-100/90 max-w-xl mx-auto mb-6">
+              कोई जटिल फॉर्म नहीं, कोई गलतियों का डर नहीं। सहायक से बात करें और सरकारी योजनाओं का सीधा लाभ उठाएं।
+            </p>
+            <button
+              type="button"
+              onClick={handleHeroStart}
+              className="px-8 py-3.5 rounded-full bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-base shadow-xl transition-all transform hover:scale-105 active:scale-95 inline-flex items-center gap-2 cursor-pointer"
+            >
+              <span>🎙️</span>
+              <span>आवेदन शुरू करें (Start Application)</span>
+            </button>
+          </section>
+        </main>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════════
           CONTENT OVERLAY PANELS
