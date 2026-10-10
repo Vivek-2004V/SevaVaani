@@ -55,10 +55,11 @@ logs/
 .idea/
 .vscode/
 Thumbs.db
-app
-tests
-tsc
-vite
+
+# Root-level symlinks
+/app
+/tests
+
 frontend/dev-dist/
 dev-dist/
 

@@ -1,8 +1,8 @@
 {
   "spk_d802c45fdb407446": {
-    "consent_id": "018b42be-99e2-4c43-9585-7ae58216a2d7",
+    "consent_id": "f8de80dc-a312-4d8f-9e59-c749c8a09934",
     "speaker_id_pseudonymous": "spk_d802c45fdb407446",
-    "consent_timestamp": 1791590023.315907,
+    "consent_timestamp": 1791592072.727656,
     "consent_status": "withdrawn",
     "permitted_purposes": [
       "speech_recognition_training",
@@ -10,8 +10,8 @@
       "public_service_accessibility"
     ],
     "terms_version": "v1.0",
-    "expiry_timestamp": 1823126023.315907,
-    "withdrawal_timestamp": 1791590023.328083
+    "expiry_timestamp": 1823128072.727656,
+    "withdrawal_timestamp": 1791592072.7621608
   },
   "spk_88aa034ff9ed058a": {
     "consent_id": "57cd2c5b-f35d-4f88-89e2-fad574606d71",
