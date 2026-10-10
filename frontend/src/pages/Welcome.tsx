@@ -413,162 +413,34 @@ export const Welcome: React.FC<WelcomeProps> = ({
     <div style={{ position: 'relative', width: '100%', minHeight: '100svh' }}>
 
       {/* ══════════════════════════════════════════════════════════════════
-          DESKTOP & TABLET HEADER ARCHITECTURE
-          - Floating pill navbar (Centered, NO inner scrollbar)
-          - Separate Top-Right Header Area for Auth Actions (Outside navbar)
-          - No "बोलकर शुरू करें" in navbar
-          - Working "एक्सटेंशन से जोड़ें" preserved
+          UNIFIED RESPONSIVE HEADER ARCHITECTURE
+          - Single cohesive top bar across all screen sizes
+          - Zero element collisions (flexbox justify-between)
+          - Desktop (>= 1140px): Brand (Left) | Nav Tabs Pill (Center) | Actions (Right)
+          - Tablet & Mobile (< 1140px): Brand (Left) | Language + Auth + Hamburger (Right)
+          - Slide-down glass drawer for full navigation on smaller screens
       ══════════════════════════════════════════════════════════════════ */}
-      <div className="seva-desktop-layout">
-        {/* Top-Right Authentication Area (Outside Navbar) */}
-        <div className="seva-auth-desktop-wrapper">
-          {/* Language Switcher Pill */}
-          {onLanguageChange && (
-            <div
-              className="seva-lang-pill"
-              style={{
-                display: 'flex', alignItems: 'center', gap: 2,
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.14)',
-                borderRadius: 9999,
-                padding: '2px 4px',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)'
-              }}
-            >
-              {([
-                { id: 'hi', label: 'हिन्दी' },
-                { id: 'mr', label: 'मराठी' },
-                { id: 'en', label: 'English' }
-              ] as const).map((l) => (
-                <button
-                  key={l.id}
-                  id={`btn-lang-desktop-${l.id}`}
-                  type="button"
-                  onClick={() => onLanguageChange(l.id as SupportedLanguage)}
-                  style={{
-                    padding: '3px 8px',
-                    borderRadius: 9999,
-                    border: 'none',
-                    background: language === l.id ? '#10b981' : 'transparent',
-                    color: language === l.id ? '#052e16' : 'rgba(255, 255, 255, 0.85)',
-                    fontWeight: language === l.id ? 700 : 500,
-                    fontSize: 11.5,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  {l.label}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {currentUser ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {onGoToDashboard && (
-                <button
-                  id="btn-goto-dashboard"
-                  type="button"
-                  onClick={onGoToDashboard}
-                  className="seva-btn-register"
-                  style={{ padding: '6px 14px', fontSize: 12, cursor: 'pointer' }}
-                >
-                  {language === 'en' ? 'Dashboard →' : language === 'mr' ? 'डॅशबोर्ड →' : 'डैशबोर्ड (Dashboard) →'}
-                </button>
-              )}
-              <div className="seva-user-badge" id="auth-user-badge">
-                <span style={{ fontSize: 13 }}>👤</span>
-                <span style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {currentUser.email}
-                </span>
-                <button
-                  id="btn-auth-logout"
-                  type="button"
-                  onClick={handleLogout}
-                  style={{
-                    background: 'none', border: 'none', color: '#f87171',
-                    cursor: 'pointer', fontSize: 11.5, fontWeight: 600, padding: '2px 4px'
-                  }}
-                  title={language === 'en' ? 'Logout' : 'लॉगआउट करें'}
-                >
-                  {language === 'en' ? 'Logout' : 'लॉगआउट'}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="seva-auth-area">
-              {/* Login — Secondary / Text style button */}
-              <button
-                id="btn-auth-login"
-                type="button"
-                className="seva-btn-login"
-                onClick={() => {
-                  setAuthMode('login');
-                  setAuthError('');
-                  setAuthSuccessMsg('');
-                  setAuthModalOpen(true);
-                }}
-                title={language === 'en' ? 'Citizen Login' : 'नागरिक लॉगिन (Login)'}
-              >
-                {language === 'en' ? 'Login' : 'लॉगिन'}
-              </button>
-
-              {/* Create Account — Prominent primary emerald button */}
-              <button
-                id="btn-auth-register"
-                type="button"
-                className="seva-btn-register"
-                onClick={() => {
-                  setAuthMode('register');
-                  setAuthError('');
-                  setAuthSuccessMsg('');
-                  setAuthModalOpen(true);
-                }}
-                title={language === 'en' ? 'Create New Account' : 'नया खाता बनाएं (Create Account)'}
-              >
-                {language === 'en' ? 'Create Account' : 'खाता बनाएं'}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Centered Floating Pill Navbar */}
-        <div className="seva-nav-desktop-wrapper">
-          <nav
-            className="seva-pill-navbar"
-            aria-label="Seva Vaani Navigation"
-            role="navigation"
-          >
-            {/* Brand: Emerald Gradient App Icon + "Seva Vaani" */}
+      <header className="seva-unified-header">
+        <div className="seva-unified-header-container">
+          {/* 1. Brand: Emerald Gradient Icon + "Seva Vaani" */}
+          <div className="seva-header-brand-cluster">
             <button
               type="button"
               id="nav-brand"
-              onClick={() => { setActiveTab('home'); setShowOverlay(false); }}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '4px 10px 4px 4px',
-                background: 'transparent', border: 'none', cursor: 'pointer',
-                borderRadius: 9999, flexShrink: 0
-              }}
+              onClick={() => { setActiveTab('home'); setShowOverlay(false); setMobileMenuOpen(false); }}
+              className="seva-brand-button"
             >
-              <span style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-                background: 'linear-gradient(145deg, #34d399 0%, #10b981 50%, #047857 100%)',
-                boxShadow: '0 2px 10px rgba(16,185,129,0.45), inset 0 1px 1px rgba(255,255,255,0.38)'
-              }}>
-                <img src={logoImg} alt="" aria-hidden="true" style={{ width: 16, height: 16, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+              <span className="seva-brand-icon-box">
+                <img src={logoImg} alt="" aria-hidden="true" />
               </span>
-              <span style={{ fontSize: 13.5, fontWeight: 600, color: '#f0fdf4', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
+              <span className="seva-brand-text">
                 Seva Vaani
               </span>
             </button>
+          </div>
 
-            {/* Separator */}
-            <span style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.12)', flexShrink: 0, margin: '0 3px' }} />
-
-            {/* 5 Preserved Nav Links */}
+          {/* 2. Desktop Navigation Capsule (Center - Visible >= 1140px) */}
+          <nav className="seva-header-nav-tabs" aria-label="Seva Vaani Navigation">
             {navTabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -576,192 +448,93 @@ export const Welcome: React.FC<WelcomeProps> = ({
                   key={tab.id}
                   id={`nav-${tab.id}`}
                   type="button"
-                  className="seva-nav-tab-btn"
+                  className={`seva-tab-btn ${isActive ? 'active' : ''}`}
                   onClick={() => { setActiveTab(tab.id); setShowOverlay(tab.id !== 'home'); }}
-                  style={{
-                    position: 'relative',
-                    padding: '6px 12px',
-                    background: isActive ? 'rgba(255,255,255,0.11)' : 'transparent',
-                    border: isActive ? '1px solid rgba(255,255,255,0.12)' : '1px solid transparent',
-                    borderRadius: 9999,
-                    fontSize: 12.5,
-                    fontWeight: isActive ? 600 : 400,
-                    color: isActive ? '#f0fdf4' : 'rgba(215,228,215,0.75)',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0,
-                    transition: 'background 0.15s, color 0.15s, border 0.15s'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.color = '#ffffff';
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.07)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.color = 'rgba(215,228,215,0.75)';
-                      e.currentTarget.style.background = 'transparent';
-                    }
-                  }}
                 >
                   {tab.label}
-                  {isActive && (
-                    <span style={{
-                      position: 'absolute', bottom: 3, left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: 4, height: 4, borderRadius: '50%',
-                      background: '#4ade80',
-                      boxShadow: '0 0 8px rgba(74, 222, 128, 0.9)'
-                    }} />
-                  )}
+                  {isActive && <span className="seva-tab-dot" />}
                 </button>
               );
             })}
+          </nav>
 
-            {/* Separator */}
-            <span style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.12)', flexShrink: 0, margin: '0 3px' }} />
-
-            {/* Preserved Join to Extension Action Button inside Navbar */}
+          {/* 3. Right Action Cluster: Extension CTA + Language + Auth + Hamburger */}
+          <div className="seva-header-right-cluster">
+            {/* Join to Extension CTA Button */}
             <button
               id="nav-cta-extension"
               type="button"
+              className="seva-nav-extension-btn"
               onClick={() => {
                 window.postMessage({ type: 'SEVA_VAANI_TOGGLE_PANEL' }, '*');
                 setShowExtensionModal(true);
               }}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '6px 13px', marginRight: 2,
-                background: 'linear-gradient(180deg, rgba(16,185,129,0.24) 0%, rgba(6,78,59,0.4) 100%)',
-                color: '#6ee7b7',
-                border: '1px solid rgba(52,211,153,0.45)',
-                borderRadius: 9999,
-                fontSize: 12, fontWeight: 600,
-                cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-                boxShadow: '0 2px 10px rgba(4,20,10,0.3), inset 0 1px 0 rgba(255,255,255,0.12)',
-                transition: 'transform 0.15s, box-shadow 0.15s, background 0.15s, color 0.15s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.background = 'linear-gradient(180deg, rgba(16,185,129,0.38) 0%, rgba(6,78,59,0.58) 100%)';
-                e.currentTarget.style.boxShadow = '0 6px 18px rgba(16,185,129,0.4), inset 0 1px 0 rgba(255,255,255,0.2)';
-                e.currentTarget.style.color = '#ffffff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.background = 'linear-gradient(180deg, rgba(16,185,129,0.24) 0%, rgba(6,78,59,0.4) 100%)';
-                e.currentTarget.style.boxShadow = '0 2px 10px rgba(4,20,10,0.3), inset 0 1px 0 rgba(255,255,255,0.12)';
-                e.currentTarget.style.color = '#6ee7b7';
-              }}
               title="Chrome Extension से जोड़ें (Join to Extension)"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                 <path d="M19 11V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h7" />
                 <path d="M15 19l3 3 6-6" />
                 <path d="M12 9l3 3-3 3" />
               </svg>
-              एक्सटेंशन से जोड़ें
+              <span>एक्सटेंशन से जोड़ें</span>
             </button>
-          </nav>
-        </div>
-      </div>
 
-      {/* ══════════════════════════════════════════════════════════════════
-          MOBILE HEADER ARCHITECTURE (< 768px)
-          - Top glass bar with Brand on left, Auth + Hamburger on right
-          - Dropdown drawer for navigation links
-          - Zero horizontal scrolling or overflow
-      ══════════════════════════════════════════════════════════════════ */}
-      <div className="seva-mobile-layout">
-        <header
-          style={{
-            position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
-            padding: '10px 14px',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            background: 'rgba(16, 26, 17, 0.88)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            boxSizing: 'border-box'
-          }}
-        >
-          {/* Brand */}
-          <button
-            type="button"
-            id="nav-brand-mobile"
-            onClick={() => { setActiveTab('home'); setShowOverlay(false); setMobileMenuOpen(false); }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 7,
-              background: 'transparent', border: 'none', cursor: 'pointer', padding: 0
-            }}
-          >
-            <span style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              width: 28, height: 28, borderRadius: 8,
-              background: 'linear-gradient(145deg, #34d399 0%, #10b981 50%, #047857 100%)',
-              boxShadow: '0 2px 8px rgba(16,185,129,0.4)'
-            }}>
-              <img src={logoImg} alt="" aria-hidden="true" style={{ width: 16, height: 16, objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
-            </span>
-            <span style={{ fontSize: 14, fontWeight: 700, color: '#f0fdf4' }}>
-              Seva Vaani
-            </span>
-          </button>
-
-          {/* Right Area: Language Switcher + Auth Actions + Hamburger */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            {/* Language Switcher Pill */}
             {onLanguageChange && (
-              <div
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 1,
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.14)',
-                  borderRadius: 9999,
-                  padding: '1px 2px'
-                }}
-              >
+              <div className="seva-lang-pill-unified">
                 {([
-                  { id: 'hi', label: 'हि' },
-                  { id: 'mr', label: 'म' },
-                  { id: 'en', label: 'EN' }
+                  { id: 'hi', label: 'हिन्दी', short: 'हि' },
+                  { id: 'mr', label: 'मराठी', short: 'म' },
+                  { id: 'en', label: 'English', short: 'EN' }
                 ] as const).map((l) => (
                   <button
                     key={l.id}
-                    id={`btn-lang-mobile-${l.id}`}
+                    id={`btn-lang-desktop-${l.id}`}
                     type="button"
                     onClick={() => onLanguageChange(l.id as SupportedLanguage)}
-                    style={{
-                      padding: '2px 5px',
-                      borderRadius: 9999,
-                      border: 'none',
-                      background: language === l.id ? '#10b981' : 'transparent',
-                      color: language === l.id ? '#052e16' : 'rgba(255, 255, 255, 0.85)',
-                      fontWeight: language === l.id ? 700 : 500,
-                      fontSize: 10.5,
-                      cursor: 'pointer'
-                    }}
+                    className={language === l.id ? 'active' : ''}
                   >
-                    {l.label}
+                    <span className="lang-full">{l.label}</span>
+                    <span className="lang-short">{l.short}</span>
                   </button>
                 ))}
               </div>
             )}
 
+            {/* Authentication Area */}
             {currentUser ? (
-              <div className="seva-user-badge" style={{ padding: '3px 8px', fontSize: 11 }}>
-                <span>👤</span>
-                <button
-                  onClick={handleLogout}
-                  style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: 11, padding: 0 }}
-                >
-                  {language === 'en' ? 'Logout' : 'लॉगआउट'}
-                </button>
+              <div className="seva-header-user-badge">
+                {onGoToDashboard && (
+                  <button
+                    id="btn-goto-dashboard"
+                    type="button"
+                    className="seva-btn-register"
+                    onClick={onGoToDashboard}
+                  >
+                    {language === 'en' ? 'Dashboard →' : language === 'mr' ? 'डॅशबोर्ड →' : 'डैशबोर्ड →'}
+                  </button>
+                )}
+                <div className="seva-user-badge-inner" id="auth-user-badge">
+                  <span>👤</span>
+                  <span className="seva-user-email-text" title={currentUser.email}>
+                    {currentUser.email}
+                  </span>
+                  <button
+                    id="btn-auth-logout"
+                    type="button"
+                    onClick={handleLogout}
+                    className="seva-logout-link"
+                    title={language === 'en' ? 'Logout' : 'लॉगआउट करें'}
+                  >
+                    {language === 'en' ? 'Logout' : 'लॉगआउट'}
+                  </button>
+                </div>
               </div>
             ) : (
-              <>
+              <div className="seva-header-auth-buttons">
+                {/* Login Button */}
                 <button
-                  id="btn-auth-login-mobile"
+                  id="btn-auth-login"
                   type="button"
                   className="seva-btn-login"
                   onClick={() => {
@@ -770,12 +543,14 @@ export const Welcome: React.FC<WelcomeProps> = ({
                     setAuthSuccessMsg('');
                     setAuthModalOpen(true);
                   }}
-                  style={{ padding: '4px 8px', fontSize: 11.5 }}
+                  title={language === 'en' ? 'Citizen Login' : 'नागरिक लॉगिन (Login)'}
                 >
                   {language === 'en' ? 'Login' : 'लॉगिन'}
                 </button>
+
+                {/* Create Account Button */}
                 <button
-                  id="btn-auth-register-mobile"
+                  id="btn-auth-register"
                   type="button"
                   className="seva-btn-register"
                   onClick={() => {
@@ -784,51 +559,33 @@ export const Welcome: React.FC<WelcomeProps> = ({
                     setAuthSuccessMsg('');
                     setAuthModalOpen(true);
                   }}
-                  style={{ padding: '4px 9px', fontSize: 11.5 }}
+                  title={language === 'en' ? 'Create New Account' : 'नया खाता बनाएं (Create Account)'}
                 >
                   {language === 'en' ? 'Sign Up' : 'खाता बनाएं'}
                 </button>
-              </>
+              </div>
             )}
 
-            {/* Hamburger Toggle */}
+            {/* Responsive Hamburger Toggle (< 1140px) */}
             <button
               id="btn-mobile-menu-toggle"
               type="button"
+              className="seva-header-hamburger"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="touch-target-44 focus-visible:ring-2 focus-visible:ring-emerald-400"
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: 36, height: 36, borderRadius: 10,
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.16)',
-                color: '#ffffff', fontSize: 17, cursor: 'pointer'
-              }}
               aria-label="Toggle navigation"
               aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? '✕' : '☰'}
             </button>
           </div>
-        </header>
+        </div>
 
-        {/* Mobile Dropdown Menu Drawer */}
+        {/* ══════════════════════════════════════════════════════════════════
+            SLIDE-DOWN GLASS DRAWER (< 1140px)
+        ══════════════════════════════════════════════════════════════════ */}
         {mobileMenuOpen && (
-          <div
-            style={{
-              position: 'fixed', top: 56, left: 10, right: 10, zIndex: 49,
-              background: 'linear-gradient(180deg, rgba(16, 28, 18, 0.98) 0%, rgba(10, 18, 12, 0.98) 100%)',
-              border: '1px solid rgba(52, 211, 153, 0.35)',
-              borderRadius: 18,
-              padding: '12px',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.65)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              display: 'flex', flexDirection: 'column', gap: 6,
-              boxSizing: 'border-box'
-            }}
-          >
-            {/* Language Bar inside drawer */}
+          <div className="seva-mobile-drawer">
+            {/* Language Selection inside drawer */}
             {onLanguageChange && (
               <div style={{ padding: '4px 2px 8px', display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <span style={{ fontSize: 10.5, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
@@ -866,6 +623,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
 
             <div style={{ height: 1, background: 'rgba(255, 255, 255, 0.1)', margin: '2px 0' }} />
 
+            {/* Navigation Links inside Drawer */}
             {navTabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -899,6 +657,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
 
             <div style={{ height: 1, background: 'rgba(255, 255, 255, 0.1)', margin: '4px 0' }} />
 
+            {/* Extension Link inside Drawer */}
             <button
               id="nav-cta-extension-mobile"
               type="button"
@@ -926,9 +685,57 @@ export const Welcome: React.FC<WelcomeProps> = ({
               </svg>
               एक्सटेंशन से जोड़ें
             </button>
+
+            {/* Mobile Auth Buttons inside Drawer */}
+            {!currentUser ? (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
+                <button
+                  id="btn-auth-login-mobile"
+                  type="button"
+                  className="seva-btn-login"
+                  onClick={() => {
+                    setAuthMode('login');
+                    setAuthError('');
+                    setAuthSuccessMsg('');
+                    setAuthModalOpen(true);
+                    setMobileMenuOpen(false);
+                  }}
+                  style={{ padding: '10px', textAlign: 'center', fontSize: 13 }}
+                >
+                  {language === 'en' ? 'Login' : 'लॉगिन'}
+                </button>
+                <button
+                  id="btn-auth-register-mobile"
+                  type="button"
+                  className="seva-btn-register"
+                  onClick={() => {
+                    setAuthMode('register');
+                    setAuthError('');
+                    setAuthSuccessMsg('');
+                    setAuthModalOpen(true);
+                    setMobileMenuOpen(false);
+                  }}
+                  style={{ padding: '10px', textAlign: 'center', fontSize: 13 }}
+                >
+                  {language === 'en' ? 'Sign Up' : 'खाता बनाएं'}
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: 'rgba(255,255,255,0.06)', borderRadius: 12, marginTop: 4 }}>
+                <span style={{ fontSize: 12, color: '#6ee7b7', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+                  👤 {currentUser.email}
+                </span>
+                <button
+                  onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                  style={{ background: 'none', border: 'none', color: '#f87171', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                >
+                  {language === 'en' ? 'Logout' : 'लॉगआउट'}
+                </button>
+              </div>
+            )}
           </div>
         )}
-      </div>
+      </header>
 
 
       {/* ══════════════════════════════════════════════════════════════════
