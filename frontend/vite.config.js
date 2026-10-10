@@ -59,8 +59,8 @@ export default defineConfig({
       workbox: {
         // Cache app shell + static assets
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff,woff2,ico}'],
-        // Never cache sensitive API routes
-        navigateFallback: '/offline.html',
+        // SPA navigation fallback to app shell
+        navigateFallback: '/index.html',
         navigateFallbackDenylist: [
           /^\/api\//,
           /^\/api\/auth/,
@@ -95,8 +95,7 @@ export default defineConfig({
         clientsClaim: true
       },
       devOptions: {
-        enabled: true,
-        type: 'module'
+        enabled: false
       }
     })
   ],
