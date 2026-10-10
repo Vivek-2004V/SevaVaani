@@ -4,68 +4,276 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SEVA VAANI Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assistant.css" />
 </head>
 <body>
   <div class="assistant-container">
-    <!-- Header -->
+
+    <!-- ── HEADER ─────────────────────────────────────────────── -->
     <header class="header">
       <div class="brand">
-        <div class="brand-icon">🇮🇳</div>
+        <div class="brand-logo">
+          <span class="brand-flag">🇮🇳</span>
+          <div class="brand-pulse"></div>
+        </div>
         <div>
           <div class="brand-title">SEVA VAANI</div>
-          <div class="brand-subtitle">सेवा वाणी • Voice Assistant</div>
+          <div class="brand-subtitle">Voice Public Service</div>
         </div>
       </div>
       <div class="header-actions">
-        <select id="language-select" class="lang-picker" aria-label="भाषा चुनें / Select Language">
-          <option value="hi">हिन्दी (HI)</option>
-          <option value="mr">मराठी (MR)</option>
-          <option value="en">English (EN)</option>
+        <select id="language-select" class="lang-picker" aria-label="भाषा चुनें">
+          <option value="hi">हिन्दी</option>
+          <option value="mr">मराठी</option>
+          <option value="en">English</option>
+          <option value="bn">বাংলা</option>
+          <option value="te">తెలుగు</option>
+          <option value="ta">தமிழ்</option>
+          <option value="gu">ગુજરાતી</option>
+          <option value="kn">ಕನ್ನಡ</option>
+          <option value="pa">ਪੰਜਾਬੀ</option>
         </select>
-        <button id="close-btn" class="icon-btn" title="Close Panel" aria-label="Close">✕</button>
+        <button id="close-btn" class="icon-btn" title="Close" aria-label="Close">✕</button>
       </div>
     </header>
 
-    <!-- User Auth Status Strip -->
-    <div class="auth-bar" id="auth-bar">
-      <div class="auth-user-info" id="auth-user-info">
-        <span class="auth-status-dot unauthenticated" id="auth-status-dot"></span>
-        <span class="auth-user-label" id="auth-user-label">अतिथि सत्र (Guest Session)</span>
+    <!-- ── PROGRESS BAR ───────────────────────────────────────── -->
+    <div class="progress-section">
+      <div class="progress-bar-bg">
+        <div id="progress-bar-fill" class="progress-bar-fill" style="width:0%"></div>
       </div>
-      <div class="auth-bar-actions">
-        <button id="auth-toggle-btn" class="mini-btn btn-auth-toggle">🔐 लॉगिन / साइन अप</button>
-        <button id="logout-btn" class="mini-btn btn-logout hidden">लॉग आउट</button>
+      <div class="progress-meta">
+        <span id="field-counter">Field 1 of 10</span>
+        <span id="progress-percent">0%</span>
       </div>
     </div>
 
-    <!-- Collapsible Auth Panel (Modal/Dropdown) -->
+    <!-- ── ERROR BANNER ───────────────────────────────────────── -->
+    <div id="error-banner" class="error-banner hidden" role="alert">
+      <span class="error-icon">⚠️</span>
+      <div id="error-message-text" class="error-text">माइक्रोफ़ोन त्रुटि</div>
+      <button id="dismiss-error-btn" class="icon-btn-sm">✕</button>
+    </div>
+
+    <!-- ── FILL TOAST ─────────────────────────────────────────── -->
+    <div id="fill-toast" class="fill-toast hidden" role="status" aria-live="polite">
+      <span id="fill-toast-icon">✓</span>
+      <span id="fill-toast-text">Field filled on page</span>
+    </div>
+
+    <!-- ── MAIN ───────────────────────────────────────────────── -->
+    <main class="main-body">
+
+      <!-- Active Question Card -->
+      <div class="prompt-card">
+        <div class="prompt-badge" id="active-field-badge">पूरा नाम</div>
+        <div class="prompt-text" id="active-prompt-text">
+          कृपया अपना पूरा नाम बताएं जैसा कि आपके आधार कार्ड में है।
+        </div>
+        <div class="prompt-actions">
+          <button id="speak-prompt-btn" class="mini-voice-btn" title="Listen again">
+            🔊 <span id="speak-prompt-label">सुनिए</span>
+          </button>
+          <button id="explain-field-btn" class="mini-voice-btn" title="Explain field">
+            💡 <span id="explain-field-label">समझाएं</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Field Guidance Card (collapsible, hidden by default) -->
+      <div id="guidance-card" class="guidance-card hidden" aria-live="polite">
+        <div class="guidance-header">
+          <span class="guidance-title" id="guidance-title">💡 सरल भाषा में (Field Guide)</span>
+          <button id="guidance-close-btn" class="icon-btn-sm">✕</button>
+        </div>
+        <p id="guidance-explanation" class="guidance-explanation"></p>
+        <div id="guidance-example-box" class="guidance-example-box">
+          <strong id="guidance-example-label">उदाहरण:</strong>
+          <span id="guidance-example-text"></span>
+        </div>
+        <div id="guidance-spelling-box" class="guidance-spelling-box hidden">
+          <span id="guidance-spelling-text"></span>
+        </div>
+        <button id="guidance-listen-btn" class="mini-btn-link">🔊 आवाज़ में सुनें</button>
+      </div>
+
+      <!-- Confirmation Card -->
+      <div id="confirmation-card" class="confirmation-card hidden" aria-live="polite">
+        <div class="confirm-header">
+          <span class="confirm-icon">❓</span>
+          <span class="confirm-title" id="confirm-title-text">पुष्टि करें</span>
+          <span id="fsm-state-badge" class="fsm-state-badge">CONFIRMING</span>
+        </div>
+        <div id="confirm-message" class="confirm-message">
+          मैंने समझा कि आपका नाम Ramesh Kumar है। क्या यह सही है?
+        </div>
+
+        <!-- Spelling breakdown -->
+        <div id="confirm-spelling-container" class="confirm-spelling-container hidden">
+          <div class="spelling-header-row">
+            <span class="spelling-label">🔤 वर्तनी:</span>
+            <span id="confirm-spaced-text" class="confirm-spaced-text"></span>
+          </div>
+          <div id="confirm-spelling-chips" class="spelling-chips"></div>
+          <div id="confirm-ambiguity-warning" class="confirm-ambiguity-warning hidden"></div>
+        </div>
+
+        <!-- Spelling editor -->
+        <div id="spelling-editor-drawer" class="spelling-editor-drawer hidden">
+          <div class="spelling-drawer-title">✏️ वर्तनी सुधारें:</div>
+          <div class="spelling-input-row">
+            <input type="text" id="spelling-input" class="spelling-input" placeholder="सही वर्तनी लिखें..." />
+            <button type="button" id="spelling-apply-btn" class="btn btn-primary btn-xs">✓</button>
+            <button type="button" id="spelling-cancel-btn" class="btn btn-ghost btn-xs">✕</button>
+          </div>
+          <div id="spelling-variants-container" class="spelling-variants-container hidden">
+            <span class="variants-label">सुझाव:</span>
+            <div id="spelling-variants-list" class="variants-pills"></div>
+          </div>
+        </div>
+
+        <!-- Confirm buttons -->
+        <div class="confirm-actions-grid">
+          <button id="confirm-yes-btn" class="btn btn-confirm">✓ हाँ, सही है</button>
+          <button id="confirm-no-btn" class="btn btn-reject">✗ नहीं, फिर बोलें</button>
+          <button id="confirm-slow-btn" class="btn btn-secondary btn-xs">🐢 धीरे</button>
+          <button id="confirm-edit-spelling-btn" class="btn btn-secondary btn-xs">✏️ वर्तनी</button>
+          <button id="confirm-help-btn" class="btn btn-ghost btn-xs">🆘 सहायता</button>
+        </div>
+        <div class="confirm-sub-actions">
+          <button id="confirm-replay-btn" class="mini-btn-link">🔊 दोबारा सुनें</button>
+        </div>
+      </div>
+
+      <!-- Live Transcript -->
+      <div id="transcript-card" class="transcript-card hidden">
+        <div class="transcript-header">
+          <span id="transcript-title" class="transcript-label">📝 सुनाई दिया:</span>
+        </div>
+        <textarea id="transcript-editor" class="transcript-editor" rows="2" placeholder="यहाँ बोला गया पाठ दिखाई देगा..."></textarea>
+        <div class="transcript-actions">
+          <button id="transcript-process-btn" class="btn btn-primary btn-xs">✓ प्रोसेस</button>
+          <button id="transcript-retry-btn" class="btn btn-secondary btn-xs">🔄 पुनः</button>
+          <button id="transcript-clear-btn" class="btn btn-ghost btn-xs">✕</button>
+        </div>
+      </div>
+
+      <!-- ── MIC BUTTON ─────────────────────────────────────── -->
+      <div class="mic-container">
+        <div class="mic-button-wrapper">
+          <div class="mic-ripple-outer" id="mic-ripple-outer"></div>
+          <div class="mic-ripple-inner" id="mic-ripple-inner"></div>
+          <button id="mic-btn" class="mic-button" aria-label="बोलने के लिए माइक दबाएं">
+            <svg class="mic-icon" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+          </button>
+          <div id="mic-pulse-ring" class="mic-pulse-ring hidden"></div>
+        </div>
+        <div id="mic-status-label" class="mic-status">माइक दबाएं और बोलें</div>
+      </div>
+
+      <!-- Quick Voice Commands -->
+      <div class="voice-cmd-hints" id="voice-cmd-hints">
+        <span class="hint-label">🎙️</span>
+        <button type="button" class="hint-pill" id="hint-replay">दोबारा सुनाओ</button>
+        <button type="button" class="hint-pill" id="hint-slower">धीरे बोलो</button>
+        <button type="button" class="hint-pill" id="hint-change">बदलना है</button>
+        <button type="button" class="hint-pill" id="hint-help">मदद चाहिए</button>
+      </div>
+
+      <!-- Text Fallback -->
+      <div class="fallback-section">
+        <details id="fallback-details">
+          <summary class="fallback-summary">⌨️ टाइप करके उत्तर दें</summary>
+          <div class="fallback-input-row">
+            <input type="text" id="fallback-text-input" placeholder="यहाँ उत्तर टाइप करें..." />
+            <button id="fallback-submit-btn" class="btn btn-primary btn-sm">दर्ज</button>
+          </div>
+        </details>
+      </div>
+
+      <!-- Document Verify (compact accordion) -->
+      <div id="document-verify-card" class="doc-verify-card">
+        <details id="doc-verify-details">
+          <summary class="doc-verify-summary">
+            📄 दस्तावेज़ से सत्यापन
+            <span class="doc-badge-privacy">🔒 Zero-Disk</span>
+          </summary>
+          <div class="doc-verify-content">
+            <div class="doc-consent-card">
+              <label class="doc-consent-label">
+                <input type="checkbox" id="doc-consent-checkbox" checked />
+                <span>सत्यापन के लिए सहमति दें (आधार मास्क रहेगा)</span>
+              </label>
+            </div>
+            <div class="doc-input-group">
+              <select id="doc-type-select" class="doc-select">
+                <option value="education_marksheet">10वीं / 12वीं अंकतालिका</option>
+                <option value="income_certificate">आय प्रमाण पत्र</option>
+                <option value="caste_certificate">जाति प्रमाण पत्र</option>
+                <option value="domicile_certificate">मूल निवास प्रमाण</option>
+                <option value="bank_passbook">बैंक पासबुक</option>
+                <option value="birth_certificate">जन्म प्रमाण पत्र</option>
+                <option value="identity_card">पहचान पत्र (Voter/PAN)</option>
+              </select>
+            </div>
+            <div class="doc-input-group">
+              <textarea id="doc-text-input" class="doc-textarea" rows="2" placeholder="OCR टेक्स्ट यहाँ पेस्ट करें..."></textarea>
+            </div>
+            <div class="doc-input-group">
+              <input type="file" id="doc-file-input" accept=".txt,.json" class="doc-file" />
+            </div>
+            <div class="doc-actions-row">
+              <button id="doc-verify-btn" class="btn btn-secondary btn-sm">🔍 मिलान करें</button>
+              <button id="doc-clear-btn" class="btn btn-ghost btn-xs">✕ साफ़ करें</button>
+            </div>
+            <div id="doc-results-box" class="doc-results-box hidden" aria-live="polite">
+              <div id="doc-results-header" class="doc-results-header"></div>
+              <div id="doc-results-list" class="doc-results-list"></div>
+              <div class="doc-results-actions">
+                <button id="doc-speak-results-btn" class="mini-voice-btn">🔊 सुनें</button>
+                <button id="doc-apply-value-btn" class="btn btn-primary btn-xs hidden">✓ फॉर्म में भरें</button>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Human Help -->
+      <div class="help-section">
+        <button id="human-help-btn" class="help-link">🆘 ऑपरेटर से सहायता लें</button>
+      </div>
+
+    </main>
+
+    <!-- ── AUTH PANEL (hidden modal) ─────────────────────────── -->
     <div id="auth-panel" class="auth-panel hidden">
       <div class="auth-card">
         <div class="auth-card-header">
           <div class="auth-tabs">
-            <button id="auth-tab-login" class="auth-tab active">लॉगिन (Login)</button>
-            <button id="auth-tab-register" class="auth-tab">पंजीकरण (Register)</button>
+            <button id="auth-tab-login" class="auth-tab active">लॉगिन</button>
+            <button id="auth-tab-register" class="auth-tab">रजिस्टर</button>
           </div>
-          <button id="auth-close-btn" class="icon-btn-sm" title="Close Auth">✕</button>
+          <button id="auth-close-btn" class="icon-btn-sm">✕</button>
         </div>
-
         <form id="auth-form" class="auth-form" onsubmit="return false;">
           <div id="auth-name-group" class="form-group hidden">
-            <label for="auth-name">पूरा नाम (Full Name)</label>
-            <input type="text" id="auth-name" placeholder="उदा. रमेश कुमार" autocomplete="name" />
+            <label for="auth-name">पूरा नाम</label>
+            <input type="text" id="auth-name" placeholder="रमेश कुमार" autocomplete="name" />
           </div>
           <div class="form-group">
-            <label for="auth-email">ईमेल (Email ID)</label>
+            <label for="auth-email">ईमेल</label>
             <input type="email" id="auth-email" placeholder="citizen@example.com" required autocomplete="email" />
           </div>
           <div class="form-group">
-            <label for="auth-password">पासवर्ड (Password)</label>
+            <label for="auth-password">पासवर्ड</label>
             <input type="password" id="auth-password" placeholder="••••••••" required autocomplete="current-password" />
           </div>
-
           <div id="auth-error" class="auth-error-banner hidden"></div>
-
           <div class="auth-form-actions">
             <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-sm">लॉगिन करें</button>
             <button type="button" id="auth-cancel-btn" class="btn btn-ghost btn-sm">रद्द करें</button>
@@ -74,257 +282,20 @@
       </div>
     </div>
 
-    <!-- Error / Mic Permission Denied Banner -->
-    <div id="error-banner" class="error-banner hidden" role="alert">
-      <div class="error-banner-content">
-        <span class="error-banner-icon">⚠️</span>
-        <div class="error-banner-text" id="error-message-text">माइक्रोफ़ोन त्रुटि</div>
-      </div>
-      <button id="dismiss-error-btn" class="icon-btn-sm">✕</button>
-    </div>
-
-    <!-- In-Page Field Fill Status Toast -->
-    <div id="fill-toast" class="fill-toast hidden" role="status" aria-live="polite">
-      <span id="fill-toast-icon">✓</span>
-      <span id="fill-toast-text">पेज पर फ़ील्ड भरी गई (Field filled on page)</span>
-    </div>
-
-    <!-- Progress Indicator -->
-    <div class="progress-section">
-      <div class="progress-bar-bg">
-        <div id="progress-bar-fill" class="progress-bar-fill" style="width: 10%;"></div>
-      </div>
-      <div class="progress-meta">
-        <span id="field-counter">Field 1 of 10</span>
-        <span id="progress-percent">10%</span>
-      </div>
-    </div>
-
-    <!-- Main Body -->
-    <main class="main-body">
-      <!-- Privacy & Data Protection Notice -->
-      <div id="privacy-notice-card" class="privacy-notice-card" role="note">
-        <div class="privacy-notice-text">
-          🔒 <strong>गोपनीयता सूचना (Privacy Notice):</strong> आपका फॉर्म डेटा आपके कंप्यूटर (127.0.0.1:8000) पर सुरक्षित रहता है। वॉइस इनपुट ब्राउज़र स्पीच पहचान का उपयोग करता है; बिना माइक्रोफ़ोन के 100% ऑफ़लाइन टाइपिंग के लिए नीचे 'टाइप करके उत्तर दें' चुनें।
-        </div>
-      </div>
-
-      <!-- Active Question Prompt Card -->
-      <div class="prompt-card">
-        <div class="prompt-badge" id="active-field-badge">पूरा नाम (Full Name)</div>
-        <div class="prompt-text" id="active-prompt-text">
-          कृपया अपना पूरा नाम बताएं जैसा कि आपके आधार कार्ड में है।
-        </div>
-        <div class="prompt-actions">
-          <button id="speak-prompt-btn" class="mini-voice-btn" title="Listen again">
-            🔊 <span id="speak-prompt-label">सुनिए (Listen)</span>
-          </button>
-          <button id="explain-field-btn" class="mini-voice-btn" title="Explain Field meaning & examples">
-            💡 <span id="explain-field-label">समझाएं (Explain)</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Context-Aware Guidance Card (Comprehension & Low-Literacy Support) -->
-      <div id="guidance-card" class="guidance-card hidden" aria-live="polite">
-        <div class="guidance-header">
-          <div class="guidance-title-row">
-            <span class="guidance-icon">💡</span>
-            <span class="guidance-title" id="guidance-title">सरल भाषा में समझें (Field Guide)</span>
-          </div>
-          <button id="guidance-close-btn" class="icon-btn-sm" title="Close Guidance">✕</button>
-        </div>
-        <div id="guidance-body" class="guidance-body">
-          <p id="guidance-explanation" class="guidance-explanation"></p>
-          <div id="guidance-example-box" class="guidance-example-box">
-            <strong id="guidance-example-label">उदाहरण (Example):</strong> <span id="guidance-example-text"></span>
-          </div>
-          <div id="guidance-spelling-box" class="guidance-spelling-box hidden">
-            <span id="guidance-spelling-text"></span>
-          </div>
-        </div>
-        <div class="guidance-actions">
-          <button id="guidance-listen-btn" class="mini-btn-link">🔊 आवाज़ में सुनें (Read Aloud)</button>
-        </div>
-      </div>
-
-      <!-- Explicit Confirmation Card & FSM State Review -->
-      <div id="confirmation-card" class="confirmation-card hidden" aria-live="polite">
-        <div class="confirm-header">
-          <div class="confirm-header-left">
-            <span class="confirm-icon">❓</span>
-            <span class="confirm-title" id="confirm-title-text">कृपया पुष्टि करें (Please Confirm)</span>
-          </div>
-          <span id="fsm-state-badge" class="fsm-state-badge">CONFIRMATION_REQUIRED</span>
-        </div>
-        
-        <div id="confirm-message" class="confirm-message">
-          मैंने समझा कि आपका नाम Ramesh Kumar है। क्या यह सही है?
-        </div>
-
-        <!-- Name Pronunciation & Character-by-Character Spelling Breakdown (Phase 3) -->
-        <div id="confirm-spelling-container" class="confirm-spelling-container hidden">
-          <div class="spelling-header-row">
-            <span class="spelling-label">🔤 वर्तनी / अक्षरे (Spelling breakdown):</span>
-            <span id="confirm-spaced-text" class="confirm-spaced-text"></span>
-          </div>
-          <div id="confirm-spelling-chips" class="spelling-chips"></div>
-          <div id="confirm-ambiguity-warning" class="confirm-ambiguity-warning hidden"></div>
-        </div>
-
-        <!-- Inline Letter-by-Letter Spelling Drawer -->
-        <div id="spelling-editor-drawer" class="spelling-editor-drawer hidden">
-          <div class="spelling-drawer-title">✏️ वर्तनी सुधारें (Edit Spelling):</div>
-          <div class="spelling-input-row">
-            <input type="text" id="spelling-input" class="spelling-input" placeholder="सही वर्तनी लिखें (उदा. Meenakshi)..." />
-            <button type="button" id="spelling-apply-btn" class="btn btn-primary btn-xs">✓ लागू करें</button>
-            <button type="button" id="spelling-cancel-btn" class="btn btn-ghost btn-xs">✕</button>
-          </div>
-          <div id="spelling-variants-container" class="spelling-variants-container hidden">
-            <span class="variants-label">सरकारी रिकॉर्ड सुझाव (Official Variants):</span>
-            <div id="spelling-variants-list" class="variants-pills"></div>
-          </div>
-        </div>
-
-        <!-- 5 Deterministic Confirmation Controls (Prompt Phase 3) -->
-        <div class="confirm-actions-grid">
-          <button id="confirm-yes-btn" class="btn btn-confirm" title="Yes, correct">✓ हाँ, सही है (Yes)</button>
-          <button id="confirm-no-btn" class="btn btn-reject" title="No, retry">✗ नहीं, पुनः बोलें (Retry)</button>
-          <button id="confirm-slow-btn" class="btn btn-secondary btn-xs" title="Repeat slowly">🐢 धीरे सुनें (Slow)</button>
-          <button id="confirm-edit-spelling-btn" class="btn btn-secondary btn-xs" title="Edit spelling letter-by-letter">✏️ वर्तनी सुधारें (Spelling)</button>
-          <button id="confirm-help-btn" class="btn btn-ghost btn-xs" title="Request human assistance">🆘 सहायता (Help)</button>
-        </div>
-
-        <div class="confirm-sub-actions">
-          <button id="confirm-replay-btn" class="mini-btn-link">🔊 दोबारा सुनें (Replay Audio)</button>
-        </div>
-      </div>
-
-      <!-- Live & Editable Transcript Preview Card -->
-      <div id="transcript-card" class="transcript-card hidden">
-        <div class="transcript-header">
-          <span class="transcript-label" id="transcript-title">📝 सुनाई दिया (Transcript - आप संपादित कर सकते हैं):</span>
-        </div>
-        <textarea id="transcript-editor" class="transcript-editor" rows="2" placeholder="यहाँ बोला गया पाठ दिखाई देगा..."></textarea>
-        <div class="transcript-actions">
-          <button id="transcript-process-btn" class="btn btn-primary btn-xs">✓ प्रोसेस करें (Process)</button>
-          <button id="transcript-retry-btn" class="btn btn-secondary btn-xs">🔄 पुनः बोलें (Retry)</button>
-          <button id="transcript-clear-btn" class="btn btn-ghost btn-xs">✕ रद्द करें</button>
-        </div>
-      </div>
-
-      <!-- Voice Microphone Section -->
-      <div class="mic-container">
-        <div class="mic-button-wrapper">
-          <button id="mic-btn" class="mic-button" aria-label="बोलने के लिए माइक दबाएं (Tap to Speak)">
-            <svg class="mic-icon" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-            </svg>
-          </button>
-          <!-- Active Sound Pulse Wave Ring -->
-          <div id="mic-pulse-ring" class="mic-pulse-ring hidden"></div>
-        </div>
-        <div id="mic-status-label" class="mic-status">बोलने के लिए माइक दबाएं (Tap to Speak)</div>
-      </div>
-
-      <!-- Quick Voice Commands Hint Strip -->
-      <div class="voice-cmd-hints" id="voice-cmd-hints">
-        <span class="hint-badge">🎙️ वॉइस कमांड्स:</span>
-        <button type="button" class="hint-pill" id="hint-replay" title="Replay">"दोबारा सुनाओ"</button>
-        <button type="button" class="hint-pill" id="hint-slower" title="Speak Slower">"धीरे बोलो"</button>
-        <button type="button" class="hint-pill" id="hint-change" title="Change candidate">"उत्तर बदलना है"</button>
-        <button type="button" class="hint-pill" id="hint-help" title="Need help">"मदद चाहिए"</button>
-      </div>
-
-      <!-- Text Fallback Alternative -->
-      <div class="fallback-section">
-        <details id="fallback-details">
-          <summary class="fallback-summary">⌨️ टाइप करके उत्तर दें (Type text fallback)</summary>
-          <div class="fallback-input-row">
-            <input type="text" id="fallback-text-input" placeholder="यहाँ उत्तर टाइप करें..." />
-            <button id="fallback-submit-btn" class="btn btn-primary btn-sm">दर्ज करें</button>
-          </div>
-        </details>
-      </div>
-
-      <!-- Document Verification Card (Document-Agnostic Cross-Check) -->
-      <div id="document-verify-card" class="doc-verify-card">
-        <details id="doc-verify-details">
-          <summary class="doc-verify-summary">
-            📄 <strong>दस्तावेज़ सत्यापन (Verify with Document)</strong>
-            <span class="doc-badge-privacy">🔒 Zero-Disk</span>
-          </summary>
-          <div class="doc-verify-content">
-            <p class="doc-verify-desc">
-              अपने प्रमाण पत्र या मार्कशीट से नाम, आय या जन्मतिथि का मिलान करें। कोई भी फ़ाइल डिस्क या डेटाबेस में सेव नहीं होती।
-            </p>
-
-            <!-- Informed Consent Gate (Phase 4) -->
-            <div class="doc-consent-card">
-              <label class="doc-consent-label">
-                <input type="checkbox" id="doc-consent-checkbox" checked />
-                <span class="doc-consent-text">
-                  📋 <strong>सहमति (Consent):</strong> मैं सत्यापन के लिए आवश्यक फ़ील्ड्स (नाम/आय/जन्मतिथि) निकालने की सहमति देता/देती हूँ। आधार संख्या मास्क रहेगी।
-                </span>
-              </label>
-            </div>
-
-            <div class="doc-input-group">
-              <label for="doc-type-select">दस्तावेज़ का प्रकार (Document Type):</label>
-              <select id="doc-type-select" class="doc-select">
-                <option value="education_marksheet">10वीं/12वीं अंकतालिका (10th SSC Marksheet - Student Gold Standard)</option>
-                <option value="income_certificate">तहसीलदार आय प्रमाण पत्र (Revenue / Tahsildar Income Certificate)</option>
-                <option value="caste_certificate">जाति प्रमाण पत्र (Caste / Category Certificate)</option>
-                <option value="domicile_certificate">मूल निवास / अधिवास (Domicile Certificate)</option>
-                <option value="bank_passbook">बैंक पासबुक / चेक (Bank Passbook)</option>
-                <option value="birth_certificate">जन्म प्रमाण पत्र (Birth Certificate)</option>
-                <option value="identity_card">पहचान पत्र (Voter ID / PAN / Aadhaar)</option>
-              </select>
-            </div>
-
-            <div class="doc-input-group">
-              <label for="doc-text-input">दस्तावेज़ का टेक्स्ट या OCR विवरण:</label>
-              <textarea id="doc-text-input" class="doc-textarea" rows="2" placeholder="उदा. Name: Ramesh Kumar, Annual Income: 120000, DOB: 15/08/2002..."></textarea>
-            </div>
-
-            <div class="doc-input-group">
-              <label for="doc-file-input">या टेक्स्ट/JSON फ़ाइल चुनें:</label>
-              <input type="file" id="doc-file-input" accept=".txt,.json" class="doc-file" />
-            </div>
-
-            <div class="doc-actions-row">
-              <button id="doc-verify-btn" class="btn btn-secondary btn-sm">🔍 मिलान करें (Verify Document)</button>
-              <button id="doc-clear-btn" class="btn btn-ghost btn-xs">✕ साफ़ करें</button>
-            </div>
-
-            <!-- Verification Results Display -->
-            <div id="doc-results-box" class="doc-results-box hidden" aria-live="polite">
-              <div id="doc-results-header" class="doc-results-header"></div>
-              <div id="doc-results-list" class="doc-results-list"></div>
-              <div class="doc-results-actions">
-                <button id="doc-speak-results-btn" class="mini-voice-btn">🔊 आवाज़ में सुनें (Read Aloud)</button>
-                <button id="doc-apply-value-btn" class="btn btn-primary btn-xs hidden">✓ दस्तावेज़ का मान फॉर्म में भरें</button>
-              </div>
-            </div>
-          </div>
-        </details>
-      </div>
-
-      <!-- Human Help Request Section -->
-      <div class="help-section">
-        <button id="human-help-btn" class="help-link">🆘 सहायता ऑपरेटर से मदद चाहिए? (Request Help Ticket)</button>
-      </div>
-    </main>
-
-    <!-- Footer Status -->
-    <footer class="footer">
-      <div class="connection-status">
+    <!-- ── FOOTER ─────────────────────────────────────────────── -->
+    <footer class="footer" id="auth-bar">
+      <div class="footer-left">
         <span class="status-dot" id="server-status-dot"></span>
-        <span id="backend-status-text">FastAPI Backend: http://127.0.0.1:8000</span>
+        <span id="backend-status-text">FastAPI Connected</span>
       </div>
-      <div class="safety-tag">🛡️ Privacy-First • Local SQLite • Zero Auto-Submit</div>
+      <div class="footer-right">
+        <span class="auth-status-dot unauthenticated hidden" id="auth-status-dot"></span>
+        <span id="auth-user-label" class="footer-user-label"></span>
+        <button id="auth-toggle-btn" class="footer-auth-btn">🔐 लॉगिन</button>
+        <button id="logout-btn" class="footer-auth-btn hidden">लॉग आउट</button>
+      </div>
     </footer>
+
   </div>
 
   <script src="privacyFirewall.js"></script>

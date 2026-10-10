@@ -380,16 +380,16 @@ async function checkAuthStatus() {
 
 function updateAuthUI(user) {
   if (user) {
-    authStatusDot.className = 'auth-status-dot authenticated';
-    authUserLabel.innerText = `👤 ${user.email}`;
-    authToggleBtn.classList.add('hidden');
-    logoutBtn.classList.remove('hidden');
-    authPanel.classList.add('hidden');
+    if (authStatusDot) authStatusDot.className = 'auth-status-dot authenticated';
+    if (authUserLabel) authUserLabel.innerText = `👤 ${user.email ? user.email.split('@')[0] : 'Citizen'}`;
+    if (authToggleBtn) authToggleBtn.classList.add('hidden');
+    if (logoutBtn) logoutBtn.classList.remove('hidden');
+    if (authPanel) authPanel.classList.add('hidden');
   } else {
-    authStatusDot.className = 'auth-status-dot unauthenticated';
-    authUserLabel.innerText = currentLanguage === 'mr' ? 'अतिथी सत्र (Guest)' : (currentLanguage === 'en' ? 'Guest Session' : 'अतिथि सत्र (Guest Session)');
-    authToggleBtn.classList.remove('hidden');
-    logoutBtn.classList.add('hidden');
+    if (authStatusDot) authStatusDot.className = 'auth-status-dot unauthenticated hidden';
+    if (authUserLabel) authUserLabel.innerText = currentLanguage === 'mr' ? 'अतिथी' : (currentLanguage === 'en' ? 'Guest' : 'अतिथि');
+    if (authToggleBtn) authToggleBtn.classList.remove('hidden');
+    if (logoutBtn) logoutBtn.classList.add('hidden');
   }
 }
 
@@ -1062,7 +1062,8 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
 }
 
 function showErrorBanner(msg) {
-  errorMessageText.innerText = msg;
+  if (!errorMessageText || !errorBanner) return;
+  errorMessageText.innerText = (msg || '').replace(/^[⚠️\s]+/, '').trim();
   errorBanner.classList.remove('hidden');
 }
 
