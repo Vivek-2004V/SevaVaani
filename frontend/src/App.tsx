@@ -40,11 +40,11 @@ export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [authInitialized, setAuthInitialized] = useState<boolean>(false);
 
-  // Application Flow State
-  const [screen, setScreen] = useState<ScreenState>('welcome');
+  // Application Flow State — default to 'form' so the actual voice assistant opens immediately!
+  const [screen, setScreen] = useState<ScreenState>('form');
   const [language, setLanguage] = useState<SupportedLanguage>('hi');
   const [serviceId, setServiceId] = useState<string>('scholarship_post_matric');
-  const [sessionId, setSessionId] = useState<string>('');
+  const [sessionId, setSessionId] = useState<string>(() => `sv-${Date.now()}`);
   const [fields, setFields] = useState<FormField[]>(SCHOLARSHIP_FIELDS);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [applicationId, setApplicationId] = useState<string>('');
@@ -93,19 +93,19 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('message', handleGlobalAction);
   }, []);
 
-  // Custom 404 Route Detection for unrecognized URL navigation
+  // Custom Route Detection for hash navigation (#form, #welcome, #dashboard, etc.)
   useEffect(() => {
     const checkHashRoute = () => {
       const rawHash = window.location.hash.replace(/^#\/?/, '').trim().toLowerCase();
-      const validHashes = ['', 'welcome', 'dashboard', 'language', 'service', 'form', 'review', 'success', 'privacy', 'terms'];
-      if (rawHash && !validHashes.includes(rawHash)) {
-        setScreen('not-found');
-      }
+      if (rawHash === 'welcome') setScreen('welcome');
+      else if (rawHash === 'form') setScreen('form');
+      else if (rawHash === 'service') setScreen('service');
+      else if (rawHash === 'language') setScreen('language');
+      else if (rawHash === 'dashboard' && currentUser) setScreen('dashboard');
     };
     window.addEventListener('hashchange', checkHashRoute);
-    checkHashRoute();
     return () => window.removeEventListener('hashchange', checkHashRoute);
-  }, []);
+  }, [currentUser]);
 
   // Check for saved incomplete session on auth initialization
   useEffect(() => {
@@ -118,18 +118,10 @@ export const App: React.FC = () => {
     }
   }, [authInitialized, currentUser]);
 
-  // Security Guard: Enforce Authentication on Protected Views
+  // Security Guard: Only protect private citizen dashboard
   useEffect(() => {
     if (authInitialized) {
-      const protectedScreens: ScreenState[] = [
-        'dashboard',
-        'language',
-        'service',
-        'form',
-        'review',
-        'success'
-      ];
-      if (protectedScreens.includes(screen) && !currentUser) {
+      if (screen === 'dashboard' && !currentUser) {
         setScreen('welcome');
       }
     }
@@ -190,12 +182,8 @@ export const App: React.FC = () => {
   };
 
   // Screen Navigation Handlers
-  const handleStartVoiceFromLanding = () => {
-    if (!currentUser) {
-      setScreen('welcome');
-    } else {
-      setScreen('dashboard');
-    }
+  const handleStartVoiceFromLanding = async () => {
+    await startNewSession(language);
   };
 
   const handleStartVoiceFromDashboard = (
@@ -248,7 +236,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full font-sans antialiased bg-[#121a13] text-white overflow-x-hidden">
+    <div className="relative min-h-screen w-full font-sans antialiased bg-[#0f172a] text-white overflow-x-hidden">
       {/* Session Recovery Modal — shown after login if a saved session is found */}
       {pendingRecovery && currentUser && (
         <SessionRecoveryBanner
@@ -258,31 +246,88 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* ══════════════════════════════════════════════════════════════════
-          PERSISTENT 3D LIVING WORLD SCENE
-          Renders seamlessly behind all screens with continuous WebGL animation.
-      ══════════════════════════════════════════════════════════════════ */}
-      <SylvaHero
-        variant="living-green"
-        language={language}
-        headingFont="lexend"
-        bodyFont="lexend"
-        headingWeight="300"
-        bodyWeight="300"
-        primaryColor="#ffffff"
-        headingSize={63}
-        bodySize={16.5}
-        headingLetterSpacing={-0.006}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 0,
-          pointerEvents: screen === 'welcome' ? 'auto' : 'none'
-        }}
-      />
+      {/* Top Quick Navigation Bar across all views */}
+      <nav className="sticky top-0 z-50 w-full bg-slate-900/90 backdrop-blur-md border-b border-white/10 px-4 py-2 flex items-center justify-between shadow-md">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => setScreen('welcome')}
+            className="flex items-center gap-2 text-white hover:text-emerald-400 font-extrabold text-sm tracking-tight transition-colors"
+          >
+            <span className="w-7 h-7 rounded-lg bg-emerald-500 text-slate-900 font-black flex items-center justify-center text-sm shadow">
+              स
+            </span>
+            <span>SEVA VAANI <span className="text-xs text-emerald-300 font-normal">सेवा वाणी</span></span>
+          </button>
+        </div>
 
-      {/* Screen Views Layer (Frosted Glassmorphism above 3D Scene) */}
-      <div className="relative z-10 min-h-screen w-full">
+        {/* View Switcher Pills */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          <button
+            onClick={() => {
+              if (screen !== 'form') {
+                if (!sessionId) startNewSession(language);
+                else setScreen('form');
+              }
+            }}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+              screen === 'form'
+                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+                : 'bg-white/10 hover:bg-white/20 text-emerald-200 border border-emerald-500/30'
+            }`}
+          >
+            <span>🎙️</span>
+            <span>वॉइस फॉर्म (Voice Assistant)</span>
+          </button>
+
+          <button
+            onClick={() => setScreen('service')}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all hidden sm:flex items-center gap-1 ${
+              screen === 'service'
+                ? 'bg-emerald-500 text-slate-950 shadow'
+                : 'bg-white/5 hover:bg-white/15 text-slate-200 border border-white/10'
+            }`}
+          >
+            <span>📋</span>
+            <span>सेवाएं</span>
+          </button>
+
+          <button
+            onClick={() => setScreen('language')}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all hidden sm:flex items-center gap-1 ${
+              screen === 'language'
+                ? 'bg-emerald-500 text-slate-950 shadow'
+                : 'bg-white/5 hover:bg-white/15 text-slate-200 border border-white/10'
+            }`}
+          >
+            <span>🌐</span>
+            <span>भाषा</span>
+          </button>
+
+          <button
+            onClick={() => setScreen('welcome')}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1 ${
+              screen === 'welcome'
+                ? 'bg-emerald-500 text-slate-950 shadow'
+                : 'bg-white/5 hover:bg-white/15 text-slate-200 border border-white/10'
+            }`}
+          >
+            <span>🏠</span>
+            <span className="hidden xs:inline">होम</span>
+          </button>
+
+          <button
+            onClick={() => setShowJudgeMode(true)}
+            className="px-2.5 py-1.5 rounded-full text-xs font-semibold bg-white/10 hover:bg-white/20 text-amber-200 border border-amber-400/40 transition-all flex items-center gap-1 ml-1"
+            title="Judge Metrics & Evaluation"
+          >
+            <span>⚖️</span>
+            <span className="hidden md:inline">Judge</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Screen Views Layer */}
+      <div className="relative z-10 min-h-[calc(100vh-50px)] w-full">
         {/* 1. PUBLIC LANDING PAGE (Create Account / Login / Explore) */}
         {screen === 'welcome' && (
           <Welcome
@@ -309,16 +354,16 @@ export const App: React.FC = () => {
         )}
 
         {/* 3. LANGUAGE SELECTION STEP */}
-        {screen === 'language' && currentUser && (
+        {screen === 'language' && (
           <LanguageSelect
             currentLanguage={language}
             onConfirmLanguage={handleConfirmLanguage}
-            onBack={() => setScreen('dashboard')}
+            onBack={() => setScreen('welcome')}
           />
         )}
 
         {/* 4. PUBLIC SERVICE SELECTION STEP */}
-        {screen === 'service' && currentUser && (
+        {screen === 'service' && (
           <ServiceSelect
             language={language}
             onSelectService={handleSelectService}
@@ -327,7 +372,7 @@ export const App: React.FC = () => {
         )}
 
         {/* 5. VOICE ASSISTANT FORM COMPLETION STAGE */}
-        {screen === 'form' && currentUser && (
+        {screen === 'form' && (
           <ServiceForm
             sessionId={sessionId || `sv-${Date.now()}`}
             fields={fields}
@@ -335,12 +380,12 @@ export const App: React.FC = () => {
             initialIndex={editIndex ?? 0}
             onLanguageChange={(newLang) => setLanguage(newLang)}
             onCompleteForm={handleCompleteForm}
-            onBack={() => setScreen('service')}
+            onBack={() => setScreen('welcome')}
           />
         )}
 
         {/* 6. FINAL REVIEW AND EXPLICIT CONSENT STAGE */}
-        {screen === 'review' && currentUser && (
+        {screen === 'review' && (
           <Review
             sessionId={sessionId}
             fields={fields}
@@ -352,7 +397,7 @@ export const App: React.FC = () => {
         )}
 
         {/* 7. SUBMISSION SUCCESS & RECEIPT */}
-        {screen === 'success' && currentUser && (
+        {screen === 'success' && (
           <Success
             applicationId={applicationId}
             language={language}

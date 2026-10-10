@@ -51,18 +51,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
   const [legalTab, setLegalTab] = useState<LegalModalTab>('privacy');
 
   const handleHeroStart = () => {
-    if (!currentUser) {
-      setAuthMode('login');
-      setAuthError('');
-      setAuthSuccessMsg('कृपया आगे बढ़ने के लिए पहले लॉगिन करें या खाता बनाएं (Please Login or Create Account first).');
-      setAuthModalOpen(true);
-    } else {
-      if (onGoToDashboard) {
-        onGoToDashboard();
-      } else {
-        onStartVoice();
-      }
-    }
+    onStartVoice();
   };
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
