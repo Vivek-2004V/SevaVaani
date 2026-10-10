@@ -789,7 +789,10 @@ function setupRecognition() {
   rec.onend = () => {
     isStarting = false;
     isListening = false;
-    if (!isProcessing && !isSpeaking) {
+    const captured = (transcriptEditor.value || '').trim();
+    if (!isProcessing && !isSpeaking && !autoProcessTimer && captured && !isUserEditingTranscript) {
+      scheduleAutoProcess(captured);
+    } else if (!isProcessing && !isSpeaking) {
       if (pendingCandidate) {
         setAssistantState('confirmation');
       } else {
@@ -828,6 +831,20 @@ function scheduleAutoProcess(text) {
 async function sendTurn(transcript) {
   if (!currentSessionId || !transcript || isProcessing) return;
   clearAutoProcessTimer();
+
+  // If waiting for confirmation, handle affirmative or negative voice directly
+  if (pendingCandidate) {
+    const cleanPunct = transcript.toLowerCase().trim().replace(/[.,!?;:]/g, '');
+    const isAffirmative = /^(हाँ|हां|सही|जी|जी हाँ|जी हां|ठीक|ठीक है|होय|हो|बरोबर|नक्की|yes|yeah|yup|correct|right|ok|okay|confirm)/i.test(cleanPunct);
+    const isNegative = /^(नहीं|ना|नाही|गलत|चूक|रद्द|no|nope|wrong|cancel)/i.test(cleanPunct);
+
+    if (isAffirmative) {
+      return handleConfirm('confirm');
+    } else if (isNegative) {
+      return handleConfirm('reject');
+    }
+  }
+
   isProcessing = true;
   setAssistantState('processing');
 
@@ -862,6 +879,13 @@ async function sendTurn(transcript) {
       confirmationCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       speakText(confirmMessage.innerText, currentSpeechRate);
     } else if (data.status === 'saved_next_field') {
+      if (pendingCandidate && pendingCandidate.value !== null) {
+        window.parent.postMessage({
+          type: 'SEVA_VAANI_FILL_CONFIRMED_FIELD',
+          fieldName: pendingCandidate.fieldName,
+          value: pendingCandidate.value
+        }, '*');
+      }
       confirmationCard.classList.add('hidden');
       transcriptCard.classList.add('hidden');
       transcriptEditor.value = '';

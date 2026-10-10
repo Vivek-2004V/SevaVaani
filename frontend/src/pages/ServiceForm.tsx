@@ -104,6 +104,21 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
   const recognitionRef = useRef<any>(null);
   const hasSpokenFieldRef = useRef<number | null>(null);
+  const pendingValueRef = useRef<string | null>(null);
+  const fieldsRef = useRef<FormField[]>(fields);
+  const currentIdxRef = useRef<number>(currentIdx);
+
+  useEffect(() => {
+    pendingValueRef.current = pendingValue;
+  }, [pendingValue]);
+
+  useEffect(() => {
+    fieldsRef.current = fields;
+  }, [fields]);
+
+  useEffect(() => {
+    currentIdxRef.current = currentIdx;
+  }, [currentIdx]);
 
   const currentField = fields[currentIdx] || fields[0] || {
     id: 'full_name',
@@ -318,6 +333,36 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
 
+      let hasProcessed = false;
+      let latestCapturedText = '';
+
+      const processResult = (textToProcess: string) => {
+        if (hasProcessed) return;
+        hasProcessed = true;
+        try { recognition.stop(); } catch {}
+        setIsListening(false);
+        const clean = textToProcess.trim();
+        if (!clean) return;
+
+        if (mode === 'confirmation') {
+          // Voice confirmation resolution: affirmative vs rejection
+          const cleanPunct = clean.toLowerCase().replace(/[.,!?;:]/g, '');
+          const isAffirmative = /^(हाँ|हां|सही|जी|जी हाँ|जी हां|ठीक|ठीक है|होय|हो|बरोबर|नक्की|yes|yeah|yup|correct|right|ok|okay|confirm)/i.test(cleanPunct);
+          const isNegative = /^(नहीं|ना|नाही|गलत|चूक|रद्द|no|nope|wrong|cancel)/i.test(cleanPunct);
+
+          if (isAffirmative) {
+            handleConfirm();
+          } else if (isNegative) {
+            handleRetry();
+          } else {
+            // Treated as an inline correction (e.g. "नहीं, मेरा नाम अमित है")
+            handleUtterance(clean);
+          }
+        } else {
+          handleUtterance(clean);
+        }
+      };
+
       recognition.onstart = () => {
         setIsListening(true);
         setConversationState(mode === 'confirmation' ? 'WAITING_FOR_CONFIRMATION' : 'LISTENING');
@@ -339,32 +384,13 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
         const currentText = (finalText || interimText).trim();
         if (currentText) {
+          latestCapturedText = currentText;
           setTranscript(currentText);
           setConversationState('TRANSCRIBING');
         }
 
         if (finalText.trim()) {
-          recognition.stop();
-          setIsListening(false);
-          const clean = finalText.trim();
-
-          if (mode === 'confirmation') {
-            // Voice confirmation resolution: affirmative vs rejection
-            const lower = clean.toLowerCase();
-            const isAffirmative = /^(हाँ|हां|सही|सही है|हाँ सही है|जी हाँ|होय|हो|बरोबर|बरोबर आहे|yes|yeah|correct|right)/i.test(lower);
-            const isNegative = /^(नहीं|ना|गलत|गलत है|नाही|चूक|no|nope|wrong)/i.test(lower);
-
-            if (isAffirmative) {
-              handleConfirm();
-            } else if (isNegative) {
-              handleRetry();
-            } else {
-              // Treated as an inline correction (e.g. "नहीं, मेरा नाम अमित है")
-              handleUtterance(clean);
-            }
-          } else {
-            handleUtterance(clean);
-          }
+          processResult(finalText.trim());
         }
       };
 
@@ -395,6 +421,10 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
       recognition.onend = () => {
         setIsListening(false);
+        // Process unfinalized utterance if captured before silence cutoff
+        if (!hasProcessed && latestCapturedText.trim()) {
+          processResult(latestCapturedText.trim());
+        }
       };
 
       recognition.start();
@@ -489,8 +519,15 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
         setVoiceAttempts(prev => prev + 1);
       }
 
+      if (response.decision === 'saved_next') {
+        // Confirmed directly by server turn engine
+        handleConfirm();
+        return;
+      }
+
       if (response.decision === 'confirm' && response.candidate_value) {
         setPendingValue(response.candidate_value);
+        pendingValueRef.current = response.candidate_value;
         const confirmMsg = response.assistant_message || (
           language === 'mr'
             ? `काय आपले ${currentField.label.mr || currentField.label.en}: '${response.candidate_value}' बरोबर आहे का?`
@@ -565,21 +602,27 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
   // Confirm gate (Explicit confirmation!)
   const handleConfirm = async () => {
-    if (!pendingValue) return;
+    const valToConfirm = pendingValueRef.current || pendingValue;
+    if (!valToConfirm) return;
 
     ttsAdapter.stop();
     stopListening();
 
-    const updated = [...fields];
-    updated[currentIdx] = {
-      ...currentField,
-      value: pendingValue,
+    const currIdx = currentIdxRef.current;
+    const currFields = fieldsRef.current;
+    const currentFld = currFields[currIdx] || currentField;
+
+    const updated = [...currFields];
+    updated[currIdx] = {
+      ...currentFld,
+      value: valToConfirm,
       confirmed: true
     };
     setFields(updated);
+    fieldsRef.current = updated;
 
     // Persist to IndexedDB immediately (offline-safe)
-    const nextIdx = currentIdx + 1;
+    const nextIdx = currIdx + 1;
     await saveSession(sessionId, 'scholarship_post_matric', language, nextIdx, updated);
 
     // Sync to backend
@@ -587,25 +630,27 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
       await enqueueSyncItem({
         sessionId,
         type: 'confirm_field',
-        payload: { sessionId, fieldId: currentField.id, confirmed: true, candidateValue: pendingValue },
+        payload: { sessionId, fieldId: currentFld.id, confirmed: true, candidateValue: valToConfirm },
       });
     } else {
-      confirmField(sessionId, currentField.id, true, pendingValue).catch(
+      confirmField(sessionId, currentFld.id, true, valToConfirm).catch(
         (err) => console.warn('[ServiceForm] confirmField backend notice:', err)
       );
     }
 
     setShowConfirmation(false);
     setPendingValue(null);
+    pendingValueRef.current = null;
     setTranscript('');
     setShowFallback(false);
     setHelpTicketId(null);
     setVoiceAttempts(0);
 
-    if (currentIdx + 1 < fields.length) {
+    if (nextIdx < currFields.length) {
       // Transition: NEXT_QUESTION -> triggers step advance and next question audio
       setConversationState('NEXT_QUESTION');
       setCurrentIdx(nextIdx);
+      currentIdxRef.current = nextIdx;
     } else {
       setConversationState('IDLE');
       onCompleteForm(updated);
@@ -617,6 +662,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     stopListening();
     setShowConfirmation(false);
     setPendingValue(null);
+    pendingValueRef.current = null;
     setShowFallback(true);
     setConversationState('IDLE');
   };
@@ -626,6 +672,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     stopListening();
     setShowConfirmation(false);
     setPendingValue(null);
+    pendingValueRef.current = null;
     setTranscript('');
     setShowFallback(false);
     askCurrentQuestion(false);
@@ -914,21 +961,20 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
         )}
 
         {/* Push-to-Talk Voice Button */}
-        {!showConfirmation && (
-          <VoiceButton
-            isListening={isListening}
-            isProcessing={isProcessing}
-            isSpeaking={isSpeaking}
-            assistantState={getAssistantVisualState()}
-            error={voiceError}
-            onStartListening={() => startListening('answer')}
-            onStopListening={stopListening}
-            onRepeatAudio={() => handleRepeatAudio(false)}
-            onSlowRepeatAudio={() => handleRepeatAudio(true)}
-            onToggleFallbackText={() => setShowFallback(!showFallback)}
-            language={language}
-          />
-        )}
+        {/* Push-to-Talk Voice Button */}
+        <VoiceButton
+          isListening={isListening}
+          isProcessing={isProcessing}
+          isSpeaking={isSpeaking}
+          assistantState={getAssistantVisualState()}
+          error={voiceError}
+          onStartListening={() => startListening(showConfirmation ? 'confirmation' : 'answer')}
+          onStopListening={stopListening}
+          onRepeatAudio={() => handleRepeatAudio(false)}
+          onSlowRepeatAudio={() => handleRepeatAudio(true)}
+          onToggleFallbackText={() => setShowFallback(!showFallback)}
+          language={language}
+        />
 
         {/* Clickable Quick Sample Utterances (Hackathon Demo Helpers) */}
         <div className="mt-4 pt-3 border-t border-white/10 text-center">

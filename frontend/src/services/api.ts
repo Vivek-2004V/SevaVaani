@@ -77,9 +77,11 @@ export async function processVoiceTurn(
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
+    const isSavedNext = data.status === 'saved_next_field' || data.action === 'NEXT_FIELD' || data.action === 'SAVED_NEXT_FIELD';
     const isConfirm = data.status === 'need_confirmation' || data.status === 'success' || data.action === 'CONFIRM';
     const isFallback = data.status === 'fallback' || data.status === 'text_fallback' || data.action === 'TEXT_FALLBACK';
-    const decision: 'confirm' | 'clarify' | 'retry' | 'fallback' =
+    const decision: 'confirm' | 'saved_next' | 'clarify' | 'retry' | 'fallback' =
+      isSavedNext ? 'saved_next' :
       isConfirm ? 'confirm' :
       isFallback ? 'fallback' : 'retry';
 

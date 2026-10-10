@@ -45,7 +45,7 @@ export interface AssistTurnResponse {
   transcript: string;
   candidate_value: string;
   confidence: number;
-  decision: 'confirm' | 'clarify' | 'retry' | 'fallback';
+  decision: 'confirm' | 'saved_next' | 'clarify' | 'retry' | 'fallback';
   clarification_prompt?: string;
   assistant_message: string;
   audio_url?: string;
