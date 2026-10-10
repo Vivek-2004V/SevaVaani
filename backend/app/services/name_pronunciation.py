@@ -51,6 +51,20 @@ class NamePronunciationService:
         "gupta": ["Gupta", "Gopta"],
         "singh": ["Singh", "Sinh"],
         "yadav": ["Yadav", "Yadava", "Jadav"],
+        "khatri": ["Khatri", "Khetri"],
+        "pandey": ["Pandey", "Panday", "Pande"],
+        "tiwari": ["Tiwari", "Tewari", "Tripathi"],
+        "tripathi": ["Tripathi", "Tiwari", "Tripati"],
+        "mukherjee": ["Mukherjee", "Mukhopadhyay"],
+        "chatterjee": ["Chatterjee", "Chattopadhyay"],
+        "banerjee": ["Banerjee", "Bandyopadhyay"],
+        "iyer": ["Iyer", "Ayyar", "Aiyar"],
+        "nair": ["Nair", "Nayyar", "Nayakar"],
+        "reddy": ["Reddy", "Reddi"],
+        "naidu": ["Naidu", "Nayudu"],
+        "rao": ["Rao", "Row"],
+        "rathore": ["Rathore", "Rathod", "Rathour"],
+        "chauhan": ["Chauhan", "Chouhan"]
     }
 
     # Devanagari vowel and consonant names for slow letter-by-letter audio readback

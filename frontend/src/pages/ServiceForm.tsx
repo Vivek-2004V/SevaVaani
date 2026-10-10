@@ -64,6 +64,10 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   const [showGuidance, setShowGuidance] = useState(false);
   const [showHumanHelpModal, setShowHumanHelpModal] = useState(false);
 
+  // Trial-limit tracking (backend returns attempts, max_trials, trials_remaining)
+  const MAX_VOICE_TRIALS = 3;
+  const [voiceAttempts, setVoiceAttempts] = useState(0);
+
   // ── Offline / Network ─────────────────────────────────────────────────────
   const networkStatus = useNetworkStatus();
   const { saveSession, enqueueSyncItem } = useOfflineStore();
@@ -377,11 +381,20 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
       setIsProcessing(false);
 
+      // Track trial count from backend metadata if available
+      const respData = response as any;
+      if (typeof respData.attempts === 'number') {
+        setVoiceAttempts(respData.attempts);
+      } else {
+        setVoiceAttempts(prev => prev + 1);
+      }
+
       if (response.decision === 'confirm' && response.candidate_value) {
         setPendingValue(response.candidate_value);
         setPendingMessage(response.assistant_message);
         setShowConfirmation(true);
         setShowFallback(false);
+        setVoiceAttempts(0); // reset on successful confirm
       } else if (response.decision === 'retry') {
         setVoiceError('मान्य उत्तर नहीं मिला (Uncertain value). कृपया स्पष्ट बोलें.');
         setShowFallback(true);
@@ -430,6 +443,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     setTranscript('');
     setShowFallback(false);
     setHelpTicketId(null);
+    setVoiceAttempts(0); // reset on field advance
 
     if (currentIdx + 1 < fields.length) {
       setCurrentIdx(nextIdx);
@@ -580,6 +594,31 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
               ? 'Tap microphone and speak. Your answer will be verified instantly.'
               : 'माइक दबाकर बोलें। आपके उत्तर की तुरंत पुष्टि की जाएगी।'}
           </p>
+
+          {/* Trial Limit Indicator */}
+          {voiceAttempts > 0 && (
+            <div className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+              voiceAttempts >= MAX_VOICE_TRIALS
+                ? 'bg-red-950/70 text-red-300 border-red-500/50'
+                : voiceAttempts === 2
+                ? 'bg-amber-950/70 text-amber-300 border-amber-500/50'
+                : 'bg-slate-900/70 text-slate-300 border-slate-600/40'
+            }`}>
+              <span>{voiceAttempts >= MAX_VOICE_TRIALS ? '🚨' : '🎙️'}</span>
+              <span>
+                {language === 'en'
+                  ? `Voice Attempt ${voiceAttempts}/${MAX_VOICE_TRIALS}`
+                  : language === 'mr'
+                  ? `प्रयत्न ${voiceAttempts}/${MAX_VOICE_TRIALS}`
+                  : `प्रयास ${voiceAttempts}/${MAX_VOICE_TRIALS}`}
+              </span>
+              {voiceAttempts >= MAX_VOICE_TRIALS && (
+                <span>
+                  {language === 'en' ? '— Help Ticket Created' : language === 'mr' ? '— मदत तिकीट तयार' : '— सहायता टिकट बनाया'}
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Explain This Field Context Guidance Trigger */}
           <div className="mt-2.5">

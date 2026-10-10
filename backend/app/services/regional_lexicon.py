@@ -52,6 +52,24 @@ class RegionalLexiconManager:
                 "support_level": "regional_vocab_supported",
                 "tier": 2,
                 "description": "Lexical markers like 'हओ', 'हते' supported"
+            },
+            "maithili_magahi": {
+                "name": "Maithili / Magahi Eastern Hindi",
+                "support_level": "regional_vocab_supported",
+                "tier": 2,
+                "description": "Lexical markers like 'हमर', 'अहाँ', 'छियै', 'रहल छी' supported"
+            },
+            "chhattisgarhi": {
+                "name": "Chhattisgarhi Dialect",
+                "support_level": "regional_vocab_supported",
+                "tier": 2,
+                "description": "Lexical markers like 'मोर', 'तोरे', 'करथों', 'हावे' supported"
+            },
+            "haryanvi_western": {
+                "name": "Haryanvi & Western Hindi",
+                "support_level": "regional_vocab_supported",
+                "tier": 2,
+                "description": "Lexical markers like 'म्हारा', 'थारा', 'बाबूजी', 'सै' supported"
             }
         },
         "mr": {
@@ -72,6 +90,12 @@ class RegionalLexiconManager:
                 "support_level": "regional_vocab_supported",
                 "tier": 2,
                 "description": "Uses 'कवा', 'तेवा', 'जेवा' colloquial temporal markers"
+            },
+            "khandeshi_ahirani": {
+                "name": "Khandeshi / Ahirani Marathi",
+                "support_level": "regional_vocab_supported",
+                "tier": 2,
+                "description": "Uses 'आम्हाले', 'कायले', 'तिथ', 'भाऊ' regional markers"
             },
             "konkani_coastal": {
                 "name": "Coastal Marathi / Konkani Cues",
@@ -131,10 +155,23 @@ class RegionalLexiconManager:
         # Varhadi Marathi
         (r"\bव्हय\b", "होय", "varhadi_affirmative"),
         (r"\bनाय\b", "नाही", "varhadi_negative"),
+        # Khandeshi Marathi
+        (r"\bआम्हाले\b", "आम्हाला", "khandeshi_pronoun"),
+        (r"\bकायले\b", "कशाला", "khandeshi_interrogative"),
         # Malwi / Rajasthani
         (r"\bम्हारो\b|\bमारो\b", "मेरा", "malwi_possessive"),
-        # Bhojpuri
-        (r"\बहमार\b", "मेरा", "bhojpuri_possessive")
+        # Bhojpuri & Awadhi
+        (r"\बहमार\b", "मेरा", "bhojpuri_possessive"),
+        (r"\बतोहार\b", "तुम्हारा", "bhojpuri_possessive"),
+        # Maithili / Magahi
+        (r"\बहमर\b", "मेरा", "maithili_possessive"),
+        (r"\बअहाँ\b", "आप", "maithili_pronoun"),
+        # Chhattisgarhi
+        (r"\बमोर\b", "मेरा", "chhattisgarhi_possessive"),
+        (r"\बहावे\b", "है", "chhattisgarhi_verb"),
+        # Haryanvi
+        (r"\बम्हारा\b", "मेरा", "haryanvi_possessive"),
+        (r"\बथारा\b", "तुम्हारा", "haryanvi_possessive")
     ]
 
     @classmethod
