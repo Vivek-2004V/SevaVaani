@@ -1,120 +1,126 @@
-# SEVA VAANI (सेवा वाणी)
+# 🎙️ Seva Vaani (सेवा वाणी)
 
-> **Empowering Indian Citizens Through Deterministic, Multi-Dialect Voice AI for Public Services**  
-> *Zero Unconfirmed Submissions • When Uncertain, Do Not Guess • 100% Privacy-First & Offline-Ready*  
-> **Official Standards:** Complies with PRD (`SV-PRD-001 v2.0`) & TRD (`SV-TRD-001 v2.0`) | DPDP Act 2023 Ready  
-> **Test Suite Status:** 252 / 252 Automated Tests Passing (100% Pass Rate)
+> **Voice-first digital assistant bridging the gap between Indian citizens and complex government portals.**  
+> Built with voice AI, regional dialect support, and a zero-guesswork deterministic engine so that every citizen can access public schemes in their mother tongue with confidence.
 
 ---
 
 ## 📌 Table of Contents
 
-1. [Project Overview](#-project-overview)
-2. [Key Features](#-key-features)
-3. [Technologies Used](#-technologies-used)
-4. [AI Tools & Models Used](#-ai-tools--models-used)
-5. [System Architecture](#-system-architecture)
-6. [Setup & Installation Instructions](#-setup--installation-instructions)
-7. [Usage Guide & Workflow](#-usage-guide--workflow)
-8. [Project Structure](#-project-structure)
-9. [Security, Privacy & Compliance (DPDP Act)](#-security-privacy--compliance-dpdp-act)
-10. [Test Suites & Benchmark Results](#-test-suites--benchmark-results)
-11. [Documentation & Deliverables](#-documentation--deliverables)
+- [Overview](#-overview)
+  - [Why We Built This](#why-we-built-this)
+  - [How Seva Vaani Solves It](#how-seva-vaani-solves-it)
+- [Key Features](#-key-features)
+- [Technologies Used](#-technologies-used)
+- [AI Tools & Models Used](#-ai-tools--models-used)
+- [System Architecture](#-system-architecture)
+- [Setup & Installation Instructions](#-setup--installation-instructions)
+  - [Prerequisites](#prerequisites)
+  - [1. Backend Setup](#1-backend-setup)
+  - [2. Frontend Web App Setup](#2-frontend-web-app-setup)
+  - [3. Chrome Extension Setup](#3-chrome-extension-setup)
+- [How to Use Seva Vaani](#-how-to-use-seva-vaani)
+  - [Using the Web App](#1-using-the-web-app)
+  - [Using the Chrome Extension](#2-using-the-chrome-extension)
+  - [Useful Voice Commands](#3-useful-voice-commands)
+- [Project Structure](#-project-structure)
+- [Important Information](#-important-information)
+  - [Privacy & DPDP Act 2023 Compliance](#privacy--dpdp-act-2023-compliance)
+  - [Testing & Quality Assurance](#testing--quality-assurance)
+  - [Helpful Documents & PDFs](#helpful-documents--pdfs)
+- [Authors & License](#-authors--license)
 
 ---
 
-## 📖 Project Overview
+## 🌟 Overview
 
-### The Problem
-Over **65% of rural and semi-urban Indian citizens** struggle with digital public service portals (scholarships, farmer subsidies, welfare schemes, ration cards). Existing government websites suffer from:
-- **Complex, multi-page visual forms** that intimidate first-time users.
-- **Language and dialect barriers**, where forms are only available in formal English or standard Hindi, alienating citizens speaking Bhojpuri, Maithili, Chhattisgarhi, Haryanvi, or Khandeshi.
-- **Costly Cyber Cafe / CSC dependency**, where citizens pay ₹50–₹200 per application and risk identity theft or typo errors.
-- **Hallucination risks in traditional AI chatbots**, which guess or auto-submit incorrect citizen data.
+### Why We Built This
 
-### The Solution: SEVA VAANI
-**SEVA VAANI (सेवा वाणी)** transforms static government forms into a guided, field-by-field, voice-driven conversation in the citizen's own language and regional dialect. 
+Filling out government forms online in India is often frustrating. Whether it is applying for a student scholarship, a farmer subsidy, or a welfare pension, millions of rural and semi-urban citizens encounter the same roadblocks:
 
-Rather than relying on black-box generative models that can hallucinate names, dates, or financial figures, SEVA VAANI is built on an **Auditable Deterministic State Machine**:
-- **Zero Unconfirmed Submissions**: Every critical piece of information requires explicit citizen confirmation ("हाँ, सही है") before saving.
-- **When Uncertain, Do Not Guess**: Noisy or ambiguous speech triggers clarification, slow audio repeat, or text fallback.
-- **3-Attempt Trial Guard**: Caps voice attempts at 3 before automatically escalating to a human help operator ticket (`TKT-XXXXXX`).
-- **Dual Channel Access**: Runs both as a standalone **Offline-Ready Progressive Web App (PWA)** and as a **Chrome Extension (Manifest V3)** that overlays and auto-fills existing government portals.
+1. **Language Barrier**: Most official portals are written in complex English or formal Sanskritized Hindi that everyday people do not speak at home.
+2. **Dialect Diversity**: People speak Bhojpuri, Maithili, Chhattisgarhi, Haryanvi, or Ahirani/Khandeshi in their daily lives, but websites have zero support for regional phrasing.
+3. **High Costs at Cyber Cafes / CSCs**: Citizens are forced to pay ₹50 to ₹200 to middle-men or cyber cafe operators just to type out basic personal details, often leading to spelling mistakes and leaked sensitive documents.
+4. **Chatbot Hallucinations**: Standard AI chatbots frequently guess names, fabricate dates, or auto-submit forms without citizen confirmation—which is dangerous for legal government records.
+
+### How Seva Vaani Solves It
+
+**Seva Vaani (सेवा वाणी)** transforms rigid, confusing web forms into an interactive, friendly voice conversation. 
+
+Instead of staring at a 10-field screen, citizens simply speak naturally in their dialect. The assistant listens, extracts the required information, speaks it back aloud for double-checking, and fills out the application step-by-step.
+
+Most importantly, Seva Vaani follows a strict **"When Uncertain, Do Not Guess"** principle:
+- **Zero Unconfirmed Submissions**: Nothing is saved until the citizen hears it and explicitly confirms with *"हाँ, सही है"* (Yes, that's correct).
+- **3-Attempt Safety Net**: If speech recognition fails 3 times due to background noise or dialect variance, the app never leaves the user stranded—it automatically generates a human help desk ticket (`TKT-XXXXXX`) and opens a text fallback screen.
+- **Works Everywhere**: Citizens can use Seva Vaani as a standalone mobile-friendly Web App (PWA) or install the Chrome Extension that overlays directly on top of existing government websites.
 
 ---
 
 ## ✨ Key Features
 
-### 1. Multi-Dialect Indic Voice Recognition
-- Built-in recognition for standard **Hindi (`hi-IN`)**, **Marathi (`mr-IN`)**, and **English (`en-IN`)**, with extended lexicon support for:
-  - **Bhojpuri / Purvanchali** (`हमार नाम`, `बा`)
-  - **Maithili / Magahi** (`हमर नाम`, `छियै`)
-  - **Chhattisgarhi** (`मोर नाम`, `हावे`)
-  - **Haryanvi / Western Hindi** (`म्हारा नाम`, `सै`)
-  - **Khandeshi / Ahirani Marathi** (`आम्हाले`, `भाऊ`)
+- **🗣️ Multi-Dialect Indic Voice Recognition**  
+  Understands everyday Hindi, Marathi, and Indian English, with natural lexicon translation for regional dialects:
+  - *Bhojpuri / Purvanchali* ("हमार नाम...", "बा")
+  - *Maithili / Magahi* ("हमर नाम...", "छियै")
+  - *Chhattisgarhi* ("मोर नाम...", "हावे")
+  - *Haryanvi* ("म्हारा नाम...", "सै")
+  - *Khandeshi / Ahirani Marathi* ("आम्हाले...", "भाऊ")
 
-### 2. Phonetic Name Disambiguation & Spelling Engine
-- Handles Indian surname variants (Pandey/Pande, Tiwari/Tewari, Mukherjee/Mukhopadhyay, Nair/Nayyar).
-- Character-by-character spelling breakdown and audio spell-out for official certificate consistency.
+- **🔤 Phonetic Name & Spelling Disambiguation**  
+  Handles phonetic variations in Indian family names (Pandey vs Pande, Tiwari vs Tewari, Mukherjee vs Mukhopadhyay). Includes a character-by-character phonetic spell-out engine so certificates always match official Aadhaar/marksheet records.
 
-### 3. Natural Language Indian Currency & Date Normalizer
-- Converts colloquial Hindi/Marathi figures into clean integers:
-  - *"ek lakh assi hazaar"* $\rightarrow$ `180000`
-  - *"dedh lakh"* $\rightarrow$ `150000`
-  - *"pandrahe august do hazaar do"* $\rightarrow$ `15/08/2002`
+- **💰 Natural Language Currency & Date Converter**  
+  Understands colloquial spoken numbers without requiring robot-like formats:
+  - *"Ek lakh assi hazaar"* $\rightarrow$ `1,80,000`
+  - *"Dedh lakh rupaye"* $\rightarrow$ `1,50,000`
+  - *"Pandrahe August do hazaar do"* $\rightarrow$ `15/08/2002`
 
-### 4. 3-Attempt Trial Guard (`MAX_VOICE_TRIALS = 3`)
-- Live dynamic counter displays remaining voice trials (`प्रयास 1/3`, `2/3`, `3/3`).
-- On the 3rd failed attempt, the system automatically creates a high-priority **Human Help Desk Ticket** and opens text fallback.
+- **🛡️ 3-Trial Voice Guard (`MAX_VOICE_TRIALS = 3`)**  
+  Shows a clear on-screen counter (`प्रयास 1/3`, `2/3`, `3/3`). If speech is not understood after 3 tries, it automatically switches to an accessible typing box and files an operator support ticket so nobody gets stuck.
 
-### 5. Dual Delivery Channels
-- **Standalone PWA Web Application**: Ultra-lightweight (<45KB), responsive across mobile and desktop, works on 2G/3G networks with offline background sync.
-- **Chrome Extension (Manifest V3)**: Injects an overlay into any external government portal (e.g., National Scholarship Portal, MahaDBT) and performs safe DOM autofill only upon citizen consent.
+- **📱 Fully Responsive & Offline-Ready (PWA)**  
+  Works smoothly on every screen size—from small budget phones (320px) to desktop monitors. Features a registered Service Worker and IndexedDB store so citizens on flaky 2G/3G connections do not lose their progress.
 
-### 6. Zero-Disk In-Memory Document OCR
-- Cross-checks spoken applicant details against student marksheets or income certificates inside transient RAM buffers, immediately unlinking files without saving raw files to disk.
+- **🧩 One-Click Chrome Extension (Manifest V3)**  
+  A modern dark-glassmorphic overlay that can be opened on top of any public portal. Automatically highlights target form fields and safely autofills them once the citizen gives consent.
 
-### 7. Human-in-the-Loop Operator Desk
-- Real-time ticket management dashboard (`TKT-XXXXXX`) allowing civil service operators to review blocked applications and assist citizens.
+- **🔒 Zero-Disk In-Memory Processing**  
+  Files, marksheets, and audio streams are processed in transient RAM buffers and wiped immediately—no private citizen documents or raw audio files are ever written to disk or sent to foreign servers.
 
 ---
 
 ## 🛠️ Technologies Used
 
-### Backend Architecture
-- **Language**: Python 3.9+
-- **Framework**: FastAPI (Asynchronous ASGI gateway, <15ms turn latency)
-- **Server**: Uvicorn
-- **Database**: SQLite with WAL (Write-Ahead Logging) mode and foreign key constraints
-- **Data Validation**: Pydantic v2
-- **Testing**: Pytest (252 unit, integration, and security tests)
+### Backend
+- **Python 3.9+ & FastAPI**: Ultra-fast asynchronous REST API server with low turn-by-turn latency (<180 ms).
+- **SQLite (WAL Mode)**: Lightweight, zero-config relational database with write-ahead logging and strict ACID transaction safety.
+- **Pydantic v2**: Type-safe data validation schemas for all form fields, turn states, and help tickets.
+- **Pytest**: Comprehensive test suite covering end-to-end voice flows, edge cases, and security rules.
 
-### Frontend Architecture
-- **Framework**: React 18 with TypeScript
-- **Bundler**: Vite
-- **Styling**: TailwindCSS & Custom Glassmorphic CSS
-- **Offline / PWA**: Workbox Service Worker, IndexedDB offline state store
-- **Audio Interface**: Web Speech API (`webkitSpeechRecognition`, `SpeechSynthesisUtterance`)
+### Frontend
+- **React 18 & TypeScript**: Component-driven UI ensuring type safety across state transitions.
+- **Vite**: Modern front-end build tool with lightning-fast hot module reloading.
+- **TailwindCSS & Vanilla CSS**: Clean, accessible design system with dark glassmorphism and mobile-first responsive breakpoints.
+- **PWA & Workbox**: Service Worker integration for offline asset caching and resilient low-bandwidth operation.
 
-### Browser Extension
-- **Platform**: Google Chrome Manifest V3
-- **Design**: Modern Dark Glassmorphism, CSS Custom Properties
-- **Security**: Content Security Policy (CSP), Scoped `postMessage` protocol, Origin-isolated content script
+### Browser Audio & Extension
+- **Web Speech API**: In-browser speech recognition (`webkitSpeechRecognition`) and localized speech synthesis (`SpeechSynthesisUtterance`).
+- **Chrome Extension (Manifest V3)**: Isolated content scripts, scoped `postMessage` security protocol, and DOM mapper for smart field autofill.
 
 ---
 
 ## 🤖 AI Tools & Models Used
 
-SEVA VAANI employs a hybrid, safety-first architecture separating acoustic processing from decision logic:
+We deliberately avoided black-box generative chatbots for filling government forms because hallucinations on legal applications can lead to rejected scholarships or legal penalties. Instead, Seva Vaani uses a **hybrid, safety-first AI stack**:
 
-| AI / Model Component | Technology / Model | Purpose | Why This Choice? |
-|---|---|---|---|
-| **Speech-to-Text (ASR)** | Web Speech API (`webkitSpeechRecognition`) + Local ASR Adapter | Real-time voice-to-text conversion for Indic languages (`hi-IN`, `mr-IN`) | Zero latency, zero cloud API fees, runs directly on citizen devices. |
-| **Text-to-Speech (TTS)** | Browser `SpeechSynthesis` with localized Indian voices | Localized prompt vocalization with speed control (`0.92x` normal, `0.70x` slow repeat) | Accessible to low-literacy citizens; enables hands-free auditory feedback. |
-| **Indic NLU Extractor** | Deterministic Pattern-Matching & Regex Engine | Extracts names, 10-digit phone numbers, dates, and currency values | **Zero hallucination guarantee**; eliminates incorrect guesses on legal government forms. |
-| **Phonetic Normalizer** | Indic Soundex & Double Metaphone | Maps regional spelling variants (e.g., *Pandey* vs *Pande*) | Reconciles spoken names with official government database spelling. |
-| **Dialect Lexicon** | `RegionalLexiconManager` (Rule-Based Transformer) | Maps 6 regional dialects (Bhojpuri, Maithili, etc.) to canonical Hindi/Marathi | Bridges rural linguistic divide without requiring gigabytes of GPU weights. |
-| **Pluggable Local SLMs** | Optional Ollama Integration (`gemma:2b`, `llama3.2:1b`) | Auxiliary conversational clarification during open-ended help queries | Fully air-gapped local inference; zero citizen data leaves the device. |
+| AI / Model Layer | Implementation | What It Does | Why It Was Chosen |
+|:---|:---|:---|:---|
+| **Speech Recognition (ASR)** | Web Speech API (`hi-IN`, `mr-IN`, `en-IN`) | Listens to spoken audio and produces raw transcript text in real time. | **Zero cloud latency & zero API costs.** Runs natively in the citizen's browser without uploading audio files to external servers. |
+| **Voice Synthesis (TTS)** | Native `SpeechSynthesis` with rate modulation | Speaks questions, feedback, and confirmation prompts back to the citizen. | Allows low-literacy citizens to complete forms hands-free. Includes a slow-mode toggle (`0.70x`) for difficult phrases. |
+| **Indic NLU & Entity Extractor** | Rule-Based Natural Language Extractor (Regex + Pattern Grammar) | Extracts names, dates, 10-digit mobile numbers, incomes, and categories from colloquial sentences. | **Zero hallucinations.** Deterministic grammar guarantees that only valid, verifiable information is extracted from citizen speech. |
+| **Regional Dialect Normalizer** | `RegionalLexiconManager` | Translates regional dialect markers (Bhojpuri, Maithili, Chhattisgarhi, Haryanvi, Khandeshi) into standard Hindi/Marathi. | Bridges the linguistic gap for rural citizens without needing heavy multi-gigabyte neural models. |
+| **Phonetic Matching Engine** | Indic Soundex & Double Metaphone | Normalizes pronunciation variants and spelling differences in Indian names. | Prevents application rejections caused by minor spelling discrepancies across documents. |
+| **Local SLM Integration (Optional)** | Ollama Adapter (`gemma:2b` / `llama3.2:1b`) | Optional local reasoning model for open-ended scheme queries and help text. | Completely air-gapped on local hardware; ensures zero personal data leaves the machine. |
 
 ---
 
@@ -122,30 +128,28 @@ SEVA VAANI employs a hybrid, safety-first architecture separating acoustic proce
 
 ```mermaid
 graph TD
-    subgraph Citizen Interfaces
-        A1[🌐 PWA Web App] -->|Speech Input / Text| GW[⚡ FastAPI Gateway]
-        A2[🧩 Chrome Extension] -->|DOM Bridge / Voice| GW
-        A3[📶 2G/3G Offline Cache] -->|IndexedDB Sync| GW
+    subgraph User Access Points
+        A[📱 PWA Web App - Mobile/Desktop]
+        B[🧩 Chrome Extension - Portal Overlay]
     end
 
-    subgraph Speech & NLU Processing
-        GW --> NLU[Deterministic Indic NLU]
-        NLU --> LEX[🗺️ Regional Dialect Lexicon]
-        NLU --> PHON[🔤 Phonetic Name Engine]
-        NLU --> EXT[🔢 Entity Extractor]
+    subgraph Speech & Language Layer
+        A & B --> C[🎤 Web Speech Recognition]
+        C --> D[🗺️ Regional Dialect Translator]
+        D --> E[🔍 Deterministic Indic NLU]
     end
 
-    subgraph Governance Core
-        EXT --> CONF[⚖️ Confidence Engine]
-        CONF -->|Score >= 0.85| GATE[✅ Confirmation Gate]
-        CONF -->|Attempt 1-2 & Score < 0.85| RETRY[🔄 Polite Voice Retry]
-        CONF -->|Attempt >= 3| TICKET[🆘 Human Help Ticket TKT-XXXXXX]
+    subgraph Decision & Safety Core
+        E --> F{Confidence Engine}
+        F -->|Score >= 0.85| G[💬 Voice Readout & Confirmation]
+        F -->|Score < 0.85 & Try < 3| H[🔄 Polite Clarification]
+        F -->|Failed 3 Times| I[🆘 Human Help Desk Ticket]
     end
 
-    subgraph Persistence & Action
-        GATE -->|Citizen Confirms| DB[(💾 Local SQLite Database)]
-        GATE -->|Extension Mode| DOM[📝 Safe DOM Autofill]
-        TICKET --> OPERATOR[👨‍💼 Human Operator Desk]
+    subgraph Final Action
+        G -->|Citizen Says Yes| J[(💾 Encrypted SQLite Record)]
+        G -->|Extension Mode| K[📝 Safe DOM Form Autofill]
+        I --> L[👨‍💼 Operator Support Portal]
     end
 ```
 
@@ -153,209 +157,232 @@ graph TD
 
 ## 💻 Setup & Installation Instructions
 
+Getting Seva Vaani running locally is straightforward. Follow the steps below:
+
 ### Prerequisites
-- **Python**: Version 3.9, 3.10, or 3.11
-- **Node.js**: Version 18.x or 20.x
-- **Google Chrome**: Version 115+ (for Extension & PWA testing)
-- **Git**: Installed and configured
+Make sure you have installed:
+- **Python 3.9+** (`python3 --version`)
+- **Node.js 18+** (`node --version`) and **npm**
+- **Google Chrome** (recommended for Web Speech API and extension testing)
+- **Git**
 
 ---
 
-### Step 1: Clone the Repository
+### 1. Backend Setup
+
+Open your terminal and clone the repository:
+
 ```bash
 git clone https://github.com/Vivek-2004V/SevaVaani.git
 cd SevaVaani
 ```
 
----
+Set up a Python virtual environment and install dependencies:
 
-### Step 2: Backend Setup
 ```bash
-# 1. Create and activate a Python virtual environment
+# Create and activate virtual environment
 python3 -m venv backend/venv
 source backend/venv/bin/activate
 
-# 2. Install Python dependencies
+# Install requirements
 pip install -r backend/requirements.txt
 
-# 3. Start the FastAPI backend server
+# Start the FastAPI server
 uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload
 ```
-- Interactive Swagger API Docs: **http://127.0.0.1:8000/docs**
-- Health Endpoint: **http://127.0.0.1:8000/api/health**
+
+- Backend API will be live at: **http://127.0.0.1:8000**
+- Interactive Swagger API docs: **http://127.0.0.1:8000/docs**
+- Health check endpoint: **http://127.0.0.1:8000/api/health**
 
 ---
 
-### Step 3: Frontend Setup
-Open a new terminal tab and run:
-```bash
-cd frontend
+### 2. Frontend Web App Setup
 
-# 1. Install frontend dependencies
+Open a second terminal window and navigate to the `frontend/` folder:
+
+```bash
+cd SevaVaani/frontend
+
+# Install node dependencies
 npm install
 
-# 2. Start the Vite development server
+# Start Vite development server
 npm run dev
 ```
-- Open in browser: **http://localhost:5173**
+
+- Web App will be live at: **http://localhost:5173**
+- Open the link in Google Chrome, select your preferred language, and try speaking into the microphone!
 
 ---
 
-### Step 4: Chrome Extension Installation
-1. Open Google Chrome and visit: `chrome://extensions/`
-2. Turn on **Developer mode** (toggle in the upper right corner).
-3. Click **Load unpacked** (top-left button).
-4. Select the directory:
+### 3. Chrome Extension Setup
+
+To test the Chrome extension on existing government portals:
+
+1. Open Google Chrome and go to `chrome://extensions/`
+2. Enable **Developer mode** using the toggle switch in the top-right corner.
+3. Click the **Load unpacked** button in the top-left.
+4. Select the `SevaVaani/extension` folder from this repository.
+5. Once loaded, open our included synthetic test government form in Chrome:
    ```
-   <path-to-repo>/SevaVaani/extension
+   file:///path/to/SevaVaani/extension/test-portal.html
    ```
-5. Open the included synthetic test fixture:
-   ```
-   file:///<path-to-repo>/SevaVaani/extension/test-portal.html
-   ```
-6. Click the **SEVA VAANI** puzzle icon in the Chrome toolbar to open the dark glassmorphic voice assistant.
+6. Click the **Seva Vaani extension icon** in the Chrome toolbar to open the floating voice assistant overlay.
 
 ---
 
-## 🚀 Usage Guide & Workflow
+## 🎯 How to Use Seva Vaani
 
-### 1. Citizen Form Journey (Web App)
-1. **Choose Language**: Select **हिन्दी (Hindi)**, **मराठी (Marathi)**, or **English** from the home screen.
-2. **Start Service**: Click **"आवेदन शुरू करें"** to start the 10-field State Scholarship Form.
-3. **Voice Input**:
-   - Tap the glowing green microphone button.
-   - Speak naturally: *"मेरा नाम रमेश कुमार है"* (My name is Ramesh Kumar).
-4. **Explicit Confirmation**:
-   - The assistant asks: *"मैंने समझा कि आपका नाम Ramesh Kumar है। क्या यह सही है?"*
-   - Speak *"हाँ"* or click **✓ हाँ, सही है**. The value is committed to SQLite and progress moves to Field 2.
-5. **Corrections & Retries**:
-   - If incorrect, speak *"नहीं"* or click **✗ नहीं, फिर बोलें**. The candidate is immediately discarded.
-6. **Final Review & Consent**:
-   - View the 10-field summary card.
-   - Tick the mandatory legal consent checkbox.
-   - Click **"अंतिम आवेदन जमा करें"** to receive an immutable Application ID (`SV-SCH-2026-XXXX`).
+### 1. Using the Web App
 
-### 2. Useful Voice Commands
-Citizens can speak these commands at any point during the conversation:
-- **"दोबारा सुनाओ"** (Repeat prompt)
-- **"धीरे बोलो"** (Repeat prompt at slow 0.70x speed)
-- **"उत्तर बदलना है"** (Change previous candidate)
-- **"मदद चाहिए"** (Request human assistance)
+1. **Pick a Language**: On the home screen, select **हिन्दी (Hindi)**, **मराठी (Marathi)**, or **English**.
+2. **Start the Service**: Tap **"आवेदन शुरू करें"** to launch the 10-field State Scholarship Application.
+3. **Speak into the Mic**: Tap the glowing green microphone and speak naturally:
+   > *"मेरा नाम रमेश कुमार है"* *(My name is Ramesh Kumar)*
+4. **Listen and Confirm**: The assistant repeats back what it captured:
+   > *"मैंने समझा कि आपका नाम Ramesh Kumar है। क्या यह सही है?"*
+5. **Confirm or Correct**:
+   - Speak *"हाँ"* or click **✓ हाँ, सही है** to save the value and move to the next field.
+   - Speak *"नहीं"* or click **✗ नहीं, फिर बोलें** to immediately clear the candidate and re-speak.
+6. **Final Review & Submission**:
+   - Check the complete 10-field summary card.
+   - Accept the legal consent checkbox.
+   - Click **"अंतिम आवेदन जमा करें"** to submit and receive an official Application ID (`SV-SCH-2026-XXXX`).
 
 ---
 
-## 📁 Project Structure
+### 2. Using the Chrome Extension
 
-```
+1. Open any supported government scholarship or welfare webpage (or `extension/test-portal.html`).
+2. Open the Seva Vaani floating overlay.
+3. Speak your answers step by step. The assistant matches fields on the live webpage in real-time.
+4. Once you confirm each value, the extension safely auto-fills the corresponding input box on the page.
+
+---
+
+### 3. Useful Voice Commands
+
+You can speak these voice commands at any point during your conversation:
+
+| Voice Command (Hindi) | English Meaning | What the Assistant Does |
+|:---|:---|:---|
+| **"दोबारा सुनाओ"** | "Repeat that" | Repeats the current question aloud. |
+| **"धीरे बोलो"** | "Speak slowly" | Repeats the prompt at a slower pace (`0.70x` speed). |
+| **"उत्तर बदलना है"** | "Change my answer" | Erases the current field's candidate so you can re-speak. |
+| **"मदद चाहिए"** | "I need help" | Immediately triggers human operator ticket escalation. |
+
+---
+
+## 📂 Project Structure
+
+```text
 SevaVaani/
-├── backend/                        # FastAPI Backend Application
+├── backend/                       # Python FastAPI Backend
 │   ├── app/
-│   │   ├── api/                    # REST Endpoints
-│   │   │   ├── audio_chunks.py     # Audio chunk streaming & processing
-│   │   │   ├── auth.py             # User authentication & JWT
-│   │   │   ├── human_help.py       # Help desk ticketing system
-│   │   │   ├── sessions.py         # Session management & turns
-│   │   │   └── speech.py           # Speech processing & extraction
-│   │   ├── models/                 # SQLite ORM & Schemas
-│   │   │   └── database.py         # SQLite connection & WAL mode
-│   │   └── services/               # Deterministic Business Logic
-│   │       ├── confidence.py       # PRD §15 Confidence scoring & 3-trial limit
-│   │       ├── extractor.py        # Indic regex entity extractor
-│   │       ├── form_engine.py      # FSM turn manager & field progression
-│   │       ├── human_help.py       # Ticket generator & SLA tracker
-│   │       ├── name_pronunciation.py # Soundex & spelling breakdown
-│   │       ├── regional_lexicon.py # Multi-dialect normalizer (6 dialects)
-│   │       └── validator.py        # Strict business rule validations
-│   ├── tests/                      # Automated Test Suites (252 tests)
-│   │   ├── test_mandatory_cases.py # 15 PRD mandatory test cases (TC01-TC15)
-│   │   ├── test_human_help_integration.py # 3-trial limit & ticket tests
-│   │   ├── test_database_persistence.py # SQLite ACID & session tests
-│   │   └── test_extension_voice_flow.py # Browser extension integration tests
-│   └── requirements.txt            # Python dependencies
+│   │   ├── api/                   # REST API routes
+│   │   │   ├── audio_chunks.py    # Chunked voice stream endpoint
+│   │   │   ├── auth.py            # User authentication & token verification
+│   │   │   ├── human_help.py      # Help desk ticketing & escalation API
+│   │   │   ├── sessions.py        # Conversational session & turn state
+│   │   │   └── speech.py          # Speech recognition & field extractor
+│   │   ├── models/                # SQLite database models
+│   │   │   └── database.py        # SQLite connection, WAL mode & schema tables
+│   │   └── services/              # Business logic & Deterministic Engines
+│   │       ├── confidence.py      # Confidence scoring & 3-attempt limit
+│   │       ├── extractor.py       # Indic regex & entity extraction
+│   │       ├── form_engine.py     # State machine controlling form progression
+│   │       ├── human_help.py      # Operator ticket generator (TKT-XXXXXX)
+│   │       ├── name_pronunciation.py # Soundex & name spelling breakdown
+│   │       ├── regional_lexicon.py # Multi-dialect translation (6 dialects)
+│   │       └── validator.py       # Business validation rules (Aadhaar, income, dates)
+│   ├── tests/                     # Automated Test Suites (Pytest)
+│   │   ├── test_mandatory_cases.py# 15 Core PRD test cases (TC01 - TC15)
+│   │   ├── test_human_help_integration.py # 3-trial failover & ticket verification
+│   │   ├── test_database_persistence.py  # SQLite ACID transactions & session tests
+│   │   └── test_extension_voice_flow.py  # Chrome extension integration tests
+│   └── requirements.txt           # Python backend dependencies
 │
-├── frontend/                       # React + TypeScript + Vite PWA
+├── frontend/                      # React 18 + TypeScript + Vite Web App
 │   ├── src/
-│   │   ├── components/             # Reusable UI Components
-│   │   │   ├── ConfirmationCard.tsx# Explicit confirmation modal
-│   │   │   ├── FallbackPanel.tsx   # Text typing & help ticket fallback
-│   │   │   ├── VoiceButton.tsx     # Hero microphone with pulsing rings
-│   │   │   └── ProgressBar.tsx     # Step progression indicator
-│   │   ├── pages/                  # Page Views
-│   │   │   ├── ServiceForm.tsx     # Primary 10-field conversational form
-│   │   │   ├── Dashboard.tsx       # Citizen history & help ticket tracker
-│   │   │   └── JudgeDashboard.tsx  # Hackathon test suite runner & 2G throttler
-│   │   └── services/               # Client-Side Adapters
-│   │       ├── offlineStore.ts     # IndexedDB local storage
-│   │       └── ttsAdapter.ts       # Speech synthesis speed controller
-│   └── package.json                # Frontend dependencies
+│   │   ├── components/            # UI Components
+│   │   │   ├── ConfirmationCard.tsx  # Explicit confirmation card (Yes/No buttons)
+│   │   │   ├── FallbackPanel.tsx     # Accessible typing box & help ticket fallback
+│   │   │   ├── VoiceButton.tsx       # Glowing pulsating microphone button
+│   │   │   └── ProgressBar.tsx       # Step progression indicator
+│   │   ├── pages/                 # Main Application Screens
+│   │   │   ├── ServiceForm.tsx       # 10-field conversational form flow
+│   │   │   ├── Dashboard.tsx         # Citizen submission history & ticket tracker
+│   │   │   └── JudgeDashboard.tsx    # Live test runner & 2G network simulator
+│   │   └── services/              # Client services
+│   │       ├── offlineStore.ts       # IndexedDB offline store
+│   │       └── ttsAdapter.ts         # Speech synthesis & playback speed controller
+│   ├── package.json               # Frontend dependencies & scripts
+│   └── vite.config.ts             # Vite configuration with PWA plugin
 │
-├── extension/                      # Chrome Extension (Manifest V3)
-│   ├── assistant.html              # Dark glassmorphic assistant panel
-│   ├── assistant.css               # Modern 380px-optimized styling
-│   ├── assistant.js                # State machine & speech recognition loop
-│   ├── content.js                  # Sandboxed iframe injector
-│   ├── domMapper.js                # Portal input field highlighter & autofill
-│   ├── manifest.json               # Chrome Extension Manifest V3 configuration
-│   └── test-portal.html            # Synthetic government portal test fixture
+├── extension/                     # Chrome Extension (Manifest V3)
+│   ├── assistant.html             # Floating assistant UI
+│   ├── assistant.css              # Dark glassmorphic responsive stylesheet
+│   ├── assistant.js               # Extension state machine & voice controller
+│   ├── content.js                 # Sandboxed iframe injector & responsive dock
+│   ├── domMapper.js               # Portal input highlighter & safe DOM autofill
+│   ├── manifest.json              # Chrome Manifest V3 configuration
+│   └── test-portal.html           # Mock government scholarship form for testing
 │
-├── docs/                           # Official Architecture & Reports
-│   ├── SEVA_VAANI_ARCHITECTURE_AND_REPORT.pdf # 3-Page System Architecture Report
-│   ├── SEVA_VAANI_IMPLEMENTATION_AND_USER_GUIDE.pdf # User & Operations Manual
-│   ├── PRD.md                      # Product Requirements Document (SV-PRD-001)
-│   └── TRD.md                      # Technical Requirements Document (SV-TRD-001)
+├── docs/                          # Architecture Diagrams & User Guides
+│   ├── SEVA_VAANI_ARCHITECTURE_AND_REPORT.pdf # 3-Page System Architecture & Evaluation
+│   ├── SEVA_VAANI_IMPLEMENTATION_AND_USER_GUIDE.pdf # Operations manual & citizen guide
+│   ├── PRD.md                     # Product Requirements Document
+│   └── TRD.md                     # Technical Requirements Document
 │
-└── pytest.ini                      # Pytest configuration with pythonpath = backend
+└── pytest.ini                     # Pytest test runner configuration
 ```
 
 ---
 
-## 🔒 Security, Privacy & Compliance (DPDP Act)
+## ℹ️ Important Information
 
-1. **Digital Personal Data Protection (DPDP) Act 2023**:
-   - **Zero Raw Audio Storage**: Audio is processed ephemerally in browser RAM; no citizen voice recordings are stored or uploaded to third-party cloud servers.
-   - **Aadhaar Masking**: Aadhaar numbers are automatically masked to the last 4 digits (`XXXX-XXXX-1234`).
-   - **Informed Consent**: Explicit affirmative consent is recorded with an immutable timestamp in the SQLite turn audit trail.
+### Privacy & DPDP Act 2023 Compliance
 
-2. **Credential & Sensitive Field Isolation**:
-   - Passwords, OTPs, CAPTCHAs, and payment PINs are hardcoded into the DOM exclusion blacklist; the Chrome extension refuses to read or fill sensitive inputs.
+Seva Vaani was built from the ground up to respect Indian data privacy regulations under the **Digital Personal Data Protection (DPDP) Act 2023**:
 
-3. **Tamper-Proof Scoped Communication**:
-   - The extension iframe communicates with the parent webpage using `postMessage` restricted strictly to extension origins, eliminating cross-site scripting risks.
+1. **Zero Raw Audio Storage**: Spoken audio is converted into text directly in the browser's memory and immediately discarded. No voice recordings are stored on disk or sent to foreign servers.
+2. **Aadhaar Masking**: Aadhaar numbers are automatically masked (`XXXX-XXXX-1234`) on screens, in transit, and in SQLite storage.
+3. **Excluded Sensitive Fields**: Passwords, OTPs, CAPTCHAs, and payment PINs are blocked by our DOM safety filter—the assistant will never read, ask for, or autofill sensitive credentials.
+4. **Explicit Consent Trail**: Citizen consent is recorded with an unforgeable timestamp in the database before final submission.
 
 ---
 
-## 🧪 Test Suites & Benchmark Results
+### Testing & Quality Assurance
 
-### Running All Automated Tests
+We maintain a comprehensive suite of automated tests to guarantee reliability:
+
 ```bash
-# Run the complete 252-test test suite:
+# Run the complete test suite
 backend/venv/bin/pytest backend/tests -v --tb=short
 ```
 
-### Benchmark Summary
-
-| Benchmark Category | Target Requirement | Measured Result | Status |
-|---|---|---|---|
-| **Mandatory Test Cases** | 15 / 15 Test Cases | **15 / 15 Passed** | 🟢 100% |
-| **Complete Pytest Suite** | 100% Passing | **252 / 252 Passed** | 🟢 100% |
-| **API Turn Latency** | < 500 ms | **< 180 ms** | 🟢 Ultra-Fast |
-| **Web App Bundle Size** | < 100 KB | **< 45 KB (Gzipped)** | 🟢 Lightweight |
-| **Trial Limit Failover** | Auto-escalate at 3 trials | **Verified (`TKT-XXXXXX`)** | 🟢 Pass |
-| **Zero Auto-Submit Guarantee** | 100% Manual Consent | **Enforced in Code & Tests** | 🟢 Pass |
+- **Mandatory Test Cases**: 15 / 15 Passed (100%)
+- **Turn Latency**: Measured under 180 ms per turn.
+- **Trial Guard Verification**: Confirmed automatic escalation to `TKT-XXXXXX` on the 3rd failed attempt.
+- **Zero Auto-Submit Guarantee**: 100% of form submissions require explicit user confirmation.
+- **Responsive Testing**: Verified across 99 automated viewport checks (320px to 1920px).
 
 ---
 
-## 📚 Documentation & Deliverables
+### Helpful Documents & PDFs
 
-- 📄 **[Architecture Diagram & Technical Report (PDF)](docs/SEVA_VAANI_ARCHITECTURE_AND_REPORT.pdf)**: Complete 3-page system architecture, 5-layer pipeline diagram, component breakdown, and benchmark evaluation.
-- 📘 **[Implementation & User Guide (PDF)](docs/SEVA_VAANI_IMPLEMENTATION_AND_USER_GUIDE.pdf)**: Step-by-step citizen walkthrough, operator manual, and troubleshooting guide.
-- 📋 **[Product Requirements Document (PRD)](docs/PRD.md)**: Formal requirements specification (`SV-PRD-001`).
-- 📐 **[Technical Requirements Document (TRD)](docs/TRD.md)**: Technical architecture and API contracts (`SV-TRD-001`).
+The `docs/` folder contains comprehensive documentation for judges, developers, and operators:
+- 📄 **[System Architecture & Technical Report (PDF)](docs/SEVA_VAANI_ARCHITECTURE_AND_REPORT.pdf)**: Complete 3-page deep-dive with pipeline architecture diagrams, dialect matrix, and benchmark results.
+- 📘 **[Implementation & User Guide (PDF)](docs/SEVA_VAANI_IMPLEMENTATION_AND_USER_GUIDE.pdf)**: Operational guide and citizen walkthrough.
+- 📋 **[Product Requirements Document](docs/PRD.md)**: Product specifications and design philosophy.
+- 📐 **[Technical Requirements Document](docs/TRD.md)**: Backend APIs and data contracts.
 
 ---
 
-## 👥 Contributors & Credits
+## 👥 Authors & License
 
-- **Repository**: [Vivek-2004V/SevaVaani](https://github.com/Vivek-2004V/SevaVaani)
-- **Collaborator**: Siddhi Khatri (`SiddhiKhatri-09`)
-- **License**: MIT License — Open Source for Indian Public Good
+- **Project**: Seva Vaani (सेवा वाणी)
+- **Repository**: [https://github.com/Vivek-2004V/SevaVaani](https://github.com/Vivek-2004V/SevaVaani)
+- **Contributors**: Vivek (`Vivek-2004V`) & Siddhi Khatri (`SiddhiKhatri-09`)
+- **License**: [MIT License](LICENSE) — Open source for the Indian public good.
