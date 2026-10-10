@@ -41,8 +41,8 @@
 
     const iframe = document.createElement('iframe');
     iframe.src = chrome.runtime.getURL('assistant.html');
-    // microphone permission is scoped to this iframe only; not delegated to the host page.
-    iframe.setAttribute('allow', 'microphone; speaker-selection');
+    // microphone permission is scoped to this iframe; allows audio capture and speech synthesis
+    iframe.setAttribute('allow', 'microphone *; speaker-selection *; clipboard-write; autoplay');
     iframe.style.cssText = `
       width: 100%;
       height: 100%;
@@ -155,7 +155,9 @@
     const senderOrigin = event.origin;
     const iframeWindow = panelContainer ? panelContainer.querySelector('iframe')?.contentWindow : null;
     const isFromAssistantIframe = Boolean(event.source && iframeWindow && event.source === iframeWindow);
-    const isFromExtension = isFromAssistantIframe || (EXTENSION_ORIGIN && senderOrigin === EXTENSION_ORIGIN);
+    const isFromExtension = isFromAssistantIframe ||
+      (EXTENSION_ORIGIN && senderOrigin === EXTENSION_ORIGIN) ||
+      (typeof senderOrigin === 'string' && senderOrigin.startsWith('chrome-extension://'));
 
     // SEVA_VAANI_TOGGLE_PANEL or SEVA_VAANI_OPEN_EXTENSION:
     // Safe action: allows opening/closing from assistant iframe, host webpage button, or local demo portal.

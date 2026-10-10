@@ -1006,6 +1006,9 @@ function speakText(text, rate = currentSpeechRate) {
   if (!sanitized) return;
 
   try {
+    if ('speechSynthesis' in window && window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(sanitized);
     const targetLocale = getLocaleCode(currentLanguage);
@@ -1090,8 +1093,10 @@ authForm.addEventListener('submit', (e) => {
 });
 logoutBtn.addEventListener('click', handleLogout);
 
+let hasMicPermissionChecked = false;
+
 // Microphone listener - Only triggers permission when citizen clicks
-micBtn.addEventListener('click', () => {
+micBtn.addEventListener('click', async () => {
   if (isSpeaking) {
     window.speechSynthesis.cancel();
     isSpeaking = false;
@@ -1100,6 +1105,17 @@ micBtn.addEventListener('click', () => {
 
   if (isStarting || isProcessing) {
     return; // Guard against rapid clicks while starting or processing
+  }
+
+  // Explicitly prompt for mic permission via getUserMedia if not yet granted in extension
+  if (!hasMicPermissionChecked && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(t => t.stop());
+      hasMicPermissionChecked = true;
+    } catch (permErr) {
+      console.warn('[SEVA VAANI Extension] mic permission prompt notice:', permErr);
+    }
   }
 
   if (!recognition) recognition = setupRecognition();

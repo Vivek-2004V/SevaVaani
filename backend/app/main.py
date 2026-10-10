@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import os
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -93,6 +94,15 @@ app.include_router(feedback_router)
 app.include_router(guidance_router)
 app.include_router(audio_chunks_router)
 app.include_router(help_router)
+
+# Serve test portal fixture directly for browser extension testing
+@app.get("/portal", response_class=FileResponse)
+@app.get("/test-portal.html", response_class=FileResponse)
+async def serve_test_portal():
+    portal_path = os.path.join(settings.BASE_DIR, "extension", "test-portal.html")
+    if os.path.exists(portal_path):
+        return FileResponse(portal_path)
+    raise HTTPException(status_code=404, detail="Test portal not found")
 
 # Mount frontend directory for production or unified serving
 FRONTEND_DIST = os.path.join(settings.BASE_DIR, "frontend", "dist")
