@@ -21,17 +21,17 @@
 
     panelContainer = document.createElement('div');
     panelContainer.id = 'seva-vaani-overlay-host';
+    const isMobile = window.innerWidth <= 480;
     panelContainer.style.cssText = `
       position: fixed;
-      bottom: clamp(10px, 2.5vw, 24px);
-      right: clamp(10px, 2.5vw, 24px);
-      width: min(380px, calc(100vw - 20px));
-      height: min(600px, calc(100vh - 32px));
-      max-height: calc(100dvh - 20px);
+      bottom: clamp(8px, 2.5vw, 24px);
+      ${isMobile ? 'left: 8px; right: 8px; width: calc(100% - 16px);' : 'right: clamp(12px, 2.5vw, 24px); width: min(380px, calc(100vw - 24px));'}
+      height: min(600px, calc(100vh - 24px));
+      max-height: calc(100dvh - 16px);
       z-index: 2147483647;
       border-radius: 16px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
-      background: #ffffff;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      background: #080d1a;
       overflow: hidden;
       display: flex;
       flex-direction: column;
