@@ -45,6 +45,20 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     }
   }, [initialIndex, fields.length]);
 
+  // Formal Conversation State Machine:
+  // IDLE → ASKING_QUESTION → LISTENING → TRANSCRIBING → PROCESSING_ANSWER → SPEAKING_RESPONSE → WAITING_FOR_CONFIRMATION → NEXT_QUESTION
+  type ConversationState =
+    | 'IDLE'
+    | 'ASKING_QUESTION'
+    | 'LISTENING'
+    | 'TRANSCRIBING'
+    | 'PROCESSING_ANSWER'
+    | 'SPEAKING_RESPONSE'
+    | 'WAITING_FOR_CONFIRMATION'
+    | 'NEXT_QUESTION';
+
+  const [conversationState, setConversationState] = useState<ConversationState>('IDLE');
+
   // Voice Interaction state
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -68,7 +82,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   const MAX_VOICE_TRIALS = 3;
   const [voiceAttempts, setVoiceAttempts] = useState(0);
 
-  // ── Offline / Network ─────────────────────────────────────────────────────
+  // Offline / Network
   const networkStatus = useNetworkStatus();
   const { saveSession, enqueueSyncItem } = useOfflineStore();
   const { isSyncing, pendingCount } = useOfflineSyncRunner(networkStatus);
@@ -89,6 +103,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
   }, [networkStatus.isOffline]);
 
   const recognitionRef = useRef<any>(null);
+  const hasSpokenFieldRef = useRef<number | null>(null);
 
   const currentField = fields[currentIdx] || fields[0] || {
     id: 'full_name',
@@ -200,7 +215,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
       te: ['ఓబీసీ (OBC)', 'జనరల్', 'ఎస్సీ'],
       ta: ['ஓபிசி (OBC)', 'பொது', 'எஸ்சி'],
       gu: ['ઓબીસી (OBC)', 'જનરલ', 'એસસી'],
-      kn: ['ಒಬಿಸಿ (OBC)', 'ಜನರಲ್', 'ಎಸ್ಸಿ'],
+      kn: ['ಒಬಿಸಿ (OBC)', 'ಜನರಲ್', 'ఎస్సి'],
       ml: ['ഒബിസി (OBC)', 'ജനറൽ', 'എസ്സി'],
       pa: ['ਓਬੀਸੀ (OBC)', 'ਜਨਰਲ', 'ਐਸਸੀ'],
       or: ['ଓବିସି (OBC)', 'ଜେନେରାଲ', 'ଏସସି'],
@@ -234,13 +249,23 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     }
   };
 
-  // Browser Web Speech API setup
-  const startListening = () => {
+  const stopListening = useCallback(() => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.abort();
+      } catch {}
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+  }, []);
+
+  // Browser Web Speech API setup for capturing voice answers or voice confirmations
+  const startListening = useCallback((mode: 'answer' | 'confirmation' = 'answer') => {
     // Prevent mic and audio playback conflict
     ttsAdapter.stop();
     setIsSpeaking(false);
 
-    // Block voice when offline — STT uses cloud APIs (webkitSpeechRecognition → Google)
+    // Block voice when offline — Web Speech API uses Google cloud endpoint
     if (networkStatus.isOffline) {
       setVoiceError(
         language === 'mr'
@@ -273,6 +298,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
     if (!SpeechRecognition) {
       setIsListening(true);
+      setConversationState('LISTENING');
       setTimeout(() => {
         setIsListening(false);
         const samples = demoSamples[currentField.id]?.[language] || demoSamples[currentField.id]?.en || ['Sample answer'];
@@ -282,6 +308,10 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     }
 
     try {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch {}
+      }
+
       const recognition = new SpeechRecognition();
       recognitionRef.current = recognition;
       recognition.lang = speechLangMap[language] || 'hi-IN';
@@ -290,27 +320,76 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
       recognition.onstart = () => {
         setIsListening(true);
+        setConversationState(mode === 'confirmation' ? 'WAITING_FOR_CONFIRMATION' : 'LISTENING');
         setTranscript('');
       };
 
       recognition.onresult = (event: any) => {
-        const current = event.resultIndex;
-        const resultTranscript = event.results[current][0].transcript;
-        setTranscript(resultTranscript);
-        if (event.results[current].isFinal) {
+        let interimText = '';
+        let finalText = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const res = event.results[i];
+          if (res.isFinal) {
+            finalText += res[0].transcript;
+          } else {
+            interimText += res[0].transcript;
+          }
+        }
+
+        const currentText = (finalText || interimText).trim();
+        if (currentText) {
+          setTranscript(currentText);
+          setConversationState('TRANSCRIBING');
+        }
+
+        if (finalText.trim()) {
           recognition.stop();
-          handleUtterance(resultTranscript);
+          setIsListening(false);
+          const clean = finalText.trim();
+
+          if (mode === 'confirmation') {
+            // Voice confirmation resolution: affirmative vs rejection
+            const lower = clean.toLowerCase();
+            const isAffirmative = /^(हाँ|हां|सही|सही है|हाँ सही है|जी हाँ|होय|हो|बरोबर|बरोबर आहे|yes|yeah|correct|right)/i.test(lower);
+            const isNegative = /^(नहीं|ना|गलत|गलत है|नाही|चूक|no|nope|wrong)/i.test(lower);
+
+            if (isAffirmative) {
+              handleConfirm();
+            } else if (isNegative) {
+              handleRetry();
+            } else {
+              // Treated as an inline correction (e.g. "नहीं, मेरा नाम अमित है")
+              handleUtterance(clean);
+            }
+          } else {
+            handleUtterance(clean);
+          }
         }
       };
 
       recognition.onerror = (event: any) => {
-        console.warn('Speech recognition error:', event.error);
+        console.warn('[ServiceForm] Speech recognition notice:', event.error);
         setIsListening(false);
         if (event.error === 'not-allowed') {
-          setVoiceError('Microphone permission denied. Click below sample to test or type.');
+          setVoiceError(
+            language === 'mr'
+              ? 'मायक्रोफोन परवानगी नाकारली गेली. कृपया परवानगी द्या किंवा खाली टाइप करा.'
+              : language === 'en'
+              ? 'Microphone permission denied. Please allow microphone access or type.'
+              : 'माइक्रोफ़ोन की अनुमति अस्वीकृत हुई। कृपया अनुमति दें या नीचे टाइप करें।'
+          );
+          setConversationState('IDLE');
+        } else if (event.error === 'no-speech') {
+          setConversationState(mode === 'confirmation' ? 'WAITING_FOR_CONFIRMATION' : 'IDLE');
         } else {
-          setVoiceError('आवाज़ साफ़ सुनाई नहीं दी. कृपया दोबारा बोलें.');
+          setVoiceError(
+            language === 'mr'
+              ? 'आवाज स्पष्ट ऐकू आला नाही. कृपया पुन्हा बोला.'
+              : 'आवाज़ साफ़ सुनाई नहीं दी. कृपया दोबारा बोलें.'
+          );
           setShowFallback(true);
+          setConversationState('IDLE');
         }
       };
 
@@ -320,56 +399,78 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
       recognition.start();
     } catch (err) {
-      console.error(err);
+      console.warn('[ServiceForm] Speech recognition start exception:', err);
       setIsListening(false);
       setShowFallback(true);
+      setConversationState('IDLE');
     }
-  };
+  }, [currentField.id, language, networkStatus.isOffline]);
 
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-    }
-    setIsListening(false);
-  };
-
-  // Replay question audio at normal (0.92x) or slow (0.70x) speed
-  const handleRepeatAudio = (slow: boolean = false) => {
+  // Speaks the current question and then automatically transitions to listening
+  const askCurrentQuestion = useCallback((slow: boolean = false) => {
+    ttsAdapter.stop();
     stopListening();
     const promptText = currentField.prompt[language] || currentField.prompt.hi || currentField.prompt.en;
     if (!promptText) return;
 
-    ttsAdapter.setRate(slow ? 0.70 : 0.92);
+    setConversationState('ASKING_QUESTION');
     setIsSpeaking(true);
+    setVoiceError(null);
+    ttsAdapter.setRate(slow ? 0.70 : 0.92);
+
     ttsAdapter.speak(
       promptText,
       language,
-      () => setIsSpeaking(true),
       () => {
-        setIsSpeaking(false);
-        ttsAdapter.setRate(0.92);
+        setIsSpeaking(true);
+        setConversationState('ASKING_QUESTION');
       },
       () => {
         setIsSpeaking(false);
         ttsAdapter.setRate(0.92);
+        // Automatically activate listening once the assistant finishes speaking
+        setConversationState('LISTENING');
+        startListening('answer');
+      },
+      () => {
+        setIsSpeaking(false);
+        ttsAdapter.setRate(0.92);
+        setConversationState('LISTENING');
+        startListening('answer');
       }
     );
+  }, [currentField, language, startListening, stopListening]);
+
+  // Replay question audio on demand
+  const handleRepeatAudio = (slow: boolean = false) => {
+    askCurrentQuestion(slow);
   };
 
-  // Automatically halt speech on step progression or unmount
+  // Life-cycle effect: On step mount or index transition, speak the new question and start listening
   useEffect(() => {
-    ttsAdapter.stop();
-    setIsSpeaking(false);
+    if (hasSpokenFieldRef.current !== currentIdx) {
+      hasSpokenFieldRef.current = currentIdx;
+      const timer = setTimeout(() => {
+        askCurrentQuestion(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [currentIdx, askCurrentQuestion]);
+
+  // Unmount cleanup: halt audio and mic
+  useEffect(() => {
     return () => {
       ttsAdapter.stop();
+      stopListening();
     };
-  }, [currentIdx]);
+  }, [stopListening]);
 
   // Send speech utterance to backend NLU / Extractor
   const handleUtterance = async (utteranceText: string) => {
     if (!utteranceText.trim()) return;
     setIsProcessing(true);
     setVoiceError(null);
+    setConversationState('PROCESSING_ANSWER');
 
     try {
       const response: AssistTurnResponse = await processVoiceTurn(
@@ -381,7 +482,6 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
       setIsProcessing(false);
 
-      // Track trial count from backend metadata if available
       const respData = response as any;
       if (typeof respData.attempts === 'number') {
         setVoiceAttempts(respData.attempts);
@@ -391,26 +491,84 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
       if (response.decision === 'confirm' && response.candidate_value) {
         setPendingValue(response.candidate_value);
-        setPendingMessage(response.assistant_message);
+        const confirmMsg = response.assistant_message || (
+          language === 'mr'
+            ? `काय आपले ${currentField.label.mr || currentField.label.en}: '${response.candidate_value}' बरोबर आहे का?`
+            : `मैंने समझा कि आपका ${currentField.label.hi || currentField.label.en} '${response.candidate_value}' है। क्या यह सही है?`
+        );
+        setPendingMessage(confirmMsg);
         setShowConfirmation(true);
         setShowFallback(false);
-        setVoiceAttempts(0); // reset on successful confirm
+        setVoiceAttempts(0);
+
+        // Transition: SPEAKING_RESPONSE (speaks the confirmation question)
+        setConversationState('SPEAKING_RESPONSE');
+        setIsSpeaking(true);
+
+        ttsAdapter.speak(
+          confirmMsg,
+          language,
+          () => {
+            setIsSpeaking(true);
+            setConversationState('SPEAKING_RESPONSE');
+          },
+          () => {
+            setIsSpeaking(false);
+            // Transition: WAITING_FOR_CONFIRMATION (re-opens mic for "हाँ" / "नहीं")
+            setConversationState('WAITING_FOR_CONFIRMATION');
+            startListening('confirmation');
+          },
+          () => {
+            setIsSpeaking(false);
+            setConversationState('WAITING_FOR_CONFIRMATION');
+            startListening('confirmation');
+          }
+        );
       } else if (response.decision === 'retry') {
-        setVoiceError('मान्य उत्तर नहीं मिला (Uncertain value). कृपया स्पष्ट बोलें.');
-        setShowFallback(true);
+        const retryMsg = language === 'mr'
+          ? 'मला उत्तर स्पष्ट समजले नाही. कृपया पुन्हा सांगा.'
+          : 'मान्य उत्तर नहीं मिला। कृपया दोबारा बोलें।';
+        setVoiceError(retryMsg);
+        setConversationState('SPEAKING_RESPONSE');
+        setIsSpeaking(true);
+
+        ttsAdapter.speak(
+          retryMsg,
+          language,
+          () => setIsSpeaking(true),
+          () => {
+            setIsSpeaking(false);
+            setConversationState('LISTENING');
+            startListening('answer');
+          },
+          () => {
+            setIsSpeaking(false);
+            setConversationState('LISTENING');
+            startListening('answer');
+          }
+        );
       } else {
         setShowFallback(true);
+        setConversationState('IDLE');
       }
     } catch (err) {
       setIsProcessing(false);
-      setVoiceError('Network timeout or parsing error. Data preserved.');
+      setVoiceError(
+        language === 'mr'
+          ? 'नेटवर्क किंवा प्रोसेसिंग त्रुटी. माहिती सुरक्षित आहे.'
+          : 'नेटवर्क अथवा प्रोसेसिंग त्रुटि। विवरण सुरक्षित है।'
+      );
       setShowFallback(true);
+      setConversationState('IDLE');
     }
   };
 
   // Confirm gate (Explicit confirmation!)
   const handleConfirm = async () => {
     if (!pendingValue) return;
+
+    ttsAdapter.stop();
+    stopListening();
 
     const updated = [...fields];
     updated[currentIdx] = {
@@ -420,11 +578,11 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     };
     setFields(updated);
 
-    // ── Persist to IndexedDB immediately (offline-safe) ───────────────────
+    // Persist to IndexedDB immediately (offline-safe)
     const nextIdx = currentIdx + 1;
     await saveSession(sessionId, 'scholarship_post_matric', language, nextIdx, updated);
 
-    // ── Sync to backend: queue if offline, call directly if online ────────
+    // Sync to backend
     if (networkStatus.isOffline) {
       await enqueueSyncItem({
         sessionId,
@@ -432,9 +590,8 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
         payload: { sessionId, fieldId: currentField.id, confirmed: true, candidateValue: pendingValue },
       });
     } else {
-      // Fire-and-forget — answer is already saved locally
       confirmField(sessionId, currentField.id, true, pendingValue).catch(
-        (err) => console.warn('[ServiceForm] confirmField backend error (non-critical):', err)
+        (err) => console.warn('[ServiceForm] confirmField backend notice:', err)
       );
     }
 
@@ -443,41 +600,102 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     setTranscript('');
     setShowFallback(false);
     setHelpTicketId(null);
-    setVoiceAttempts(0); // reset on field advance
+    setVoiceAttempts(0);
 
     if (currentIdx + 1 < fields.length) {
+      // Transition: NEXT_QUESTION -> triggers step advance and next question audio
+      setConversationState('NEXT_QUESTION');
       setCurrentIdx(nextIdx);
     } else {
+      setConversationState('IDLE');
       onCompleteForm(updated);
     }
   };
 
   const handleChange = () => {
+    ttsAdapter.stop();
+    stopListening();
     setShowConfirmation(false);
     setPendingValue(null);
     setShowFallback(true);
+    setConversationState('IDLE');
   };
 
   const handleRetry = () => {
+    ttsAdapter.stop();
+    stopListening();
     setShowConfirmation(false);
     setPendingValue(null);
     setTranscript('');
     setShowFallback(false);
-    startListening();
+    askCurrentQuestion(false);
   };
 
   const handleFallbackText = async (text: string) => {
+    ttsAdapter.stop();
+    stopListening();
     setIsProcessing(true);
-    const res = await submitFallbackText(sessionId, currentField.id, text);
-    setIsProcessing(false);
-    setPendingValue(res.candidate_value || text);
-    setPendingMessage(`क्या "${res.candidate_value || text}" सही है?`);
-    setShowConfirmation(true);
-    setShowFallback(false);
+    setConversationState('PROCESSING_ANSWER');
+
+    try {
+      const res = await submitFallbackText(sessionId, currentField.id, text);
+      setIsProcessing(false);
+      const val = res.candidate_value || text;
+      setPendingValue(val);
+      const confMsg = language === 'mr'
+        ? `काय '${val}' बरोबर आहे का?`
+        : `क्या "${val}" सही है?`;
+      setPendingMessage(confMsg);
+      setShowConfirmation(true);
+      setShowFallback(false);
+
+      setConversationState('SPEAKING_RESPONSE');
+      setIsSpeaking(true);
+      ttsAdapter.speak(
+        confMsg,
+        language,
+        () => setIsSpeaking(true),
+        () => {
+          setIsSpeaking(false);
+          setConversationState('WAITING_FOR_CONFIRMATION');
+          startListening('confirmation');
+        },
+        () => {
+          setIsSpeaking(false);
+          setConversationState('WAITING_FOR_CONFIRMATION');
+          startListening('confirmation');
+        }
+      );
+    } catch {
+      setIsProcessing(false);
+      setConversationState('IDLE');
+    }
   };
 
   const handleRequestHelp = async () => {
+    ttsAdapter.stop();
+    stopListening();
     setShowHumanHelpModal(true);
+  };
+
+  const getAssistantVisualState = () => {
+    switch (conversationState) {
+      case 'ASKING_QUESTION':
+      case 'SPEAKING_RESPONSE':
+        return 'speaking';
+      case 'LISTENING':
+        return 'listening';
+      case 'TRANSCRIBING':
+        return 'transcript_available';
+      case 'PROCESSING_ANSWER':
+        return 'processing';
+      case 'WAITING_FOR_CONFIRMATION':
+        return 'confirmation_required';
+      case 'NEXT_QUESTION':
+        return 'answer_confirmed';
+      default:
+        return 'ready';
+    }
   };
 
   const currentLangObj = INDIAN_LANGUAGES.find(l => l.id === language) || INDIAN_LANGUAGES[0];
@@ -657,16 +875,28 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
 
         {/* Explicit Confirmation Card */}
         {showConfirmation && pendingValue && (
-          <ConfirmationCard
-            fieldName={currentField.id}
-            fieldLabel={currentField.label[language] || currentField.label.hi || currentField.label.en}
-            candidateValue={pendingValue}
-            confirmMessage={pendingMessage || undefined}
-            language={language}
-            onConfirm={handleConfirm}
-            onChange={handleChange}
-            onRetry={handleRetry}
-          />
+          <div className="space-y-2">
+            <ConfirmationCard
+              fieldName={currentField.id}
+              fieldLabel={currentField.label[language] || currentField.label.hi || currentField.label.en}
+              candidateValue={pendingValue}
+              confirmMessage={pendingMessage || undefined}
+              language={language}
+              onConfirm={handleConfirm}
+              onChange={handleChange}
+              onRetry={handleRetry}
+            />
+            {conversationState === 'WAITING_FOR_CONFIRMATION' && (
+              <div className="flex items-center justify-center gap-2 p-2 bg-emerald-950/80 border border-emerald-500/40 rounded-2xl text-xs text-emerald-200 backdrop-blur-md">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                <span className="font-semibold">
+                  {language === 'mr'
+                    ? '🎙️ आवाज ऐकतोय: "होय" (पुष्टी) किंवा "नाही" (रद्द) बोला'
+                    : '🎙️ माइक चालू है: "हाँ" (पुष्टि) अथवा "नहीं" (रद्द) बोलें'}
+                </span>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Fallback Panel (When uncertain, retry or type) */}
@@ -675,7 +905,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
             fieldName={currentField.id}
             fieldLabel={currentField.label[language] || currentField.label.hi || currentField.label.en}
             language={language}
-            onRetryVoice={startListening}
+            onRetryVoice={() => startListening('answer')}
             onSubmitText={handleFallbackText}
             onRequestHelp={handleRequestHelp}
             helpTicketId={helpTicketId}
@@ -689,8 +919,9 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
             isListening={isListening}
             isProcessing={isProcessing}
             isSpeaking={isSpeaking}
+            assistantState={getAssistantVisualState()}
             error={voiceError}
-            onStartListening={startListening}
+            onStartListening={() => startListening('answer')}
             onStopListening={stopListening}
             onRepeatAudio={() => handleRepeatAudio(false)}
             onSlowRepeatAudio={() => handleRepeatAudio(true)}

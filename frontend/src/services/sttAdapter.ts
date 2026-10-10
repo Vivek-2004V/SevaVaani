@@ -49,6 +49,10 @@ export class BrowserSTTAdapter {
     this.recognition.maxAlternatives = 1;
   }
 
+  public getIsListening(): boolean {
+    return this.isListening;
+  }
+
   public start(lang: SupportedLanguage, callbacks: STTEventCallbacks) {
     this.callbacks = callbacks;
     this.currentLanguage = lang;

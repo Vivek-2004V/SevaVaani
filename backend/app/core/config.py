@@ -88,7 +88,7 @@ class Settings:
 
     # Ollama Local Configuration
     OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
-    OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "qwen3:4b")
+    OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
     OLLAMA_TIMEOUT_SEC: float = float(os.getenv("OLLAMA_TIMEOUT_SEC", "5.0"))
 
     BHASHINI_API_KEY: str = os.getenv("BHASHINI_API_KEY", "")
