@@ -5,8 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23ffffff'/%3E%3Cpath d='M25 26 L73 26 M61 26 L61 76 M43 49 L61 49 M44 26 C27 26 23 38 23 48 C23 60 35 66 41 74' stroke='%231e3a8a' stroke-width='6' stroke-linecap='round' fill='none'/%3E%3Cpath d='M61 26 C66 14 81 12 87 25 C85 36 73 34 61 26 Z' fill='%2316a34a'/%3E%3Cpath d='M17 38 A14 14 0 0 0 17 58' stroke='%23ea580c' stroke-width='4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SEVA VAANI — Multilingual Voice Public Service Assistant</title>
-    <meta name="description" content="SEVA VAANI enables citizens to complete public digital services using natural voice in Hindi and Marathi with deterministic verification and zero guessing." />
     <meta name="theme-color" content="#0f172a" />
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          for (var i = 0; i < regs.length; i++) regs[i].unregister();
+        });
+      }
+      if (window.location.pathname.includes('offline')) {
+        window.location.replace('/');
+      }
+    </script>
 
     <!-- PWA Manifest & Icons -->
     <link rel="manifest" href="/manifest.webmanifest" />

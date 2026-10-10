@@ -441,8 +441,7 @@ export const App: React.FC = () => {
         )}
       </div>
 
-      {/* Global PWA components — rendered outside the main scroll container */}
-      <OfflineIndicator />
+      {/* Global PWA components */}
       <PWAInstallPrompt />
     </div>
   );
